@@ -1,0 +1,16 @@
+*/*.csv
+*.csv
+*.pem
+
+__pycache__
+
+.idea
+
+.__old_git_repo
+
+data_processing/raw_data
+data_processing/processed_data
+data_processing/candidate_data
+data_processing/table_exports
+
+retired_code

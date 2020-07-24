@@ -1,0 +1,177 @@
+<!DOCTYPE HTML>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+
+    <!-- Primary Meta Tags -->
+    <title>Template Scroller Project</title>
+    <meta name="title" content="">
+    <meta name="description" content="">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="">
+    <meta property="og:title" content="">
+    <meta property="og:description" content="">
+    <meta property="og:image" content="">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="">
+    <meta property="twitter:title" content="">
+    <meta property="twitter:description" content="">
+    <meta property="twitter:image" content="">
+
+    <link rel="icon" href='/static/images/favicon.png'>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+    <!-- jQuery UI CSS -->
+    <script src="/static/bower_components/jquery/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="/static/css/jquery-ui.min.css">
+    <link rel="stylesheet" href="/static/css/jquery-ui.structure.min.css">
+    <link rel="stylesheet" href="/static/css/jquery-ui.theme.min.css">
+    <link rel="stylesheet" href="/static/css/d3-tip.css">
+    <link rel="stylesheet" href="/static/css/source-code-pro.css">
+    <link rel="stylesheet" href="/static/bower_components/chosen/chosen.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="static/css/style.css">
+
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/1e59e4c612.js" crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+
+    <!-- Annotations -->
+    <div id="sections">
+        <div class="mobile-spacer"></div>
+        <section class="step phantom">
+            <div class="title"></div>
+            <div class="body" style="height: 350px;"></div>
+        </section>
+        <div class="mobile-spacer"></div>
+        <section class="step" id="first-annotation">
+            <div class="title"></div>
+            <div class="body"></div>
+        </section>
+        <div class="mobile-spacer" id="first-spacer"></div>
+        <section class="step">
+            <div class="title"></div>
+            <div class="body"></div>
+        </section>
+        <div class="mobile-spacer"></div>
+        <section class="step phantom">
+            <div class="title"></div>
+            <div class="body"></div>
+        </section>
+
+    </div>
+
+    <!-- Bootstrap grid setup -->
+
+    <!-- Load Wheel -->
+    <div class="loadring-container" style="text-align: center">
+        <div class="lds-ring" style="margin-top: 30vh;"><div></div><div></div><div></div><div></div></div>
+    </div>
+
+    <!-- Intro Text Wrapper/Tile -->
+    <div class="tile-wrapper" id="intro-wrapper" style="visibility: hidden">
+    <div class="container viz-tile" id="intro-tile">
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-10" id="intro-area" style="text-align:left;">
+                </div>
+            </div>
+            <div class="col-md-1"></div>
+        </div>
+    </div>
+        <div class="downArrow bounce">
+            <img width="40" height="40" alt="" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDMyIDMyIiBoZWlnaHQ9IjMycHgiIGlkPSLQodC70L7QuV8xIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMycHgiIHhtbDpzcGFjZT0icHJlc2VydmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPjxwYXRoIGQ9Ik0yNC4yODUsMTEuMjg0TDE2LDE5LjU3MWwtOC4yODUtOC4yODhjLTAuMzk1LTAuMzk1LTEuMDM0LTAuMzk1LTEuNDI5LDAgIGMtMC4zOTQsMC4zOTUtMC4zOTQsMS4wMzUsMCwxLjQzbDguOTk5LDkuMDAybDAsMGwwLDBjMC4zOTQsMC4zOTUsMS4wMzQsMC4zOTUsMS40MjgsMGw4Ljk5OS05LjAwMiAgYzAuMzk0LTAuMzk1LDAuMzk0LTEuMDM2LDAtMS40MzFDMjUuMzE5LDEwLjg4OSwyNC42NzksMTAuODg5LDI0LjI4NSwxMS4yODR6IiBmaWxsPSIjMTIxMzEzIiBpZD0iRXhwYW5kX01vcmUiLz48Zy8+PGcvPjxnLz48Zy8+PGcvPjxnLz48L3N2Zz4=" />
+        </div>
+    </div>
+
+    <!-- First Wrapper/Tile -->
+    <div class="tile-wrapper" id="nodelink-wrapper">
+    <div class="container viz-tile" id="nodelink-tile">
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-10 viz-area">
+                <div class="row" id="nodelink-area"></div>
+            </div>
+            <div class="col-md-1"></div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Second Viz Wrapper/Tile -->
+    <div class="tile-wrapper" id="flowchart-wrapper">
+    <div class="container viz-tile" id="flowchart-tile">
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-11 col-sm-12" id="chart-area" style="width:100%; margin-top: -52px;"></div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Conclusion Text  -->
+    <div class="container">
+        <div class="col-md-1"></div>
+        <div class="col-md-10" id="end-text-block">
+            <p></p>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <!-- Footer  -->
+    <div class="container footer" style="text-align:justify; max-width: 950px; z-index: 200;">
+            <div class="col-md-1"></div>
+            <div class="col-md-10">
+                <hr>
+                <br>
+                <p>Visualization by Sam Learner | <a href="mailto:learnersd@gmail.com"><img class="icon-img" src="/static/images/email.svg"></a> | <a href="https://twitter.com/sam_learner"><img class="icon-img" src="/static/images/twitter.svg"></a> | <a href="https://github.com/sdl60660"><img class="icon-img" src="/static/images/github.png"></a></p>
+                <!-- Github repo link <p>Code and data for this project lives <a href="">here</a>.</p> -->
+                
+                <p><strong>Further Reading</strong></p>
+                <ul style="margin-left:-20px;">
+                    <li><a href=""></a></li>
+                    <li><a href=""></a></li>
+                    <li><a href=""></a></li>
+                </ul>
+                <p>
+                    <!-- Sources/Notes/Etc -->
+                </p>
+                <!-- <p>Last Updated: July 2020</p> -->
+
+            </div>
+            <div class="col-md-1"></div>
+    </div>
+
+
+
+    <!-- External JS Libraries -->
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/bower_components/jquery-ui/jquery-ui.min.js"></script>
+    <script src="/static/bower_components/chosen/chosen.jquery.min.js"></script>
+    <script src="/static/js/d3.min.js"></script>
+    <script src="/static/js/d3-tip.js"></script>
+    <script src="/static/js/scroller.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+
+    <!-- Custom JS -->
+    <script src="/static/js/utils.js"></script>
+    <script src="/static/js/nodelink.js"></script>
+
+    <script src="/static/js/main.js"></script>
+
+</body>
+</html>
+
+
+
+
+
