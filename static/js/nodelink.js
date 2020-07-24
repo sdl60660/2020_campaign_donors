@@ -10,7 +10,7 @@ NodeLink = function(_parentElement) {
 NodeLink.prototype.initVis = function() {
     const vis = this;
 
-    vis.numOuterNodes = 10;
+    vis.numOuterNodes = 20;
     overlapNodes = overlapNodes.slice(0,vis.numOuterNodes+1);
     const centerNodeId = overlapNodes[Math.round(getRandomArbitrary(0, vis.numOuterNodes))].id;
 
@@ -18,7 +18,8 @@ NodeLink.prototype.initVis = function() {
     let selectedOverlapLinks = overlapLinks.filter((d) =>
         includedCandidates.includes(d.source)
         && includedCandidates.includes(d.target)
-        && (d.target === centerNodeId || d.source === centerNodeId));
+        // && (d.target === centerNodeId || d.source === centerNodeId));
+        && (d.source === centerNodeId));
 
     selectedOverlapLinks.forEach(function(d) {
         d.direction = d.source === centerNodeId ?
@@ -28,12 +29,20 @@ NodeLink.prototype.initVis = function() {
 
     console.log(selectedOverlapLinks);
 
+
     vis.width = 800;
     vis.height = 800;
 
     vis.svg = d3.select(vis.parentElement)
         .append("svg")
         .attr("viewBox", [0, 0, vis.width, vis.height]);
+
+    vis.tip = d3.tip()
+        .attr("class", "d3-tip")
+        .html(function(d) {
+            return d.display_name;
+        });
+    vis.svg.call(vis.tip);
 
     const types = ["outbound", "inbound"];
     vis.pathColor = d3.scaleOrdinal()
@@ -46,8 +55,9 @@ NodeLink.prototype.initVis = function() {
             .attr("viewBox", "0 -5 10 10")
             .attr("refX", 15)
             .attr("refY", -0.5)
-            .attr("markerWidth", 3)
-            .attr("markerHeight", 3)
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
+            .attr("markerUnits", "userSpaceOnUse")
             .attr("orient", "auto")
         .append("path")
             .attr("fill", vis.pathColor)
@@ -55,26 +65,36 @@ NodeLink.prototype.initVis = function() {
 
     vis.circleRadius = d3.scaleLog()
         .domain(d3.extent(overlapNodes, (d) => d.total_donors))
-        .range([10, 35]);
+        .range([10, 40]);
 
     vis.lineWidth = d3.scaleLog()
         .domain(d3.extent(selectedOverlapLinks, (d) => d.pct_val))
         .range([1,20]);
 
     const simulation = d3.forceSimulation(overlapNodes)
-        .force("link", d3.forceLink(selectedOverlapLinks).id(d => d.id).distance(250))
-        .force("charge", d3.forceManyBody().strength(-200))
+        .force("link", d3.forceLink(selectedOverlapLinks).id(d => d.id).distance(300))
+        .force("charge", d3.forceManyBody().strength(-500))
         .force("center", d3.forceCenter(vis.width / 2, vis.height / 2));
 
-    const link = vis.svg.append("g")
+    const straightLink = vis.svg.append("g")
         .attr("fill", "none")
         .attr("stroke-opacity", 0.6)
-        .selectAll("path")
+        .selectAll("line")
             .data(selectedOverlapLinks)
-            .join("path")
+            .join("line")
             .attr("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
-            .attr("stroke-width", (d) => vis.lineWidth(d.pct_val))
-            // .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`);
+            // .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`)
+            .attr("stroke-width", (d) => vis.lineWidth(d.pct_val));
+
+    // const curvedLink = vis.svg.append("g")
+    //     .attr("fill", "none")
+    //     .attr("stroke-opacity", 0.6)
+    //     .selectAll("path")
+    //         .data(selectedOverlapLinks)
+    //         .join("path")
+    //         .attr("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
+    //         .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`)
+    //         .attr("stroke-width", (d) => vis.lineWidth(d.pct_val));
 
     const node = vis.svg.append("g")
         .attr("stroke", "#fff")
@@ -94,24 +114,26 @@ NodeLink.prototype.initVis = function() {
             .attr("fill", function(d) {
                 return d.id === centerNodeId ? "red" : "gray";
             })
+            .on("mouseover", vis.tip.show)
+            .on("mouseout", vis.tip.hide)
             // .classed("fixed", d => d.fixed = true)
             .call(drag(simulation));
             // .call((d) => d.id !== centerNodeId ? drag(simulation) : null);
 
 
     simulation.on("tick", () => {
-        // link
-        //     .attr("x1", d => d.source.x)
-        //     .attr("y1", d => d.source.y)
-        //     .attr("x2", d => d.target.x)
-        //     .attr("y2", d => d.target.y)
-        //     .attr('transform', function(d) {
-        //         let translationVal = d.source.id === centerNodeId ? 4 : -4;
-        //         const translation = vis.calcTranslationApproximate(translationVal, d.source, d.target);
-        //         return `translate (${translation.dx}, ${translation.dy})`;
-        //     });
+        straightLink
+            .attr("x1", d => d.source.x)
+            .attr("y1", d => d.source.y)
+            .attr("x2", d => d.target.x)
+            .attr("y2", d => d.target.y)
+            // .attr('transform', function(d) {
+            //     let translationVal = d.source.id === centerNodeId ? 4 : -4;
+            //     const translation = vis.calcTranslationApproximate(translationVal, d.source, d.target);
+            //     return `translate (${translation.dx}, ${translation.dy})`;
+            // });
 
-        link.attr("d", linkArc);
+        // curvedLink.attr("d", linkArc);
 
         node
             .attr("cx", d => d.x)
