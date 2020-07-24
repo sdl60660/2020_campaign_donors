@@ -6,12 +6,14 @@ function addDays(date, days) {
   return result;
 }
 
+
 // Used on flowchart/timeline for adding months to a given date and returning a new Date object
 function addMonths(date, months) {
 	returnDate = new Date(date.getTime());
 	returnDate.setMonth(date.getMonth() + months);
 	return returnDate;
 }
+
 
 // Used on flowchart/timeline for getting the difference, in months, between two dates
 function monthDiff(d1, d2) {
@@ -22,17 +24,33 @@ function monthDiff(d1, d2) {
     return months;
 }
 
+
 // Used on flowchart highlight tile for getting a random int within a range
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
 }
+
 
 // Used for explicit wait before functions
 const sleep = (milliseconds) => {
   return new Promise(resolve => setTimeout(resolve, milliseconds))
 }
 
+
 // Used for setting/getting the corresponding element class/id for an outcome value with a space in it
 function formatSpacedStrings(str) {
     return str.replace(/ /g, '-').replace(/\//g, '-');
+}
+
+
+function circlePlotCoordinates(radius, center, numItems) {
+    let output = [];
+    for(let i = 0; i < numItems; i++) {
+        let x = center[0] + radius * Math.cos(2 * Math.PI * i / numItems);
+        let y = center[1] + radius * Math.sin(2 * Math.PI * i / numItems);
+
+        output.push([x,y]);
+    }
+
+    return output;
 }
