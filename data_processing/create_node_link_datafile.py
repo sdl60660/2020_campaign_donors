@@ -1,5 +1,6 @@
 import json
 import pandas as pd
+import math
 
 
 # Minimum number of donors for inclusion in node-link candidate overlap diagram
@@ -19,14 +20,25 @@ candidate_set = filtered_df.groupby(['primary_candidate', 'primary_candidate_fec
 # Read in the candidate table from the postgres database
 candidate_df = pd.read_csv('table_exports/candidates.csv')
 # Find all candidates who are dems running for a 2020 office
-all_2020_dems = candidate_df.loc[(candidate_df['party'] == 'DEM') & (candidate_df['year'] == 2020)]
+all_2020_candidates = candidate_df.loc[candidate_df['year'] == 2020]
+# print(all_2020_candidates)
 # Filter the candidate set to only include these 2020 dems, since we don't have small donor info on republicans
-candidate_set = list(filter(lambda x: all_2020_dems['fec_id'].isin([x[1]]).any(), candidate_set))
+candidate_set = list(filter(lambda x: all_2020_candidates['fec_id'].isin([x[1]]).any(), candidate_set))
 candidate_set_names = [x[0] for x in candidate_set]
 
 # Create nodes using the FEC ID as their id, but also including a display name and a total number of donors for the size of their bubble
-nodes = [{'id': x[1], 'display_name': x[0], 'total_donors': x[2]} for x in candidate_set]
-# print(nodes)
+nodes = []
+for candidate in candidate_set:
+    node = {'id': candidate[1], 'display_name': candidate[0], 'total_donors': candidate[2]}
+    for col in ['party', 'race_type', 'first_name', 'last_name', 'incumbent']:
+        col_value = all_2020_candidates.loc[all_2020_candidates['fec_id'] == candidate[1]][col].values[0]
+
+        # There's at least one NaN values passed through from the database
+        if type(col_value) == float and math.isnan(col_value):
+            col_value = ""
+        node[col] = col_value
+
+    nodes.append(node)
 
 # Create an empty list to store link values
 links = []

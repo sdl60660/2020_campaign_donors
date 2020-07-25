@@ -11,8 +11,6 @@ def insert_chunk(chunk):
         db.run_query(query, cur)
         return
 
-
-
 value_ordering = '(first_name, last_name, zipcode, state, city, employer, occupation, donor_key, zip_extension)'
 
 CHUNK_LENGTH = 20000

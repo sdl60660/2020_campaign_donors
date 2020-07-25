@@ -54,7 +54,12 @@ NodeLink.prototype.initVis = function() {
 
     vis.lineWidth = d3.scaleLog()
         .domain(d3.extent(overlapLinks, (d) => d.pct_val))
-        .range([2,18]);
+        .range([2,5]);
+
+    vis.partyColor = d3.scaleOrdinal()
+        .domain(['DEM', 'REP', 'LIB', 'GRE', 'IND'])
+        .range(["#0015BC", "#E9141D", "#FED105", "#508C1B", "gray"])
+        .unknown("gray");
 
     vis.straightLink = vis.svg.append("g")
         .attr("fill", "none")
@@ -74,7 +79,7 @@ NodeLink.prototype.initVis = function() {
 NodeLink.prototype.wrangleData = function() {
     const vis = this;
 
-    // vis.centerNodeId = "P60007168";
+    // vis.centerNodeId = "S0AK00196";
     vis.centerNodeId = overlapNodes[Math.round(getRandomArbitrary(0, 100))].id;
     vis.numOuterNodes = 15;
 
@@ -144,7 +149,8 @@ NodeLink.prototype.updateVis = function() {
     vis.straightLink = vis.straightLink
         .data(vis.selectedOverlapLinks, (d) => [d.source, d.target])
         .join("line")
-        .attr("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
+        // .attr("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
+        .attr("stroke", "#333")
         // .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`)
         .attr("stroke-width", (d) => vis.lineWidth(d.pct_val));
 
@@ -181,8 +187,10 @@ NodeLink.prototype.updateVis = function() {
             })
             .attr("r", (d) => vis.circleRadius(d.total_donors))
             .attr("fill", function(d) {
-                return d.id === vis.centerNodeId ? "red" : "gray";
+                // return d.id === vis.centerNodeId ? "red" : "gray";
+                return vis.partyColor(d.party);
             })
+            .attr("fill-opacity", 1.0)
             .on("mouseover", vis.tip.show)
             .on("mouseout", vis.tip.hide)
             // .classed("fixed", d => d.fixed = true)

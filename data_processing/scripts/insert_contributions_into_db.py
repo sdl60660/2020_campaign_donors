@@ -44,7 +44,7 @@ with open('../processed_data/consolidated_contributions.csv', 'r') as f:
 
     num_chunks = row_count//CHUNK_LENGTH
     remainder = row_count%CHUNK_LENGTH
-    offset = 50540000
+    offset = 0
     start_chunk = offset//CHUNK_LENGTH
 
     db.open_connection()
