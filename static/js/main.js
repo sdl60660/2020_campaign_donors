@@ -29,6 +29,9 @@ const phoneBrowsingCutoff = 1100;
 let overlapNodes = null;
 let overlapLinks = null;
 
+let overlapThreshold = 3;
+let featuredCandidateId = "H8NY15148";
+
 
 // ======== END GLOBALS ======== //
 
@@ -154,6 +157,50 @@ function setWindowFunctions() {
                 // .fadeTo( "fast" , 1);
             }
         });
+}
+
+
+// Initialize timeline slider
+function InitSlider() {
+
+    $("#slider-div").slider({
+        max: 40,
+        min: 1,
+        step: 1,
+        range: false,
+        value: overlapThreshold,
+        slide: function(event, ui) {
+
+            // const logVal = Math.round(10*Math.log(ui.value) / Math.log(1.2) / 10);
+            // console.log(Math.min(logVal, ui.value));
+
+            console.log(ui.value);
+            overlapThreshold = ui.value;
+
+            nodeLink.wrangleData();
+
+        }
+    })
+
+}
+
+function BuildCandidateDropdowns() {
+
+    let htmlString = "";
+    overlapNodes.forEach(d => {
+        htmlString += `<option class="candidate-option" id="candidate-${d.id}" value="${d.id}">${d.display_name}</option>`;
+    });
+
+    $('#overlap-nodelink-candidate-select').append(htmlString);
+    document.querySelector("#overlap-nodelink-candidate-select").fstdropdown.rebind();
+
+    $("#overlap-nodelink-candidate-select")
+        .on("change", () => {
+            featuredCandidateId = $("#overlap-nodelink-candidate-select").val();
+            console.log(featuredCandidateId);
+            nodeLink.wrangleData();
+        })
+
 }
 
 
@@ -337,6 +384,9 @@ function main() {
 
         $(".loadring-container")
             .hide();
+
+        InitSlider();
+        BuildCandidateDropdowns();
 
         // $("#intro-wrapper")
         //     .css("visibility", "visible");

@@ -35,6 +35,7 @@
     <link rel="stylesheet" href="/static/css/d3-tip.css">
     <link rel="stylesheet" href="/static/css/source-code-pro.css">
     <link rel="stylesheet" href="/static/bower_components/chosen/chosen.min.css">
+    <link rel="stylesheet" href="/static/css/fstdropdown.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="static/css/style.css">
 
@@ -96,6 +97,14 @@
     <!-- First Wrapper/Tile -->
     <div class="tile-wrapper" id="nodelink-wrapper">
     <div class="container viz-tile" id="nodelink-tile">
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-4" id="slider-div"></div>
+            <div class="col-md-4" id="candidate-select">
+                <select id="overlap-nodelink-candidate-select" class="fstdropdown-select candidate-select"></select>
+            </div>
+            <div class="col-md-2"></div>
+        </div>
         <div class="row">
             <div class="col-md-1"></div>
             <div class="col-md-10 viz-area">
@@ -161,6 +170,7 @@
     <script src="/static/js/d3-tip.js"></script>
     <script src="/static/js/scroller.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+    <script src="/static/js/fstdropdown.min.js"></script>
 
     <!-- Custom JS -->
     <script src="/static/js/utils.js"></script>
