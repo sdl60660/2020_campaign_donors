@@ -197,7 +197,6 @@ function BuildCandidateDropdowns() {
     $("#overlap-nodelink-candidate-select")
         .on("change", () => {
             featuredCandidateId = $("#overlap-nodelink-candidate-select").val();
-            console.log(featuredCandidateId);
             nodeLink.wrangleData();
         })
 

@@ -57,14 +57,13 @@ strong {
 	margin-bottom: var(--spacer-bottom);
 	margin-left: 10px;
 
-  position: relative;
+    position: relative;
 
 	min-height: 320px;
 	border-radius: 15px;
 
-  background-color: white;
-
-	overflow: hidden;
+    background-color: white;
+    overflow: hidden;
 }
 
 
@@ -214,7 +213,7 @@ strong {
 
 .container {
 	z-index: 2;
-    width: 80%;
+    /*width: 80%;*/
 }
 
 
@@ -237,6 +236,12 @@ strong {
 	height: 13px;
 	width: 13px;
 	margin-bottom: 2px;
+}
+
+.candidate-bubble-images {
+    overflow: hidden;
+    border-radius: 100px;
+    border: 1px solid black;
 }
 
 hr {

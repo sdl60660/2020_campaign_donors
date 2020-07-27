@@ -11,8 +11,8 @@ NodeLink.prototype.initVis = function() {
     const vis = this;
 
     // Set height/width of viewBox
-    vis.width = 1200;
-    vis.height = 1200;
+    vis.width = 1100;
+    vis.height = 1100;
 
     // Initialize SVG
     vis.svg = d3.select(vis.parentElement)
@@ -51,8 +51,8 @@ NodeLink.prototype.initVis = function() {
     vis.circleRadius = d3.scalePow()
         // .domain(d3.extent(overlapLinks, (d) => d.pct_val))
         .domain([0, 60])
-        .range([4, 50])
-        .exponent(1.3);
+        .range([10, 60])
+        .exponent(1.4);
 
     vis.lineWidth = d3.scalePow()
         .domain(d3.extent(overlapLinks, (d) => d.pct_val))
@@ -73,11 +73,37 @@ NodeLink.prototype.initVis = function() {
         .attr("stroke-opacity", 0.6)
         .selectAll("path");
 
+    const defs = vis.svg
+        .append("defs")
+        .attr("id", "imgdefs");
+
+    vis.candidateImages = defs
+        .selectAll("pattern")
+        .data(overlapNodes, (d) => d.id)
+        .join("pattern")
+        .attr("id", d => d.id)
+        .attr("height", (d) => 1)
+        .attr("width", (d) => 1)
+        .attr("patternUnits", "objectBoundingBox")
+        .append("image")
+            .attr("class", "candidate-bubble-images")
+            .attr("id", d => d.id)
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("xlink:href", d => `/static/images/candidate_images/${d.image_url}`);
+
+    vis.images = vis.svg.append("g")
+        .attr("class", "nodelink-images")
+        .selectAll("circle.images");
 
     vis.node = vis.svg.append("g")
         .attr("stroke", "#fff")
         .attr("stroke-width", 1.5)
         .selectAll("circle");
+
+    // vis.labels = vis.svg.append("g")
+    //     .attr("class", "nodelink-labels")
+    //     .selectAll("text");
 
 
     vis.wrangleData();
@@ -89,10 +115,6 @@ NodeLink.prototype.wrangleData = function() {
     vis.centerNodeId = featuredCandidateId;
     // vis.centerNodeId = overlapNodes[Math.round(getRandomArbitrary(0, 100))].id;
     // vis.numOuterNodes = 15;
-
-    // console.log(overlapLinks);
-
-    // console.log(overlapThreshold);
 
     vis.selectedOverlapLinks = overlapLinks
         .filter((d) =>
@@ -107,14 +129,6 @@ NodeLink.prototype.wrangleData = function() {
         d.target = typeof(d.target) === "object" ? d.target.id : d.target;
     });
 
-    // console.log(vis.selectedOverlapLinks);
-
-    // vis.selectedOverlapLinks = vis.selectedOverlapLinks
-    //     .sort(function(a, b) {
-    //         return b.pct_val - a.pct_val;
-    //     });
-        // .slice(0, vis.numOuterNodes);
-
     const includedCandidates = vis.selectedOverlapLinks.map(d => d.target);
     // console.log(includedCandidates);
     vis.directionalLinks = overlapLinks
@@ -124,16 +138,12 @@ NodeLink.prototype.wrangleData = function() {
 
         );
 
-    // console.log(vis.directionalLinks.length);
-
     vis.overlapNodes = overlapNodes.filter(d => includedCandidates.includes(d.id) || d.id === vis.centerNodeId);
-
-    // const includedCandidates = vis.overlapNodes.map(d => d.id);
-    // vis.selectedOverlapLinks = overlapLinks.filter((d) =>
-    //     includedCandidates.includes(d.source)
-    //     && includedCandidates.includes(d.target)
-    //     // && (d.target === centerNodeId || d.source === centerNodeId));
-    //     && (d.source === vis.centerNodeId));
+    vis.overlapNodes.forEach(d => {
+        const correspondingLink = vis.selectedOverlapLinks.find((x) => x.target === d.id);
+        const radiusVal = typeof(correspondingLink) === "undefined" ? 70 : correspondingLink.pct_val;
+        d.radiusVal =  vis.circleRadius(radiusVal);
+    });
 
     vis.selectedOverlapLinks.forEach(function(d) {
         d.direction = d.source === vis.centerNodeId ?
@@ -158,13 +168,6 @@ NodeLink.prototype.updateVis = function() {
 
     vis.simulation.stop();
 
-    // invalidation.then(() => vis.simulation.stop());
-
-    // const old = new Map(vis.node.data().map(d => [d.id, d]));
-    // const nodes = vis.overlapNodes.map(d => Object.assign(old.get(d.id) || {}, d));
-    // const links = vis.selectedOverlapLinks.map(d => Object.assign({}, d));
-    // console.log(vis.selectedOverlapLinks);
-
     vis.straightLink = vis.straightLink
         .data(vis.selectedOverlapLinks, (d) => [d.source, d.target])
         .join("line")
@@ -182,6 +185,37 @@ NodeLink.prototype.updateVis = function() {
     //     // .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`)
     //     .style("z-index", 1)
     //     .attr("stroke-width", (d) => vis.lineWidth(d.pct_val));
+
+    vis.svg.selectAll(".candidate-bubble-images")
+        .attr("height", (d) => d.radiusVal*2)
+        .attr("width", (d) => d.radiusVal*2);
+
+    vis.images = vis.images
+        .data(vis.overlapNodes)
+        .join("circle")
+        .attr("class", "images")
+        .attr("r", d => d.radiusVal)
+        .attr("cx", function(d, i) {
+                if (d.id !== vis.centerNodeId) {
+                    return vis.circumferenceCoordinateSet[i][0];
+                }
+            })
+        .attr("cy", function(d, i) {
+            if (d.id !== vis.centerNodeId) {
+                return vis.circumferenceCoordinateSet[i][1];
+            }
+        })
+        // .attr("transform", d => `translate(${-d.radiusVal},${-d.radiusVal})`)
+        .style("fill", d => `url(#${d.id})`);
+
+    // vis.images = vis.images
+    //     .data(vis.overlapNodes, (d) => d.id)
+    //     .join("image")
+    //     .attr("class", "candidate-bubble-images")
+    //     .attr("xlink:href", (d) => `/static/images/candidate_images/${d.id}.jpg`)
+    //     .attr("height", (d) => d.radiusVal*2)
+    //     .attr("width", (d) => d.radiusVal*2)
+    //     .attr("transform", d => `translate(${-d.radiusVal},${-d.radiusVal})`);
 
     vis.node = vis.node
         .data(vis.overlapNodes, (d) => d.id)
@@ -202,24 +236,30 @@ NodeLink.prototype.updateVis = function() {
             .attr('fy', function(d) {
                 return d.id === vis.centerNodeId ? vis.height / 2 : null;
             })
-            .attr("r", function(d) {
-                // console.log(vis.selectedOverlapLinks, d.id);
-                const correspondingLink = vis.selectedOverlapLinks.find((x) => x.target.id === d.id);
-                const radiusVal = typeof(correspondingLink) === "undefined" ? 70 : correspondingLink.pct_val;
-                return vis.circleRadius(radiusVal)
-            })
+            .attr("r", d => d.radiusVal)
             .attr("fill", function(d) {
                 // return d.id === vis.centerNodeId ? "red" : "gray";
                 return vis.partyColor(d.party);
             })
-            .attr("fill-opacity", 1.0)
+            .attr("fill-opacity", 0.3)
             .style("z-index", 10)
             .on("mouseover", (d) => { vis.tip.show(d);})
             .on("mouseout", vis.tip.hide)
-            // .classed("fixed", d => d.fixed = true)
+            .on("dblclick", (d) => {
+                $("#overlap-nodelink-candidate-select").val(d.id);
+                document.querySelector("#overlap-nodelink-candidate-select").fstdropdown.rebind();
+                featuredCandidateId = d.id;
+                vis.wrangleData();
+            })
             .call(drag(vis.simulation));
-            // .call((d) => d.id !== vis.centerNodeId ? drag(simulation) : null);
 
+    // vis.labels = vis.labels
+    //     .data(vis.overlapNodes, (d) => d.id)
+    //     .join("text")
+    //     .attr("dx", 12)
+    //     .attr("dy", ".35em")
+    //     .style("stroke", "black")
+    //     .text((d) => d.display_name );
 
     vis.simulation.on("tick", () => {
         vis.straightLink
@@ -237,6 +277,10 @@ NodeLink.prototype.updateVis = function() {
             // These conditionals work to pin the featured candidate bubble to the center
             .attr("cx", d => d.id === vis.centerNodeId ? vis.width / 2 : d.x)
             .attr("cy", d => d.id === vis.centerNodeId ? vis.height / 2 : d.y);
+
+        vis.images
+            .attr("cx", d => d.id === vis.centerNodeId ? vis.width / 2 : d.x)
+            .attr("cy", d => d.id === vis.centerNodeId ? vis.height / 2 : d.y)
       });
 
     vis.simulation.alpha(1).restart();
@@ -258,7 +302,6 @@ drag = simulation => {
   }
 
   function dragged(d) {
-
       // Conditional added to pin feature candidate to the center
       if (d.id !== featuredCandidateId) {
           d.fx = d3.event.x;
