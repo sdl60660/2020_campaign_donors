@@ -11,8 +11,8 @@ NodeLink.prototype.initVis = function() {
     const vis = this;
 
     // Set height/width of viewBox
-    vis.width = 1100;
-    vis.height = 1100;
+    vis.width = 1300;
+    vis.height = 1300;
 
     // Initialize SVG
     vis.svg = d3.select(vis.parentElement)
@@ -51,7 +51,7 @@ NodeLink.prototype.initVis = function() {
     vis.circleRadius = d3.scalePow()
         // .domain(d3.extent(overlapLinks, (d) => d.pct_val))
         .domain([0, 60])
-        .range([10, 60])
+        .range([12, 70])
         .exponent(1.4);
 
     vis.lineWidth = d3.scalePow()
@@ -87,7 +87,7 @@ NodeLink.prototype.initVis = function() {
         .attr("patternUnits", "objectBoundingBox")
         .append("image")
             .attr("class", "candidate-bubble-images")
-            .attr("id", d => d.id)
+            // .attr("id", d => d.id)
             .attr("x", 0)
             .attr("y", 0)
             .attr("xlink:href", d => `/static/images/candidate_images/${d.image_url}`);
@@ -139,11 +139,6 @@ NodeLink.prototype.wrangleData = function() {
         );
 
     vis.overlapNodes = overlapNodes.filter(d => includedCandidates.includes(d.id) || d.id === vis.centerNodeId);
-    vis.overlapNodes.forEach(d => {
-        const correspondingLink = vis.selectedOverlapLinks.find((x) => x.target === d.id);
-        const radiusVal = typeof(correspondingLink) === "undefined" ? 70 : correspondingLink.pct_val;
-        d.radiusVal =  vis.circleRadius(radiusVal);
-    });
 
     vis.selectedOverlapLinks.forEach(function(d) {
         d.direction = d.source === vis.centerNodeId ?
@@ -152,12 +147,35 @@ NodeLink.prototype.wrangleData = function() {
     });
 
     vis.numOuterNodes = vis.overlapNodes.length - 1;
-    vis.circumferenceCoordinateSet = circlePlotCoordinates(200, [vis.width/2, vis.height/2], vis.numOuterNodes+1);
 
-    vis.simulation = d3.forceSimulation(vis.overlapNodes)
-        .force("charge", d3.forceManyBody().strength(-400))
-        .force("center", d3.forceCenter(vis.width / 2, vis.height / 2))
-        .force("link", d3.forceLink(vis.selectedOverlapLinks).id(d => d.id).distance(300));
+    const linkDistance = 400;
+    vis.circumferenceCoordinateSet = circlePlotCoordinates(linkDistance+6, [vis.width/2, vis.height/2], vis.numOuterNodes);
+
+    let coordinateIndex = 0;
+    vis.overlapNodes.forEach(d => {
+        const correspondingLink = vis.selectedOverlapLinks.find((x) => x.target === d.id);
+        const radiusVal = typeof(correspondingLink) === "undefined" ? 70 : correspondingLink.pct_val;
+        d.radiusVal =  vis.circleRadius(radiusVal);
+
+        if (d.id !== vis.centerNodeId) {
+            d.initialX = d.x = correspondingLink.initialX2 = vis.circumferenceCoordinateSet[coordinateIndex][0];
+            d.initialY = d.y = correspondingLink.initialY2 = vis.circumferenceCoordinateSet[coordinateIndex][1];
+
+            coordinateIndex += 1;
+        }
+        else {
+            d.initialX = d.x = vis.width / 2;
+            d.initialY = d.y = vis.height / 2;
+        }
+    });
+
+    console.log(vis.selectedOverlapLinks, vis.overlapNodes);
+
+    // vis.simulation = d3.forceSimulation(vis.overlapNodes)
+    //     .force("charge", d3.forceManyBody().strength(450).distanceMax(10))
+    //     .force("center", d3.forceCenter(vis.width / 2, vis.height / 2))
+    //     .force("link", d3.forceLink(vis.selectedOverlapLinks).id(d => d.id).distance(linkDistance))
+    //     // .stop();
 
     vis.updateVis();
 
@@ -166,17 +184,37 @@ NodeLink.prototype.wrangleData = function() {
 NodeLink.prototype.updateVis = function() {
     const vis = this;
 
-    vis.simulation.stop();
+    const transitionDuration = 800;
+
+    // vis.simulation.stop();
 
     vis.straightLink = vis.straightLink
         .data(vis.selectedOverlapLinks, (d) => [d.source, d.target])
-        .join("line")
-        .style("z-index", 1)
+        .join(
+            enter => enter.append("line")
+                .style("z-index", 1)
+                .attr("stroke", "#333")
+                .attr("stroke-width", 3)
+                .attr("x1", vis.width/2)
+                .attr("y1", vis.height/2)
+                .attr("x2", vis.width/2)
+                .attr("y2", vis.height/2)
+                .call(enter => enter.transition()
+                    .duration(transitionDuration)
+                    .attr("x2", d => d.initialX2)
+                    .attr("y2", d => d.initialY2)
+                ),
+            update => update
+                .transition()
+                .duration(transitionDuration)
+                    .attr("x2", d => d.initialX2)
+                    .attr("y2", d => d.initialY2)
+        );
+
+
         // .attr("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
-        .attr("stroke", "#333")
         // .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`)
         // .attr("stroke-width", (d) => vis.lineWidth(d.pct_val));
-        .attr("stroke-width", 3);
 
     // vis.curvedLink =  vis.curvedLink
     //     .data(vis.directionalLinks)
@@ -187,71 +225,97 @@ NodeLink.prototype.updateVis = function() {
     //     .attr("stroke-width", (d) => vis.lineWidth(d.pct_val));
 
     vis.svg.selectAll(".candidate-bubble-images")
-        .attr("height", (d) => d.radiusVal*2)
-        .attr("width", (d) => d.radiusVal*2);
+        .transition()
+        .duration(transitionDuration)
+            .attr("height", (d) => typeof d.radiusVal === "undefined" ? 0 : d.radiusVal*2)
+            .attr("width", (d) =>  typeof d.radiusVal === "undefined" ? 0 : d.radiusVal*2);
 
     vis.images = vis.images
-        .data(vis.overlapNodes)
-        .join("circle")
-        .attr("class", "images")
-        .attr("r", d => d.radiusVal)
-        .attr("cx", function(d, i) {
-                if (d.id !== vis.centerNodeId) {
-                    return vis.circumferenceCoordinateSet[i][0];
-                }
-            })
-        .attr("cy", function(d, i) {
-            if (d.id !== vis.centerNodeId) {
-                return vis.circumferenceCoordinateSet[i][1];
-            }
-        })
-        // .attr("transform", d => `translate(${-d.radiusVal},${-d.radiusVal})`)
-        .style("fill", d => `url(#${d.id})`);
+        .data(vis.overlapNodes, (d) => d.id)
+        .join(
+            enter => enter.append("circle")
+                .attr("class", "images")
+                .style("fill", d => `url(#${d.id})`)
+                .attr("cx", vis.width/2)
+                .attr("cy", vis.height/2)
+                .attr("x", vis.width/2)
+                .attr("y", vis.height/2)
+                .call(enter => enter.transition()
+                    .duration(transitionDuration)
+                    .attr("r", d => d.radiusVal)
+                    .attr("cx", (d) => d.initialX)
+                    .attr("cy", (d) => d.initialY)
+                    .attr("cx", (d) => d.initialX)
+                    .attr("cy", (d) => d.initialY)
+                    .attr("x", vis.width/2)
+                    .attr("y", vis.height/2)
+                ),
 
-    // vis.images = vis.images
-    //     .data(vis.overlapNodes, (d) => d.id)
-    //     .join("image")
-    //     .attr("class", "candidate-bubble-images")
-    //     .attr("xlink:href", (d) => `/static/images/candidate_images/${d.id}.jpg`)
-    //     .attr("height", (d) => d.radiusVal*2)
-    //     .attr("width", (d) => d.radiusVal*2)
-    //     .attr("transform", d => `translate(${-d.radiusVal},${-d.radiusVal})`);
+            update => update
+                .transition()
+                    .duration(transitionDuration)
+                    .attr("r", d => d.radiusVal)
+                    .attr("cx", (d) => d.initialX)
+                    .attr("cy", (d) => d.initialY)
+                    .attr("cx", (d) => d.initialX)
+                    .attr("cy", (d) => d.initialY)
+                    .attr("x", vis.width/2)
+                    .attr("y", vis.height/2)
+        );
+
 
     vis.node = vis.node
         .data(vis.overlapNodes, (d) => d.id)
-        .join("circle")
-            .attr("cx", function(d, i) {
-                if (d.id !== vis.centerNodeId) {
-                    return vis.circumferenceCoordinateSet[i][0];
-                }
-            })
-            .attr("cy", function(d, i) {
-                if (d.id !== vis.centerNodeId) {
-                    return vis.circumferenceCoordinateSet[i][1];
-                }
-            })
-            .attr('fx', function(d) {
-                return d.id === vis.centerNodeId ? vis.width / 2 : null;
-            })
-            .attr('fy', function(d) {
-                return d.id === vis.centerNodeId ? vis.height / 2 : null;
-            })
-            .attr("r", d => d.radiusVal)
-            .attr("fill", function(d) {
-                // return d.id === vis.centerNodeId ? "red" : "gray";
-                return vis.partyColor(d.party);
-            })
-            .attr("fill-opacity", 0.3)
-            .style("z-index", 10)
-            .on("mouseover", (d) => { vis.tip.show(d);})
-            .on("mouseout", vis.tip.hide)
-            .on("dblclick", (d) => {
-                $("#overlap-nodelink-candidate-select").val(d.id);
-                document.querySelector("#overlap-nodelink-candidate-select").fstdropdown.rebind();
-                featuredCandidateId = d.id;
-                vis.wrangleData();
-            })
-            .call(drag(vis.simulation));
+        .join(
+            enter => enter.append("circle")
+                .attr("fill", (d) => vis.partyColor(d.party))
+                .attr("fill-opacity", 0.2)
+                .style("z-index", 10)
+                .on("mouseover", (d) => {
+                    vis.tip.show(d);
+                })
+                .on("mouseout", vis.tip.hide)
+                .on("dblclick", (d) => {
+                    $("#overlap-nodelink-candidate-select").val(d.id);
+                    document.querySelector("#overlap-nodelink-candidate-select").fstdropdown.rebind();
+                    featuredCandidateId = d.id;
+                    // vis.simulation.stop();
+                    vis.wrangleData();
+                })
+                .attr("cx", vis.width/2)
+                .attr("cy", vis.height/2)
+                .attr("x", vis.width/2)
+                .attr("y", vis.height/2)
+                // .call(drag(vis.simulation))
+                .call(enter => enter.transition()
+                    .duration(transitionDuration)
+                    .attr("cx", (d) => d.initialX)
+                    .attr("cy", (d) => d.initialY)
+
+                    .attr("x", (d) => d.initialX)
+                    .attr("y", (d) => d.initialY)
+
+                    // .attr("fx", (d) => d.initialX)
+                    // .attr("fy", (d) => d.initialY)
+
+                    .attr("r", d => d.radiusVal)
+                ),
+
+            update => update.transition()
+                .duration(transitionDuration)
+                .attr("cx", (d) => d.initialX)
+                .attr("cy", (d) => d.initialY)
+
+                .attr("x", (d) => d.initialX)
+                .attr("y", (d) => d.initialY)
+
+                // .attr("fx", (d) => d.initialX)
+                // .attr("fy", (d) => d.initialY)
+
+                .attr("r", d => d.radiusVal)
+
+
+        );
 
     // vis.labels = vis.labels
     //     .data(vis.overlapNodes, (d) => d.id)
@@ -261,29 +325,29 @@ NodeLink.prototype.updateVis = function() {
     //     .style("stroke", "black")
     //     .text((d) => d.display_name );
 
-    vis.simulation.on("tick", () => {
-        vis.straightLink
-            // .attr("x1", d => d.source.x)
-            // .attr("y1", d => d.source.y)
-            // This x1/y1 (opposed to the one above) will work to pin the featured candidate bubble to the center
-            .attr("x1", vis.width / 2)
-            .attr("y1", vis.height / 2)
-            .attr("x2", d => d.target.x)
-            .attr("y2", d => d.target.y);
+    // vis.simulation.on("tick", () => {
+    //     vis.straightLink
+    //         // .attr("x1", d => d.source.x)
+    //         // .attr("y1", d => d.source.y)
+    //         // This x1/y1 (opposed to the one above) will work to pin the featured candidate bubble to the center
+    //         .attr("x1", vis.width / 2)
+    //         .attr("y1", vis.height / 2)
+    //         .attr("x2", d => d.target.x)
+    //         .attr("y2", d => d.target.y);
+    //
+    //     vis.curvedLink.attr("d", linkArc);
+    //
+    //     vis.node
+    //         // These conditionals work to pin the featured candidate bubble to the center
+    //         .attr("cx", d => d.id === vis.centerNodeId ? vis.width / 2 : d.x)
+    //         .attr("cy", d => d.id === vis.centerNodeId ? vis.height / 2 : d.y);
+    //
+    //     vis.images
+    //         .attr("cx", d => d.id === vis.centerNodeId ? vis.width / 2 : d.x)
+    //         .attr("cy", d => d.id === vis.centerNodeId ? vis.height / 2 : d.y)
+    //   });
 
-        vis.curvedLink.attr("d", linkArc);
-
-        vis.node
-            // These conditionals work to pin the featured candidate bubble to the center
-            .attr("cx", d => d.id === vis.centerNodeId ? vis.width / 2 : d.x)
-            .attr("cy", d => d.id === vis.centerNodeId ? vis.height / 2 : d.y);
-
-        vis.images
-            .attr("cx", d => d.id === vis.centerNodeId ? vis.width / 2 : d.x)
-            .attr("cy", d => d.id === vis.centerNodeId ? vis.height / 2 : d.y)
-      });
-
-    vis.simulation.alpha(1).restart();
+    // vis.simulation.alpha(1).restart();
     // vis.simulation.nodes(vis.node);
     // vis.simulation.force("link").links(links);
 
@@ -295,30 +359,34 @@ NodeLink.prototype.updateVis = function() {
 
 drag = simulation => {
 
-  function dragstarted(d) {
-    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-    d.fx = d.x;
-    d.fy = d.y;
-  }
+    function dragstarted(d) {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
 
-  function dragged(d) {
-      // Conditional added to pin feature candidate to the center
-      if (d.id !== featuredCandidateId) {
-          d.fx = d3.event.x;
-          d.fy = d3.event.y;
-      }
-  }
+        d.fx = d.x;
+        d.fy = d.y;
+    }
 
-  function dragended(d) {
-    if (!d3.event.active) simulation.alphaTarget(0);
-    d.fx = null;
-    d.fy = null;
-  }
+    function dragged(d) {
+        // Conditional added to pin feature candidate to the center
+        if (d.id !== featuredCandidateId) {
+            d.fx = d3.event.x;
+            d.fy = d3.event.y;
+        }
+    }
 
-  return d3.drag()
-      .on("start", dragstarted)
-      .on("drag", dragged)
-      .on("end", dragended);
+    function dragended(d) {
+        if (!d3.event.active) simulation.alphaTarget(0);
+
+        // if (d.id !== featuredCandidateId) {
+            d.fx = null;
+            d.fy = null;
+        // }
+    }
+
+    return d3.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended);
 };
 
 function linkArc(d) {

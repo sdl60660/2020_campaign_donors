@@ -192,6 +192,7 @@ function BuildCandidateDropdowns() {
     });
 
     $('#overlap-nodelink-candidate-select').append(htmlString);
+    $("#overlap-nodelink-candidate-select").val(featuredCandidateId);
     document.querySelector("#overlap-nodelink-candidate-select").fstdropdown.rebind();
 
     $("#overlap-nodelink-candidate-select")
