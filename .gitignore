@@ -14,3 +14,5 @@ data_processing/candidate_data
 data_processing/table_exports
 
 retired_code
+
+.ipynb_checkpoints

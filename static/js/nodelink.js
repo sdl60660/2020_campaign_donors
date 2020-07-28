@@ -246,16 +246,16 @@ NodeLink.prototype.updateVis = function() {
 
 
 
-    // vis.curvedLink =  vis.curvedLink
-    //     .data(vis.directionalLinks)
-    //     .join("path")
-    //     .attr("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
-    //     .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`)
-    //     // .attr("stroke-width", (d) => vis.lineWidth(d.pct_val));
-    //     .style("z-index", 1)
-    //     .attr("stroke-width", (d) => vis.lineWidth(d.pct_val))
-    //     .style("opacity", 0)
-    //     .attr("d", linkArc);
+    vis.curvedLink =  vis.curvedLink
+        .data(vis.directionalLinks)
+        .join("path")
+        .attr("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
+        .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`)
+        // .attr("stroke-width", (d) => vis.lineWidth(d.pct_val));
+        .style("z-index", 1)
+        .attr("stroke-width", (d) => vis.lineWidth(d.pct_val))
+        .style("opacity", 0)
+        .attr("d", linkArc);
 
     vis.svg.selectAll(".candidate-bubble-images")
         .transition()
