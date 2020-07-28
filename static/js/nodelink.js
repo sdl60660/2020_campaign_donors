@@ -14,6 +14,10 @@ NodeLink.prototype.initVis = function() {
     vis.width = 1300;
     vis.height = 1300;
 
+    vis.tooltipOrientation = d3.scaleThreshold()
+        .domain([-91, -89, -1, 1, 89, 91, 179])
+        .range(["nw", "n", "ne", "e", "se", "s", "sw", "w"]);
+
     // Initialize SVG
     vis.svg = d3.select(vis.parentElement)
         .append("svg")
@@ -22,6 +26,7 @@ NodeLink.prototype.initVis = function() {
     // Initialize hover tooltip on nodes
     vis.tip = d3.tip()
         .attr("class", "d3-tip")
+        .direction((d) => vis.tooltipOrientation(d.nodeAngle))
         .html(function(d) {
             let outputString = '<div>';
             outputString += `<span>${d.display_name}</span><br><br>`;
@@ -48,10 +53,10 @@ NodeLink.prototype.initVis = function() {
         .join("marker")
             .attr("id", d => `arrow-${d}`)
             .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 15)
-            .attr("refY", -0.5)
-            .attr("markerWidth", 6)
-            .attr("markerHeight", 6)
+            .attr("refX", 7)
+            .attr("refY", 0)
+            .attr("markerWidth", 20)
+            .attr("markerHeight", 20)
             .attr("markerUnits", "userSpaceOnUse")
             .attr("orient", "auto")
         .append("path")
@@ -68,7 +73,7 @@ NodeLink.prototype.initVis = function() {
 
     vis.lineWidth = d3.scalePow()
         .domain(d3.extent(overlapLinks, (d) => d.pct_val))
-        .range([2,10]);
+        .range([2,20]);
 
     vis.partyColor = d3.scaleOrdinal()
         .domain(['DEM', 'DFL', 'REP', 'LIB', 'GRE', 'IND'])
@@ -191,8 +196,16 @@ NodeLink.prototype.wrangleData = function() {
         d.radiusVal =  vis.circleRadius(radiusVal);
 
         if (d.id !== vis.centerNodeId) {
-            d.initialX = d.x = correspondingLink.initialX2 = correspondingArrow.x2 = vis.circumferenceCoordinateSet[coordinateIndex][0];
-            d.initialY = d.y = correspondingLink.initialY2 = correspondingArrow.y2 = vis.circumferenceCoordinateSet[coordinateIndex][1];
+            d.initialX = d.x = correspondingLink.initialX2 =  vis.circumferenceCoordinateSet[coordinateIndex][0];
+            d.initialY = d.y = correspondingLink.initialY2 = vis.circumferenceCoordinateSet[coordinateIndex][1];
+
+            d.nodeAngle = getAngle(vis.width/2, vis.height/2, d.initialX, d.initialY);
+            const distanceFromCenter = getDistance(vis.width/2, vis.height/2, d.initialX, d.initialY);
+            const adjustedDistance = distanceFromCenter - d.radiusVal;
+            const adjustedCoordinates = getCoordinates([vis.width/2, vis.height/2], adjustedDistance, d.nodeAngle)
+
+            correspondingArrow.x2 = adjustedCoordinates[0];
+            correspondingArrow.y2 = adjustedCoordinates[1];
 
             coordinateIndex += 1;
         }
@@ -226,6 +239,7 @@ NodeLink.prototype.updateVis = function() {
         .join(
             enter => enter.append("line")
                 .style("z-index", 1)
+                .attr("class", "straight-link")
                 .attr("stroke", "#333")
                 .attr("stroke-width", 3)
                 .attr("x1", vis.width/2)
@@ -244,18 +258,19 @@ NodeLink.prototype.updateVis = function() {
                     .attr("y2", d => d.initialY2)
         );
 
-
-
     vis.curvedLink =  vis.curvedLink
         .data(vis.directionalLinks)
         .join("path")
+        .attr("class", "directional-link")
+        .attr("id", d => `directional-link-${d.target}`)
         .attr("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
-        .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`)
-        // .attr("stroke-width", (d) => vis.lineWidth(d.pct_val));
         .style("z-index", 1)
         .attr("stroke-width", (d) => vis.lineWidth(d.pct_val))
-        .style("opacity", 0)
-        .attr("d", linkArc);
+        .attr("d", linkArc)
+        .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`)
+        .style("opacity", 0.0);
+
+    // console.log(vis.curvedLink);
 
     vis.svg.selectAll(".candidate-bubble-images")
         .transition()
@@ -306,8 +321,24 @@ NodeLink.prototype.updateVis = function() {
                 .style("z-index", 10)
                 .on("mouseover", (d) => {
                     vis.tip.show(d);
+
+                    d3.selectAll(".straight-link")
+                        .style("opacity", 0);
+
+                    d3.select(`#directional-link-${d.id}`)
+                        .style("opacity", 0.8);
+
                 })
-                .on("mouseout", vis.tip.hide)
+                .on("mouseout", (d) => {
+                    vis.tip.hide();
+
+                    d3.selectAll('.directional-link')
+                        .style("opacity", 0);
+
+                    d3.selectAll(".straight-link")
+                        .style("opacity", 1);
+
+                })
                 .on("dblclick", (d) => {
                     $("#overlap-nodelink-candidate-select").val(d.id);
                     document.querySelector("#overlap-nodelink-candidate-select").fstdropdown.rebind();

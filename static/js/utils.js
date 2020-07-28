@@ -63,3 +63,27 @@ function splitToChunks(array, parts) {
     }
     return result;
 }
+
+
+function getCoordinates(origin, distance, angle) {
+    let xCoordinate = Math.cos(angle*Math.PI/180) * distance + origin[0];
+    let yCoordinate = Math.sin(angle*Math.PI/180) * distance + origin[1];
+
+    return [xCoordinate, yCoordinate];
+}
+
+
+function getAngle(x1, y1, x2, y2) {
+    let dy = y2 - y1;
+    let dx = x2 - x1;
+    let theta = Math.atan2(dy, dx); // range (-PI, PI]
+    theta *= 180 / Math.PI; // rads to degs, range (-180, 180]
+    //if (theta < 0) theta = 360 + theta; // range [0, 360)
+    return theta;
+}
+
+
+function getDistance(x1, y1, x2, y2) {
+    return Math.sqrt( Math.pow((x1-x2), 2) + Math.pow((y1-y2), 2) );
+};
+
