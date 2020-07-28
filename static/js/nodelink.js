@@ -56,7 +56,7 @@ NodeLink.prototype.initVis = function() {
 
     vis.lineWidth = d3.scalePow()
         .domain(d3.extent(overlapLinks, (d) => d.pct_val))
-        .range([2,5]);
+        .range([2,10]);
 
     vis.partyColor = d3.scaleOrdinal()
         .domain(['DEM', 'DFL', 'REP', 'LIB', 'GRE', 'IND'])
@@ -138,6 +138,11 @@ NodeLink.prototype.wrangleData = function() {
 
         );
 
+    vis.directionalLinks.forEach(d => {
+        d.x1 = vis.width/2;
+        d.y1 = vis.height/2;
+    });
+
     vis.overlapNodes = overlapNodes.filter(d => includedCandidates.includes(d.id) || d.id === vis.centerNodeId);
 
     vis.selectedOverlapLinks.forEach(function(d) {
@@ -148,18 +153,20 @@ NodeLink.prototype.wrangleData = function() {
 
     vis.numOuterNodes = vis.overlapNodes.length - 1;
 
-    const linkDistance = 400;
+    const linkDistance = 450;
     vis.circumferenceCoordinateSet = circlePlotCoordinates(linkDistance+6, [vis.width/2, vis.height/2], vis.numOuterNodes);
 
     let coordinateIndex = 0;
     vis.overlapNodes.forEach(d => {
         const correspondingLink = vis.selectedOverlapLinks.find((x) => x.target === d.id);
-        const radiusVal = typeof(correspondingLink) === "undefined" ? 70 : correspondingLink.pct_val;
+        const correspondingArrow = vis.directionalLinks.find((x) => x.target === d.id);
+
+        const radiusVal = typeof(correspondingLink) === "undefined" ? 90 : correspondingLink.pct_val;
         d.radiusVal =  vis.circleRadius(radiusVal);
 
         if (d.id !== vis.centerNodeId) {
-            d.initialX = d.x = correspondingLink.initialX2 = vis.circumferenceCoordinateSet[coordinateIndex][0];
-            d.initialY = d.y = correspondingLink.initialY2 = vis.circumferenceCoordinateSet[coordinateIndex][1];
+            d.initialX = d.x = correspondingLink.initialX2 = correspondingArrow.x2 = vis.circumferenceCoordinateSet[coordinateIndex][0];
+            d.initialY = d.y = correspondingLink.initialY2 = correspondingArrow.y2 = vis.circumferenceCoordinateSet[coordinateIndex][1];
 
             coordinateIndex += 1;
         }
@@ -212,17 +219,17 @@ NodeLink.prototype.updateVis = function() {
         );
 
 
-        // .attr("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
-        // .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`)
-        // .attr("stroke-width", (d) => vis.lineWidth(d.pct_val));
 
-    // vis.curvedLink =  vis.curvedLink
-    //     .data(vis.directionalLinks)
-    //     .join("path")
-    //     .attr("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
-    //     // .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`)
-    //     .style("z-index", 1)
-    //     .attr("stroke-width", (d) => vis.lineWidth(d.pct_val));
+    vis.curvedLink =  vis.curvedLink
+        .data(vis.directionalLinks)
+        .join("path")
+        .attr("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
+        .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`)
+        // .attr("stroke-width", (d) => vis.lineWidth(d.pct_val));
+        .style("z-index", 1)
+        .attr("stroke-width", (d) => vis.lineWidth(d.pct_val))
+        .style("opacity", 0)
+        .attr("d", linkArc);
 
     vis.svg.selectAll(".candidate-bubble-images")
         .transition()
@@ -286,6 +293,8 @@ NodeLink.prototype.updateVis = function() {
                 .attr("cy", vis.height/2)
                 .attr("x", vis.width/2)
                 .attr("y", vis.height/2)
+                .style("stroke-width", "2px")
+                .style("stroke", d => vis.partyColor(d.party))
                 // .call(drag(vis.simulation))
                 .call(enter => enter.transition()
                     .duration(transitionDuration)
@@ -390,9 +399,10 @@ drag = simulation => {
 };
 
 function linkArc(d) {
-  const r = Math.hypot(d.target.x - d.source.x, d.target.y - d.source.y);
+    console.log(d);
+  const r = Math.hypot(d.x2 - d.x1, d.y2 - d.y1);
   return `
-    M${d.source.x},${d.source.y}
-    A${r},${r} 0 0,1 ${d.target.x},${d.target.y}
+    M${d.x1},${d.y1}
+    A${r},${r} 0 0,1 ${d.x2},${d.y2}
   `;
 }
