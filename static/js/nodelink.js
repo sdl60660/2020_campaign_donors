@@ -23,7 +23,18 @@ NodeLink.prototype.initVis = function() {
     vis.tip = d3.tip()
         .attr("class", "d3-tip")
         .html(function(d) {
-            return d.display_name;
+            let outputString = '<div>';
+            outputString += `<span>${d.display_name}</span><br><br>`;
+            outputString += `<span>Total Donors: ${d3.format(",")(d.total_donors)}</span><br>`;
+
+            const correspondingLink = vis.selectedOverlapLinks.find((x) => x.target === d.id);
+            if (typeof correspondingLink !== "undefined") {
+                outputString += `<span>Overlap: ${d3.format(".1f")(correspondingLink.pct_val)}% (${d3.format(",")(correspondingLink.raw_val)})</span><br>`;
+            }
+
+            outputString += '</div>';
+
+            return outputString
         });
     vis.svg.call(vis.tip);
 
@@ -167,33 +178,9 @@ NodeLink.prototype.wrangleData = function() {
 
     // Determine node layout (using multiple rings, if necessary)
     const linkDistance = 450;
-    const ringCircumference = linkDistance*2*Math.PI;
-    const nodeSpace = ringCircumference / vis.numOuterNodes;
 
-    // console.log(nodeSpace, 2*(vis.minCircleRadius+8));
-    if ( nodeSpace > 2*(vis.minCircleRadius + 8) ) {
-        vis.circumferenceCoordinateSet = circlePlotCoordinates(linkDistance, [vis.width / 2, vis.height / 2], vis.numOuterNodes);
-    }
-    else {
-        const numRings = Math.ceil(nodeSpace / (vis.minCircleRadius));
-        const baseRadius = linkDistance - 50;
-
-        vis.circumferenceCoordinateSet = [];
-        for(let i=0; i<numRings; i++) {
-            let chunkSize = vis.numOuterNodes / numRings;
-            if (i === numRings-1) {
-                chunkSize = Math.ceil(chunkSize);
-            }
-            else {
-                chunkSize = Math.floor(chunkSize);
-            }
-
-            vis. circumferenceCoordinateSet = vis.circumferenceCoordinateSet.concat( circlePlotCoordinates((baseRadius + i*100), [vis.width / 2, vis.height / 2], chunkSize) );
-        }
-
-    }
-
-    console.log(vis.circumferenceCoordinateSet);
+    vis.getCircleCoordinates(linkDistance);
+    // console.log(vis.circumferenceCoordinateSet);
 
     let coordinateIndex = 0;
     vis.overlapNodes.forEach(d => {
@@ -445,3 +432,34 @@ function linkArc(d) {
     A${r},${r} 0 0,1 ${d.x2},${d.y2}
   `;
 }
+
+
+NodeLink.prototype.getCircleCoordinates = function(linkDistance) {
+    const vis = this;
+
+    const ringCircumference = linkDistance*2*Math.PI;
+    const nodeSpace = ringCircumference / vis.numOuterNodes;
+
+    // console.log(nodeSpace, 2*(vis.minCircleRadius+8));
+    if ( nodeSpace > 2*(vis.minCircleRadius + 8) ) {
+        vis.circumferenceCoordinateSet = circlePlotCoordinates(linkDistance, [vis.width / 2, vis.height / 2], vis.numOuterNodes);
+    }
+    else {
+        const numRings = Math.ceil(nodeSpace / (vis.minCircleRadius));
+        const baseRadius = linkDistance - 50;
+
+        vis.circumferenceCoordinateSet = [];
+        for(let i=0; i<numRings; i++) {
+            let chunkSize = vis.numOuterNodes / numRings;
+            if (i === numRings-1) {
+                chunkSize = Math.ceil(chunkSize);
+            }
+            else {
+                chunkSize = Math.floor(chunkSize);
+            }
+
+            vis.circumferenceCoordinateSet = vis.circumferenceCoordinateSet.concat( circlePlotCoordinates((baseRadius + i*100), [vis.width / 2, vis.height / 2], chunkSize) );
+        }
+
+    }
+};
