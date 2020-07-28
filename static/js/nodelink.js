@@ -47,11 +47,12 @@ NodeLink.prototype.initVis = function() {
             .attr("fill", vis.pathColor)
             .attr("d", "M0,-5L10,0L0,5");
 
+    vis.minCircleRadius = 12;
     // Scales for node radius and with of line depending on overlap percentage
     vis.circleRadius = d3.scalePow()
         // .domain(d3.extent(overlapLinks, (d) => d.pct_val))
         .domain([0, 60])
-        .range([12, 70])
+        .range([vis.minCircleRadius, 70])
         .exponent(1.4);
 
     vis.lineWidth = d3.scalePow()
@@ -116,12 +117,23 @@ NodeLink.prototype.wrangleData = function() {
     // vis.centerNodeId = overlapNodes[Math.round(getRandomArbitrary(0, 100))].id;
     // vis.numOuterNodes = 15;
 
-    vis.selectedOverlapLinks = overlapLinks
-        .filter((d) =>
-            (d.source === vis.centerNodeId || d.source.id === vis.centerNodeId)
-            // || (d.target === vis.centerNodeId || d.target.id === vis.centerNodeId) )
-            && d.pct_val > overlapThreshold
-        );
+    const direction = "outbound";
+    if (direction === "outbound") {
+        vis.selectedOverlapLinks = overlapLinks
+            .filter((d) =>
+                (d.source === vis.centerNodeId || d.source.id === vis.centerNodeId)
+                // || (d.target === vis.centerNodeId || d.target.id === vis.centerNodeId) )
+                && d.pct_val > overlapThreshold
+            );
+    }
+    else {
+        vis.selectedOverlapLinks = overlapLinks
+            .filter((d) =>
+                // (d.source === vis.centerNodeId || d.source.id === vis.centerNodeId)
+                ((d.target === vis.centerNodeId || d.target.id === vis.centerNodeId)
+                && d.pct_val > overlapThreshold)
+            );
+    }
 
     // Reset the source to contain just the ID
     vis.selectedOverlapLinks.forEach( function(d) {
@@ -153,8 +165,35 @@ NodeLink.prototype.wrangleData = function() {
 
     vis.numOuterNodes = vis.overlapNodes.length - 1;
 
+    // Determine node layout (using multiple rings, if necessary)
     const linkDistance = 450;
-    vis.circumferenceCoordinateSet = circlePlotCoordinates(linkDistance+6, [vis.width/2, vis.height/2], vis.numOuterNodes);
+    const ringCircumference = linkDistance*2*Math.PI;
+    const nodeSpace = ringCircumference / vis.numOuterNodes;
+
+    // console.log(nodeSpace, 2*(vis.minCircleRadius+8));
+    if ( nodeSpace > 2*(vis.minCircleRadius + 8) ) {
+        vis.circumferenceCoordinateSet = circlePlotCoordinates(linkDistance, [vis.width / 2, vis.height / 2], vis.numOuterNodes);
+    }
+    else {
+        const numRings = Math.ceil(nodeSpace / (vis.minCircleRadius));
+        const baseRadius = linkDistance - 50;
+
+        vis.circumferenceCoordinateSet = [];
+        for(let i=0; i<numRings; i++) {
+            let chunkSize = vis.numOuterNodes / numRings;
+            if (i === numRings-1) {
+                chunkSize = Math.ceil(chunkSize);
+            }
+            else {
+                chunkSize = Math.floor(chunkSize);
+            }
+
+            vis. circumferenceCoordinateSet = vis.circumferenceCoordinateSet.concat( circlePlotCoordinates((baseRadius + i*100), [vis.width / 2, vis.height / 2], chunkSize) );
+        }
+
+    }
+
+    console.log(vis.circumferenceCoordinateSet);
 
     let coordinateIndex = 0;
     vis.overlapNodes.forEach(d => {
@@ -176,7 +215,7 @@ NodeLink.prototype.wrangleData = function() {
         }
     });
 
-    console.log(vis.selectedOverlapLinks, vis.overlapNodes);
+    // console.log(vis.selectedOverlapLinks, vis.overlapNodes);
 
     // vis.simulation = d3.forceSimulation(vis.overlapNodes)
     //     .force("charge", d3.forceManyBody().strength(450).distanceMax(10))
@@ -220,16 +259,16 @@ NodeLink.prototype.updateVis = function() {
 
 
 
-    vis.curvedLink =  vis.curvedLink
-        .data(vis.directionalLinks)
-        .join("path")
-        .attr("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
-        .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`)
-        // .attr("stroke-width", (d) => vis.lineWidth(d.pct_val));
-        .style("z-index", 1)
-        .attr("stroke-width", (d) => vis.lineWidth(d.pct_val))
-        .style("opacity", 0)
-        .attr("d", linkArc);
+    // vis.curvedLink =  vis.curvedLink
+    //     .data(vis.directionalLinks)
+    //     .join("path")
+    //     .attr("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
+    //     .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`)
+    //     // .attr("stroke-width", (d) => vis.lineWidth(d.pct_val));
+    //     .style("z-index", 1)
+    //     .attr("stroke-width", (d) => vis.lineWidth(d.pct_val))
+    //     .style("opacity", 0)
+    //     .attr("d", linkArc);
 
     vis.svg.selectAll(".candidate-bubble-images")
         .transition()
@@ -399,7 +438,7 @@ drag = simulation => {
 };
 
 function linkArc(d) {
-    console.log(d);
+    // console.log(d);
   const r = Math.hypot(d.x2 - d.x1, d.y2 - d.y1);
   return `
     M${d.x1},${d.y1}
