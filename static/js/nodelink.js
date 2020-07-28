@@ -55,8 +55,8 @@ NodeLink.prototype.initVis = function() {
             .attr("viewBox", "0 -5 10 10")
             .attr("refX", 7)
             .attr("refY", 0)
-            .attr("markerWidth", 20)
-            .attr("markerHeight", 20)
+            .attr("markerWidth", 22)
+            .attr("markerHeight", 22)
             .attr("markerUnits", "userSpaceOnUse")
             .attr("orient", "auto")
         .append("path")
@@ -73,7 +73,7 @@ NodeLink.prototype.initVis = function() {
 
     vis.lineWidth = d3.scalePow()
         .domain(d3.extent(overlapLinks, (d) => d.pct_val))
-        .range([2,20]);
+        .range([2,18]);
 
     vis.partyColor = d3.scaleOrdinal()
         .domain(['DEM', 'DFL', 'REP', 'LIB', 'GRE', 'IND'])
@@ -476,7 +476,7 @@ NodeLink.prototype.getCircleCoordinates = function(linkDistance) {
         vis.circumferenceCoordinateSet = circlePlotCoordinates(linkDistance, [vis.width / 2, vis.height / 2], vis.numOuterNodes);
     }
     else {
-        const numRings = Math.ceil(nodeSpace / (vis.minCircleRadius));
+        const numRings = Math.ceil(nodeSpace / (2*vis.minCircleRadius + 8));
         const baseRadius = linkDistance - 50;
 
         vis.circumferenceCoordinateSet = [];
