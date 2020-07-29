@@ -11,8 +11,8 @@ NodeLink.prototype.initVis = function() {
     const vis = this;
 
     // Set height/width of viewBox
-    vis.width = 1300;
-    vis.height = 1300;
+    vis.width = 1100;
+    vis.height = 1100;
 
     vis.tooltipOrientation = d3.scaleThreshold()
         .domain([-91, -89, -1, 1, 89, 91, 179])
@@ -193,7 +193,7 @@ NodeLink.prototype.wrangleData = function() {
     vis.numOuterNodes = vis.overlapNodes.length - 1;
 
     // Determine node layout (using multiple rings, if necessary)
-    const linkDistance = 500;
+    const linkDistance = 450;
 
     vis.getCircleCoordinates(linkDistance);
     // console.log(vis.circumferenceCoordinateSet);

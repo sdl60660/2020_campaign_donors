@@ -29,7 +29,7 @@ const phoneBrowsingCutoff = 1100;
 let overlapNodes = null;
 let overlapLinks = null;
 
-let overlapThreshold = 3;
+let overlapThreshold = 5;
 let featuredCandidateId = "H8NY15148";
 
 
@@ -163,24 +163,25 @@ function setWindowFunctions() {
 // Initialize timeline slider
 function InitSlider() {
 
-    $("#slider-div").slider({
-        max: 40,
-        min: 1,
-        step: 1,
-        range: false,
-        value: overlapThreshold,
-        slide: function(event, ui) {
+    const updateSliderLabel = () => {
+        const range = document.getElementById('min-overlap-threshold');
+        const rangeLabel = document.getElementById('min-overlap-slider-label');
 
-            // const logVal = Math.round(10*Math.log(ui.value) / Math.log(1.2) / 10);
-            // console.log(Math.min(logVal, ui.value));
+        rangeLabel.innerHTML = `<span>${overlapThreshold}%</span>`;
+        const newVal = Number(((overlapThreshold - range.min) * 100) / (range.max - range.min));
+        rangeLabel.style.left = `calc(${newVal}% + (${8 - newVal * 0.15}px))`;
+    };
 
-            console.log(ui.value);
-            overlapThreshold = ui.value;
+    $("#min-overlap-threshold").on('input', () => {
+        const range = document.getElementById('min-overlap-threshold');
 
-            nodeLink.wrangleData();
+        overlapThreshold = range.value;
+        nodeLink.wrangleData();
 
-        }
-    })
+        updateSliderLabel();
+    });
+
+    updateSliderLabel();
 
 }
 
