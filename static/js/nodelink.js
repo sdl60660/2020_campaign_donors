@@ -297,7 +297,7 @@ NodeLink.prototype.updateVis = function() {
         .data(vis.directionalLinks, (d) => [d.source, d.target])
         .join("text")
         .attr("class", "arrow-labels")
-        .attr("dy", "-8");
+        .attr("dy", d => -0.5*vis.lineWidth(d.pct_val) - 1);
 
     vis.linkText.selectAll("textPath").remove();
     vis.linkText

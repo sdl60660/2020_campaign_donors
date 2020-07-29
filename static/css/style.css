@@ -19,6 +19,7 @@ strong {
 .tile-wrapper {
     min-height: 780px;
     position: relative;
+    text-align: center;
     /*left: 30%;*/
     /*opacity: 0.2;*/
 }
@@ -31,9 +32,14 @@ strong {
 .viz-tile {
 	position: sticky;
     top: 40px;
-    left: 50%;
+    right: 0;
+    left: 0;
+    margin-right: auto !important;
+    margin-left: auto !important;
+    /*left: 50%;*/
+    /*transform: translate(-50%, -50%);*/
 	margin-top: 60px;
-	margin-right: 15px;
+	/*margin-right: 15px;*/
 }
 
 #intro-tile {
@@ -213,6 +219,9 @@ strong {
 
 .container {
 	z-index: 2;
+    text-align: center;
+    margin: unset;
+    /*margin: 0;*/
     /*width: 80%;*/
 }
 
