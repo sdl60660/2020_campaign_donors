@@ -278,7 +278,7 @@ NodeLink.prototype.updateVis = function() {
         );
 
     vis.curvedLink =  vis.curvedLink
-        .data(vis.directionalLinks)
+        .data(vis.directionalLinks, (d) => [d.source, d.target])
         .join("path")
         .attr("class", "directional-link")
         .attr("id", d => {
@@ -296,8 +296,7 @@ NodeLink.prototype.updateVis = function() {
     vis.linkText = vis.linkText
         .data(vis.directionalLinks)
         .join("text")
-        .attr("dy", "-7")
-        .style("font-size", "10px")
+        .attr("dy", "-8")
         .append("textPath")
         // .append("textPath") //append a textPath to the text element
             .attr("xlink:href", d => {
@@ -310,12 +309,14 @@ NodeLink.prototype.updateVis = function() {
                     `textpath textpath-${d.target}` :
                     `textpath textpath-${d.source}`
             })
+            .classed('noselect', true)
             .style("text-anchor","middle")
             .style("opacity", 0)
+            .style("font-size", "10px")
             .attr("startOffset", d => d.direction === "outbound" ? "62%" : "50%")
             .style("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
             .text((d) => {
-                return `${d3.format(".0f")(d.pct_val)}% of ${d.source_name} donors also donated to ${d.target_name}`
+                return `${d3.format(".0f")(d.pct_val)}% of ${d.source_name} donors donated to ${d.target_name}`
             });
 
     // console.log(vis.curvedLink);
