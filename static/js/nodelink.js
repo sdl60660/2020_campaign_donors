@@ -66,6 +66,7 @@ NodeLink.prototype.initVis = function() {
     vis.pathColor = d3.scaleOrdinal()
         .domain(types)
         .range(["blue", "green"]);
+
     vis.svg.append("defs").selectAll("marker")
         .data(types)
         .join("marker")
@@ -81,6 +82,7 @@ NodeLink.prototype.initVis = function() {
         .append("path")
             .attr("fill", vis.pathColor)
             .attr("d", "M0,-5L10,0L0,5");
+
 
     vis.straightLink = vis.svg.append("g")
         .attr("fill", "none")
@@ -183,10 +185,6 @@ NodeLink.prototype.wrangleData = function() {
             d.x1 = vis.width / 2;
             d.y1 = vis.height / 2;
         }
-        // else {
-        //     d.x2 = vis.width / 2;
-        //     d.y2 = vis.height / 2;
-        // }
     });
 
     vis.overlapNodes = overlapNodes.filter(d => includedCandidates.includes(d.id) || d.id === vis.centerNodeId);
@@ -196,7 +194,6 @@ NodeLink.prototype.wrangleData = function() {
     const linkDistance = 450;
 
     vis.getCircleCoordinates(linkDistance);
-    // console.log(vis.circumferenceCoordinateSet);
 
     let coordinateIndex = 0;
     vis.overlapNodes.forEach(d => {
@@ -211,7 +208,12 @@ NodeLink.prototype.wrangleData = function() {
             d.initialX = d.x = correspondingLink.initialX2 =  vis.circumferenceCoordinateSet[coordinateIndex][0];
             d.initialY = d.y = correspondingLink.initialY2 = vis.circumferenceCoordinateSet[coordinateIndex][1];
 
-            d.nodeAngle = getAngle(vis.width/2, vis.height/2, d.initialX, d.initialY);
+            d.nodeAngle
+                = correspondingOutboundArrow.nodeAngle
+                = getAngle(vis.width/2, vis.height/2, d.initialX, d.initialY);
+
+            correspondingInboundArrow.nodeAngle = d.nodeAngle === 0 ? -180 : (180 - Math.abs(d.nodeAngle)) * (d.nodeAngle / Math.abs(d.nodeAngle));
+
             const distanceFromCenter = getDistance(vis.width/2, vis.height/2, d.initialX, d.initialY);
             const adjustedDistance = distanceFromCenter - d.radiusVal;
             const adjustedCoordinates = getCoordinates([vis.width/2, vis.height/2], adjustedDistance, d.nodeAngle);
@@ -233,8 +235,6 @@ NodeLink.prototype.wrangleData = function() {
             d.initialY = d.y = vis.height / 2;
         }
     });
-
-    // console.log(vis.selectedOverlapLinks, vis.overlapNodes);
 
     // vis.simulation = d3.forceSimulation(vis.overlapNodes)
     //     .force("charge", d3.forceManyBody().strength(450).distanceMax(10))
@@ -277,6 +277,7 @@ NodeLink.prototype.updateVis = function() {
                     .attr("y2", d => d.initialY2)
         );
 
+    vis.svg.selectAll(".hidden-directional-link").remove();
     vis.curvedLink =  vis.curvedLink
         .data(vis.directionalLinks, (d) => [d.source, d.target])
         .join("path")
@@ -289,9 +290,22 @@ NodeLink.prototype.updateVis = function() {
         .attr("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
         .style("z-index", 1)
         .attr("stroke-width", (d) => vis.lineWidth(d.pct_val))
-        .attr("d", linkArc)
+        .attr("d", d => linkArc(d, false))
         .style("opacity", 0.0)
-        .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`);
+        .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`)
+        // .attr("marker-start", (d) => (d.nodeAngle > 90 || d.nodeAngle < -90) ? `url(${new URL(`#arrow-${d.direction}`, location)})` : null)
+        .each((d) => {
+            vis.svg.append("path")
+                .attr("class", "hidden-directional-link")
+                .attr("id", () => {
+                    return d.direction === "outbound" ?
+                        `hidden-directional-link-${d.target}-outbound` :
+                        `hidden-directional-link-${d.source}-inbound`
+                })
+                .style("opacity", 0.0)
+                .attr("d", linkArc(d, true));
+        });
+
 
     vis.linkText = vis.linkText
         .data(vis.directionalLinks, (d) => [d.source, d.target])
@@ -305,8 +319,8 @@ NodeLink.prototype.updateVis = function() {
         // .append("textPath") //append a textPath to the text element
             .attr("xlink:href", d => {
                 return d.direction === "outbound" ?
-                    `#directional-link-${d.target}-outbound` :
-                    `#directional-link-${d.source}-inbound`
+                    `#hidden-directional-link-${d.target}-outbound` :
+                    `#hidden-directional-link-${d.source}-inbound`
             })
             .attr("class", d => {
                 return d.direction === "outbound" ?
@@ -317,13 +331,15 @@ NodeLink.prototype.updateVis = function() {
             .style("text-anchor","middle")
             .style("opacity", 0)
             .style("font-size", "10px")
-            .attr("startOffset", d => d.direction === "outbound" ? "62%" : "50%")
+            .attr("startOffset", d => {
+                let offset = d.direction === "outbound" ? 62 : 50;
+                offset = (d.nodeAngle > 90 || d.nodeAngle < -90) ? (100 - offset) : offset;
+                return `${offset}%`;
+            })
             .style("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
             .text((d) => {
                 return `${d3.format(".0f")(d.pct_val)}% of ${d.source_name} donors donated to ${d.target_name}`
             });
-
-    // console.log(vis.curvedLink);
 
     vis.svg.selectAll(".candidate-bubble-images")
         .transition()
@@ -422,9 +438,6 @@ NodeLink.prototype.updateVis = function() {
                     .attr("x", (d) => d.initialX)
                     .attr("y", (d) => d.initialY)
 
-                    // .attr("fx", (d) => d.initialX)
-                    // .attr("fy", (d) => d.initialY)
-
                     .attr("r", d => d.radiusVal)
                 ),
 
@@ -436,21 +449,11 @@ NodeLink.prototype.updateVis = function() {
                 .attr("x", (d) => d.initialX)
                 .attr("y", (d) => d.initialY)
 
-                // .attr("fx", (d) => d.initialX)
-                // .attr("fy", (d) => d.initialY)
-
                 .attr("r", d => d.radiusVal)
 
 
         );
 
-    // vis.labels = vis.labels
-    //     .data(vis.overlapNodes, (d) => d.id)
-    //     .join("text")
-    //     .attr("dx", 12)
-    //     .attr("dy", ".35em")
-    //     .style("stroke", "black")
-    //     .text((d) => d.display_name );
 
     // vis.simulation.on("tick", () => {
     //     vis.straightLink
@@ -516,13 +519,30 @@ drag = simulation => {
         .on("end", dragended);
 };
 
-function linkArc(d) {
+function linkArc(d, orientationMode) {
     // console.log(d);
-  const r = Math.hypot(d.x2 - d.x1, d.y2 - d.y1);
-  return `
-    M${d.x1},${d.y1}
-    A${r},${r} 0 0,1 ${d.x2},${d.y2}
-  `;
+    let sourceX = d.x1,
+        sourceY = d.y1,
+        targetX = d.x2,
+        targetY = d.y2,
+        clockwise = 1;
+
+    // console.log(d.nodeAngle);
+
+    if (orientationMode === true && (d.nodeAngle > 90 || d.nodeAngle < -90)) {
+        sourceX = d.x2;
+        sourceY = d.y2;
+        targetX = d.x1;
+        targetY = d.y1;
+        clockwise = 0;
+    }
+
+    const r = Math.hypot(d.x2 - d.x1, d.y2 - d.y1);
+
+    return `
+        M${sourceX},${sourceY}
+        A${r},${r} 0 0,${clockwise} ${targetX},${targetY}
+        `;
 }
 
 
@@ -532,7 +552,6 @@ NodeLink.prototype.getCircleCoordinates = function(linkDistance) {
     const ringCircumference = linkDistance*2*Math.PI;
     const nodeSpace = ringCircumference / vis.numOuterNodes;
 
-    // console.log(nodeSpace, 2*(vis.minCircleRadius+8));
     if ( nodeSpace > 2*(vis.minCircleRadius + 8) ) {
         vis.circumferenceCoordinateSet = circlePlotCoordinates(linkDistance, [vis.width / 2, vis.height / 2], vis.numOuterNodes);
     }
