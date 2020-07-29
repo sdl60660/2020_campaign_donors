@@ -29,12 +29,12 @@ NodeLink.prototype.initVis = function() {
         .direction((d) => d.id === vis.centerNodeId ? "n" : vis.tooltipOrientation(d.nodeAngle))
         .html(function(d) {
             let outputString = '<div>';
-            outputString += `<span>${d.display_name}</span><br><br>`;
-            outputString += `<span>Total Donors: ${d3.format(",")(d.total_donors)}</span><br>`;
+            outputString += `<div style="text-align: center;"><span><strong>${d.display_name}</strong></span></div><br>`;
+            outputString += `<span>Total Donors:</span> <span style="float: right;">${d3.format(",")(d.total_donors)}</span><br>`;
 
             const correspondingLink = vis.selectedOverlapLinks.find((x) => x.target === d.id);
             if (typeof correspondingLink !== "undefined") {
-                outputString += `<span>Overlap: ${d3.format(".1f")(correspondingLink.pct_val)}% (${d3.format(",")(correspondingLink.raw_val)})</span><br>`;
+                outputString += `<span>Overlap:</span> <span style="float: right;">${d3.format(",")(correspondingLink.raw_val)}</span><br>`;
             }
 
             outputString += '</div>';
@@ -283,8 +283,8 @@ NodeLink.prototype.updateVis = function() {
         .attr("class", "directional-link")
         .attr("id", d => {
             return d.direction === "outbound" ?
-                `directional-link-${d.target}` :
-                `directional-link-${d.source}`
+                `directional-link-${d.target}-outbound` :
+                `directional-link-${d.source}-inbound`
         })
         .attr("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
         .style("z-index", 1)
@@ -295,16 +295,28 @@ NodeLink.prototype.updateVis = function() {
 
     vis.linkText = vis.linkText
         .data(vis.directionalLinks)
-        .join("textPath")
+        .join("text")
+        .attr("dy", "-7")
+        .style("font-size", "10px")
+        .append("textPath")
         // .append("textPath") //append a textPath to the text element
             .attr("xlink:href", d => {
                 return d.direction === "outbound" ?
-                    `#directional-link-${d.target}` :
-                    `#directional-link-${d.source}`
+                    `#directional-link-${d.target}-outbound` :
+                    `#directional-link-${d.source}-inbound`
             })
-            .style("text-anchor","middle") //place the text halfway on the arc
-            .attr("startOffset", "50%")
-            .text("Testing...");
+            .attr("class", d => {
+                return d.direction === "outbound" ?
+                    `textpath textpath-${d.target}` :
+                    `textpath textpath-${d.source}`
+            })
+            .style("text-anchor","middle")
+            .style("opacity", 0)
+            .attr("startOffset", d => d.direction === "outbound" ? "62%" : "50%")
+            .style("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
+            .text((d) => {
+                return `${d3.format(".0f")(d.pct_val)}% of ${d.source_name} donors also donated to ${d.target_name}`
+            });
 
     // console.log(vis.curvedLink);
 
@@ -358,23 +370,29 @@ NodeLink.prototype.updateVis = function() {
                 .on("mouseover", (d) => {
                     vis.tip.show(d);
 
-                    if (d.id != vis.centerNodeId) {
-                        d3.selectAll(".straight-link")
+                    if (d.id !== vis.centerNodeId) {
+                        vis.svg.selectAll(".straight-link")
                             .style("opacity", 0);
 
-                        d3.selectAll(`#directional-link-${d.id}`)
+                        vis.svg.selectAll(`#directional-link-${d.id}-outbound, #directional-link-${d.id}-inbound`)
                             .style("opacity", 0.8);
+
+                        vis.svg.selectAll(`.textpath-${d.id}`)
+                            .style("opacity", 1.0);
                     }
 
                 })
                 .on("mouseout", (d) => {
                     vis.tip.hide();
 
-                    d3.selectAll('.directional-link')
+                    vis.svg.selectAll('.directional-link')
                         .style("opacity", 0);
 
-                    d3.selectAll(".straight-link")
+                    vis.svg.selectAll(".straight-link")
                         .style("opacity", 1);
+
+                    vis.svg.selectAll('.textpath')
+                        .style('opacity', 0);
 
                 })
                 .on("dblclick", (d) => {

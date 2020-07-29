@@ -66,7 +66,9 @@ for node in nodes:
             'source': row['primary_candidate_fec_id'],
             'target': row['compared_candidate_fec_id'],
             'pct_val': 100*(row['overlap_count'] / row['total_primary_donors']),
-            'raw_val': row['overlap_count']
+            'raw_val': row['overlap_count'],
+            'source_name': row['primary_candidate'].split(' ')[-2],
+            'target_name': row['compared_candidate'].split(' ')[-2]
         })
 
 
