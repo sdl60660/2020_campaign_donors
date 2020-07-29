@@ -416,7 +416,8 @@ NodeLink.prototype.updateVis = function() {
                         .style('opacity', 0);
 
                 })
-                .on("dblclick", (d) => {
+                // .on("dblclick", (d) => {
+                .on("click", (d) => {
                     $("#overlap-nodelink-candidate-select").val(d.id);
                     document.querySelector("#overlap-nodelink-candidate-select").fstdropdown.rebind();
                     featuredCandidateId = d.id;
