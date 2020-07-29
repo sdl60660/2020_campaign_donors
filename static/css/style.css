@@ -257,9 +257,13 @@ hr {
     height: 100%;
 }
 
+#candidate-select {
+    text-align: center;
+}
+
 .range-value{
     position: absolute;
-    top: -80%;
+    top: 110%;
 }
 .range-value span{
     /*padding-top: 3px;*/

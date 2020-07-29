@@ -299,6 +299,7 @@ NodeLink.prototype.updateVis = function() {
         .attr("class", "arrow-labels")
         .attr("dy", "-8");
 
+    vis.linkText.selectAll("textPath").remove();
     vis.linkText
         .append("textPath")
         // .append("textPath") //append a textPath to the text element
