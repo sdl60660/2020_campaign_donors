@@ -94,6 +94,10 @@ NodeLink.prototype.initVis = function() {
         .attr("stroke-opacity", 0.6)
         .selectAll("path");
 
+    vis.hiddenLink = vis.svg.append("g")
+        .attr("fill", "none")
+        .selectAll("path");
+
     vis.linkText = vis.svg.append("g")
         .attr('id', 'textPaths')
         .selectAll("text");
@@ -137,6 +141,8 @@ NodeLink.prototype.initVis = function() {
 NodeLink.prototype.wrangleData = function() {
     const vis = this;
 
+    vis.start = performance.now();
+
     vis.centerNodeId = featuredCandidateId;
     // vis.centerNodeId = overlapNodes[Math.round(getRandomArbitrary(0, 100))].id;
     // vis.numOuterNodes = 15;
@@ -165,6 +171,8 @@ NodeLink.prototype.wrangleData = function() {
         d.target = typeof(d.target) === "object" ? d.target.id : d.target;
     });
 
+    // console.log("Filtered Links", performance.now() - vis.start);
+
     const includedCandidates = vis.selectedOverlapLinks.map(d => d.target);
     // console.log(includedCandidates);
     vis.directionalLinks = overlapLinks
@@ -189,6 +197,8 @@ NodeLink.prototype.wrangleData = function() {
 
     vis.overlapNodes = overlapNodes.filter(d => includedCandidates.includes(d.id) || d.id === vis.centerNodeId);
     vis.numOuterNodes = vis.overlapNodes.length - 1;
+
+    // console.log("Filtered Directional Links", performance.now() - vis.start);
 
     // Determine node layout (using multiple rings, if necessary)
     const linkDistance = 450;
@@ -236,11 +246,7 @@ NodeLink.prototype.wrangleData = function() {
         }
     });
 
-    // vis.simulation = d3.forceSimulation(vis.overlapNodes)
-    //     .force("charge", d3.forceManyBody().strength(450).distanceMax(10))
-    //     .force("center", d3.forceCenter(vis.width / 2, vis.height / 2))
-    //     .force("link", d3.forceLink(vis.selectedOverlapLinks).id(d => d.id).distance(linkDistance))
-    //     // .stop();
+    // console.log("Set New Data on Nodes/Links", performance.now() - vis.start);
 
     vis.updateVis();
 
@@ -250,8 +256,6 @@ NodeLink.prototype.updateVis = function() {
     const vis = this;
 
     const transitionDuration = 800;
-
-    // vis.simulation.stop();
 
     vis.straightLink = vis.straightLink
         .data(vis.selectedOverlapLinks, (d) => [d.source, d.target])
@@ -277,7 +281,8 @@ NodeLink.prototype.updateVis = function() {
                     .attr("y2", d => d.initialY2)
         );
 
-    vis.svg.selectAll(".hidden-directional-link").remove();
+    // console.log("Appended Links", performance.now() - vis.start);
+
     vis.curvedLink =  vis.curvedLink
         .data(vis.directionalLinks, (d) => [d.source, d.target])
         .join("path")
@@ -292,20 +297,24 @@ NodeLink.prototype.updateVis = function() {
         .attr("stroke-width", (d) => vis.lineWidth(d.pct_val))
         .attr("d", d => linkArc(d, false))
         .style("opacity", 0.0)
-        .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`)
+        .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`);
         // .attr("marker-start", (d) => (d.nodeAngle > 90 || d.nodeAngle < -90) ? `url(${new URL(`#arrow-${d.direction}`, location)})` : null)
-        .each((d) => {
-            vis.svg.append("path")
-                .attr("class", "hidden-directional-link")
-                .attr("id", () => {
-                    return d.direction === "outbound" ?
-                        `hidden-directional-link-${d.target}-outbound` :
-                        `hidden-directional-link-${d.source}-inbound`
-                })
-                .style("opacity", 0.0)
-                .attr("d", linkArc(d, true));
-        });
 
+    // console.log("Appended Directional Links", performance.now() - vis.start);
+
+    vis.hiddenLink = vis.hiddenLink
+        .data(vis.directionalLinks, (d) => [d.source, d.target])
+        .join("path")
+            .attr("class", "hidden-directional-link")
+            .attr("id", (d) => {
+                return d.direction === "outbound" ?
+                    `hidden-directional-link-${d.target}-outbound` :
+                    `hidden-directional-link-${d.source}-inbound`
+            })
+            .style("opacity", 0.0)
+            .attr("d", (d) => linkArc(d, true));
+
+    // console.log("Appended Hidden Links", performance.now() - vis.start);
 
     vis.linkText = vis.linkText
         .data(vis.directionalLinks, (d) => [d.source, d.target])
@@ -314,6 +323,7 @@ NodeLink.prototype.updateVis = function() {
         .attr("dy", d => -0.5*vis.lineWidth(d.pct_val) - 1);
 
     vis.linkText.selectAll("textPath").remove();
+    // console.log("Appended Link Text 1", performance.now() - vis.start);
     vis.linkText
         .append("textPath")
         // .append("textPath") //append a textPath to the text element
@@ -340,6 +350,8 @@ NodeLink.prototype.updateVis = function() {
             .text((d) => {
                 return `${d3.format(".0f")(d.pct_val)}% of ${d.source_name} donors donated to ${d.target_name}`
             });
+
+    // console.log("Appended Link Text 2", performance.now() - vis.start);
 
     vis.svg.selectAll(".candidate-bubble-images")
         .transition()
@@ -379,6 +391,8 @@ NodeLink.prototype.updateVis = function() {
                     .attr("x", vis.width/2)
                     .attr("y", vis.height/2)
         );
+
+    // console.log("Appended Candidate Images", performance.now() - vis.start);
 
 
     vis.node = vis.node
@@ -455,70 +469,10 @@ NodeLink.prototype.updateVis = function() {
 
         );
 
-
-    // vis.simulation.on("tick", () => {
-    //     vis.straightLink
-    //         // .attr("x1", d => d.source.x)
-    //         // .attr("y1", d => d.source.y)
-    //         // This x1/y1 (opposed to the one above) will work to pin the featured candidate bubble to the center
-    //         .attr("x1", vis.width / 2)
-    //         .attr("y1", vis.height / 2)
-    //         .attr("x2", d => d.target.x)
-    //         .attr("y2", d => d.target.y);
-    //
-    //     vis.curvedLink.attr("d", linkArc);
-    //
-    //     vis.node
-    //         // These conditionals work to pin the featured candidate bubble to the center
-    //         .attr("cx", d => d.id === vis.centerNodeId ? vis.width / 2 : d.x)
-    //         .attr("cy", d => d.id === vis.centerNodeId ? vis.height / 2 : d.y);
-    //
-    //     vis.images
-    //         .attr("cx", d => d.id === vis.centerNodeId ? vis.width / 2 : d.x)
-    //         .attr("cy", d => d.id === vis.centerNodeId ? vis.height / 2 : d.y)
-    //   });
-
-    // vis.simulation.alpha(1).restart();
-    // vis.simulation.nodes(vis.node);
-    // vis.simulation.force("link").links(links);
-
-    // console.log(vis.overlapNodes);
-
+    // console.log("Appended Nodes", performance.now() - vis.start);
 
 };
 
-
-drag = simulation => {
-
-    function dragstarted(d) {
-        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-
-        d.fx = d.x;
-        d.fy = d.y;
-    }
-
-    function dragged(d) {
-        // Conditional added to pin feature candidate to the center
-        if (d.id !== featuredCandidateId) {
-            d.fx = d3.event.x;
-            d.fy = d3.event.y;
-        }
-    }
-
-    function dragended(d) {
-        if (!d3.event.active) simulation.alphaTarget(0);
-
-        // if (d.id !== featuredCandidateId) {
-            d.fx = null;
-            d.fy = null;
-        // }
-    }
-
-    return d3.drag()
-        .on("start", dragstarted)
-        .on("drag", dragged)
-        .on("end", dragended);
-};
 
 function linkArc(d, orientationMode) {
     // console.log(d);
@@ -553,12 +507,13 @@ NodeLink.prototype.getCircleCoordinates = function(linkDistance) {
     const ringCircumference = linkDistance*2*Math.PI;
     const nodeSpace = ringCircumference / vis.numOuterNodes;
 
-    if ( nodeSpace > 2*(vis.minCircleRadius + 8) ) {
+    let nodePadding = 10;
+
+    if ( nodeSpace > 2*(vis.minCircleRadius + nodePadding) ) {
         vis.circumferenceCoordinateSet = circlePlotCoordinates(linkDistance, [vis.width / 2, vis.height / 2], vis.numOuterNodes);
     }
     else {
-        let nodePadding = 8;
-        let nodeDiameter = ((2*vis.minCircleRadius) + nodePadding);
+        let nodeDiameter = (2*(vis.minCircleRadius + nodePadding));
         const numRings = Math.ceil((nodeDiameter * vis.numOuterNodes) / ringCircumference);
 
         // const numRings = Math.ceil(ringCircumference / (2*vis.minCircleRadius + 8));
