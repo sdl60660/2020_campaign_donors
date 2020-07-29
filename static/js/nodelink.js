@@ -93,7 +93,7 @@ NodeLink.prototype.initVis = function() {
         .selectAll("path");
 
     vis.linkText = vis.svg.append("g")
-        .attr('class', 'textPaths')
+        .attr('id', 'textPaths')
         .selectAll("text");
 
     const defs = vis.svg
@@ -294,9 +294,12 @@ NodeLink.prototype.updateVis = function() {
         .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`);
 
     vis.linkText = vis.linkText
-        .data(vis.directionalLinks)
+        .data(vis.directionalLinks, (d) => [d.source, d.target])
         .join("text")
-        .attr("dy", "-8")
+        .attr("class", "arrow-labels")
+        .attr("dy", "-8");
+
+    vis.linkText
         .append("textPath")
         // .append("textPath") //append a textPath to the text element
             .attr("xlink:href", d => {
