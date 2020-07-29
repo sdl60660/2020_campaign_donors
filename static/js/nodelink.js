@@ -26,7 +26,7 @@ NodeLink.prototype.initVis = function() {
     // Initialize hover tooltip on nodes
     vis.tip = d3.tip()
         .attr("class", "d3-tip")
-        .direction((d) => vis.tooltipOrientation(d.nodeAngle))
+        .direction((d) => d.id === vis.centerNodeId ? "n" : vis.tooltipOrientation(d.nodeAngle))
         .html(function(d) {
             let outputString = '<div>';
             outputString += `<span>${d.display_name}</span><br><br>`;
@@ -43,33 +43,14 @@ NodeLink.prototype.initVis = function() {
         });
     vis.svg.call(vis.tip);
 
-    // Set path color scale and define arrow markers
-    const types = ["outbound", "inbound"];
-    vis.pathColor = d3.scaleOrdinal()
-        .domain(types)
-        .range(["blue", "green"]);
-    vis.svg.append("defs").selectAll("marker")
-        .data(types)
-        .join("marker")
-            .attr("id", d => `arrow-${d}`)
-            .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 7)
-            .attr("refY", 0)
-            .attr("markerWidth", 22)
-            .attr("markerHeight", 22)
-            .attr("markerUnits", "userSpaceOnUse")
-            .attr("orient", "auto")
-        .append("path")
-            .attr("fill", vis.pathColor)
-            .attr("d", "M0,-5L10,0L0,5");
-
     vis.minCircleRadius = 12;
+    vis.centerNodeRadiusVal = 90;
     // Scales for node radius and with of line depending on overlap percentage
     vis.circleRadius = d3.scalePow()
         // .domain(d3.extent(overlapLinks, (d) => d.pct_val))
         .domain([0, 60])
         .range([vis.minCircleRadius, 70])
-        .exponent(1.4);
+        .exponent(1.3);
 
     vis.lineWidth = d3.scalePow()
         .domain(d3.extent(overlapLinks, (d) => d.pct_val))
@@ -80,6 +61,27 @@ NodeLink.prototype.initVis = function() {
         .range(["#0015BC", "#0015BC", "#E9141D", "#FED105", "#508C1B", "gray"])
         .unknown("gray");
 
+    // Set path color scale and define arrow markers
+    const types = ["outbound", "inbound"];
+    vis.pathColor = d3.scaleOrdinal()
+        .domain(types)
+        .range(["blue", "green"]);
+    vis.svg.append("defs").selectAll("marker")
+        .data(types)
+        .join("marker")
+            .attr("id", d => `arrow-${d}`)
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 8)
+            .attr("refY", 0)
+            .attr("markerWidth", 4)
+            .attr("markerHeight", 4)
+            // .attr("markerUnits", "userSpaceOnUse")
+            .attr("orient", "auto")
+            .style("opacity", 0.8)
+        .append("path")
+            .attr("fill", vis.pathColor)
+            .attr("d", "M0,-5L10,0L0,5");
+
     vis.straightLink = vis.svg.append("g")
         .attr("fill", "none")
         .attr("stroke-opacity", 0.6)
@@ -89,6 +91,10 @@ NodeLink.prototype.initVis = function() {
         .attr("fill", "none")
         .attr("stroke-opacity", 0.6)
         .selectAll("path");
+
+    vis.linkText = vis.svg.append("g")
+        .attr('class', 'textPaths')
+        .selectAll("text");
 
     const defs = vis.svg
         .append("defs")
@@ -166,23 +172,28 @@ NodeLink.prototype.wrangleData = function() {
 
         );
 
-    vis.directionalLinks.forEach(d => {
-        d.x1 = vis.width/2;
-        d.y1 = vis.height/2;
-    });
-
-    vis.overlapNodes = overlapNodes.filter(d => includedCandidates.includes(d.id) || d.id === vis.centerNodeId);
-
-    vis.selectedOverlapLinks.forEach(function(d) {
+    vis.directionalLinks.forEach(function(d) {
         d.direction = d.source === vis.centerNodeId ?
             "outbound" :
             "inbound";
     });
 
+    vis.directionalLinks.forEach(d => {
+        if (d.direction === "outbound") {
+            d.x1 = vis.width / 2;
+            d.y1 = vis.height / 2;
+        }
+        // else {
+        //     d.x2 = vis.width / 2;
+        //     d.y2 = vis.height / 2;
+        // }
+    });
+
+    vis.overlapNodes = overlapNodes.filter(d => includedCandidates.includes(d.id) || d.id === vis.centerNodeId);
     vis.numOuterNodes = vis.overlapNodes.length - 1;
 
     // Determine node layout (using multiple rings, if necessary)
-    const linkDistance = 450;
+    const linkDistance = 500;
 
     vis.getCircleCoordinates(linkDistance);
     // console.log(vis.circumferenceCoordinateSet);
@@ -190,9 +201,10 @@ NodeLink.prototype.wrangleData = function() {
     let coordinateIndex = 0;
     vis.overlapNodes.forEach(d => {
         const correspondingLink = vis.selectedOverlapLinks.find((x) => x.target === d.id);
-        const correspondingArrow = vis.directionalLinks.find((x) => x.target === d.id);
+        const correspondingOutboundArrow = vis.directionalLinks.find((x) => x.target === d.id);
+        const correspondingInboundArrow = vis.directionalLinks.find((x) => x.source === d.id);
 
-        const radiusVal = typeof(correspondingLink) === "undefined" ? 90 : correspondingLink.pct_val;
+        const radiusVal = typeof(correspondingLink) === "undefined" ? vis.centerNodeRadiusVal : correspondingLink.pct_val;
         d.radiusVal =  vis.circleRadius(radiusVal);
 
         if (d.id !== vis.centerNodeId) {
@@ -202,10 +214,17 @@ NodeLink.prototype.wrangleData = function() {
             d.nodeAngle = getAngle(vis.width/2, vis.height/2, d.initialX, d.initialY);
             const distanceFromCenter = getDistance(vis.width/2, vis.height/2, d.initialX, d.initialY);
             const adjustedDistance = distanceFromCenter - d.radiusVal;
-            const adjustedCoordinates = getCoordinates([vis.width/2, vis.height/2], adjustedDistance, d.nodeAngle)
+            const adjustedCoordinates = getCoordinates([vis.width/2, vis.height/2], adjustedDistance, d.nodeAngle);
 
-            correspondingArrow.x2 = adjustedCoordinates[0];
-            correspondingArrow.y2 = adjustedCoordinates[1];
+            correspondingOutboundArrow.x2 = correspondingInboundArrow.x1 = adjustedCoordinates[0];
+            correspondingOutboundArrow.y2 = correspondingInboundArrow.y1 = adjustedCoordinates[1];
+
+            const reverseAngle = d.nodeAngle - 180;
+            const reverseAdjustedDistance = distanceFromCenter - vis.circleRadius(vis.centerNodeRadiusVal);
+            const reverseAdjustedCoordinates = getCoordinates([d.initialX, d.initialY], reverseAdjustedDistance, reverseAngle);
+
+            correspondingInboundArrow.x2 = reverseAdjustedCoordinates[0];
+            correspondingInboundArrow.y2 = reverseAdjustedCoordinates[1];
 
             coordinateIndex += 1;
         }
@@ -262,13 +281,30 @@ NodeLink.prototype.updateVis = function() {
         .data(vis.directionalLinks)
         .join("path")
         .attr("class", "directional-link")
-        .attr("id", d => `directional-link-${d.target}`)
+        .attr("id", d => {
+            return d.direction === "outbound" ?
+                `directional-link-${d.target}` :
+                `directional-link-${d.source}`
+        })
         .attr("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
         .style("z-index", 1)
         .attr("stroke-width", (d) => vis.lineWidth(d.pct_val))
         .attr("d", linkArc)
-        .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`)
-        .style("opacity", 0.0);
+        .style("opacity", 0.0)
+        .attr("marker-end", (d) => `url(${new URL(`#arrow-${d.direction}`, location)})`);
+
+    vis.linkText = vis.linkText
+        .data(vis.directionalLinks)
+        .join("textPath")
+        // .append("textPath") //append a textPath to the text element
+            .attr("xlink:href", d => {
+                return d.direction === "outbound" ?
+                    `#directional-link-${d.target}` :
+                    `#directional-link-${d.source}`
+            })
+            .style("text-anchor","middle") //place the text halfway on the arc
+            .attr("startOffset", "50%")
+            .text("Testing...");
 
     // console.log(vis.curvedLink);
 
@@ -322,11 +358,13 @@ NodeLink.prototype.updateVis = function() {
                 .on("mouseover", (d) => {
                     vis.tip.show(d);
 
-                    d3.selectAll(".straight-link")
-                        .style("opacity", 0);
+                    if (d.id != vis.centerNodeId) {
+                        d3.selectAll(".straight-link")
+                            .style("opacity", 0);
 
-                    d3.select(`#directional-link-${d.id}`)
-                        .style("opacity", 0.8);
+                        d3.selectAll(`#directional-link-${d.id}`)
+                            .style("opacity", 0.8);
+                    }
 
                 })
                 .on("mouseout", (d) => {
@@ -476,7 +514,11 @@ NodeLink.prototype.getCircleCoordinates = function(linkDistance) {
         vis.circumferenceCoordinateSet = circlePlotCoordinates(linkDistance, [vis.width / 2, vis.height / 2], vis.numOuterNodes);
     }
     else {
-        const numRings = Math.ceil(nodeSpace / (2*vis.minCircleRadius + 8));
+        let nodePadding = 8;
+        let nodeDiameter = ((2*vis.minCircleRadius) + nodePadding);
+        const numRings = Math.ceil((nodeDiameter * vis.numOuterNodes) / ringCircumference);
+
+        // const numRings = Math.ceil(ringCircumference / (2*vis.minCircleRadius + 8));
         const baseRadius = linkDistance - 50;
 
         vis.circumferenceCoordinateSet = [];

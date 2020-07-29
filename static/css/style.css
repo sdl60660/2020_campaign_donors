@@ -17,7 +17,7 @@ strong {
 }
 
 .tile-wrapper {
-    height: 780px;
+    min-height: 780px;
     position: relative;
     /*left: 30%;*/
     /*opacity: 0.2;*/
