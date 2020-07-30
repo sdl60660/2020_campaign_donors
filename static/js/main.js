@@ -393,6 +393,7 @@ function main() {
         //     .css("visibility", "visible");
 
         nodeLink = new NodeLink("#nodelink-area");
+        beeSwarm = new BeeSwarm("#beeswarm-area");
 
         // If user loads visualization in the middle of the page, run all activate functions that they should have passed
         // already to "catch them up"
