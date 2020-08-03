@@ -1,14 +1,22 @@
-COPY (SELECT
+COPY (
+
+SELECT
 candidates.fec_id
-, CONCAT(candidates.first_name, ' ', candidates.last_name) AS "candidate_name"
+, candidates.first_name
+, candidates.last_name
+, candidates.race_type
+, candidates.party
 , donors.zipcode
+, SUM(contributions.contribution_amount) AS "total_receipts"
 , COUNT(DISTINCT contributions.donor) AS "total_contributors"
 , COUNT(contributions.donor) AS "total_contributions"
-, SUM(contributions.contribution_amount) AS "total_amount_donated"
 FROM contributions
-LEFT JOIN donors ON donors.donor_key = contributions.donor
-LEFT JOIN candidates ON contributions.candidate = candidates.fec_id
-WHERE contributions.candidate IS NOT NULL
-AND donors.zipcode IS NOT NULL
-GROUP BY candidates.fec_id, "candidate_name", donors.zipcode
-) TO '/users/samlearner/miscellaneous_programming/portfolio_projects/candidate_contributions/data_processing/db_outputs/candidate_zipcodes.csv' DELIMITER ',' CSV HEADER;
+LEFT JOIN candidates ON candidates.fec_id = contributions.candidate
+LEFT JOIN donors ON contributions.donor = donors.donor_key
+WHERE fec_id IS NOT NULL AND donors.zipcode IS NOT NULL
+GROUP BY candidates.fec_id, candidates.first_name, candidates.last_name, candidates.race_type, candidates.party, donors.zipcode
+ORDER BY SUM(contributions.contribution_amount) DESC
+	
+)
+TO '/users/samlearner/miscellaneous_programming/portfolio_projects/candidate_contributions/data_processing/db_outputs/candidate_zipcodes.csv' DELIMITER ',' CSV HEADER;	
+	

@@ -28,9 +28,18 @@ const phoneBrowsingCutoff = 1100;
 // Datasets
 let overlapNodes = null;
 let overlapLinks = null;
+let stateMap = null;
+let beeswarmMoneyBlocks = null;
+let stateSummaryCounts = null;
+let candidateMeta = null;
 
 let overlapThreshold = 5;
 let featuredCandidateId = "H8NY15148";
+
+const partyColor = d3.scaleOrdinal()
+        .domain(['DEM', 'DFL', 'REP', 'LIB', 'GRE', 'IND'])
+        .range(["#0015BC", "#0015BC", "#E9141D", "#FED105", "#508C1B", "gray"])
+        .unknown("gray");
 
 
 // ======== END GLOBALS ======== //
@@ -161,7 +170,7 @@ function setWindowFunctions() {
 
 
 // Initialize timeline slider
-function InitSlider() {
+function initSlider() {
 
     const updateSliderLabel = () => {
         const range = document.getElementById('min-overlap-threshold');
@@ -185,7 +194,7 @@ function InitSlider() {
 
 }
 
-function BuildCandidateDropdowns() {
+function buildCandidateDropdowns() {
 
     let htmlString = "";
     overlapNodes.forEach(d => {
@@ -359,7 +368,11 @@ function main() {
     // Begin loading datafiles
     const promises = [
         d3.json("static/data/candidate_overlap_links.json"),
-        d3.json("static/data/candidate_overlap_nodes.json")
+        d3.json("static/data/candidate_overlap_nodes.json"),
+        d3.json("static/data/states.geojson"),
+        d3.json("static/data/beeswarm_money_blocks.json"),
+        d3.json("static/data/state_summary_counts.json"),
+        d3.csv("static/data/candidates_meta.csv")
     ];
 
     // Initialize both main viz tiles to faded
@@ -381,13 +394,18 @@ function main() {
         overlapLinks = allData[0];
         overlapNodes = allData[1];
 
-        // dataset = allData[0];
+        stateMap = allData[2];
+        beeswarmMoneyBlocks = allData[3];
+        stateSummaryCounts = allData[4];
+        candidateMeta = allData[5];
+        candidateMeta
+            .forEach(d => d.total_receipts = +d.total_receipts);
 
         $(".loadring-container")
             .hide();
 
-        InitSlider();
-        BuildCandidateDropdowns();
+        initSlider();
+        buildCandidateDropdowns();
 
         // $("#intro-wrapper")
         //     .css("visibility", "visible");

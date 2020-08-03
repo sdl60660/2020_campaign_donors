@@ -60,11 +60,6 @@ NodeLink.prototype.initVis = function() {
         .domain(d3.extent(overlapLinks, (d) => d.pct_val))
         .range([2,18]);
 
-    vis.partyColor = d3.scaleOrdinal()
-        .domain(['DEM', 'DFL', 'REP', 'LIB', 'GRE', 'IND'])
-        .range(["#0015BC", "#0015BC", "#E9141D", "#FED105", "#508C1B", "gray"])
-        .unknown("gray");
-
     // Set path color scale and define arrow markers
     const types = ["outbound", "inbound"];
     vis.pathColor = d3.scaleOrdinal()
@@ -145,7 +140,7 @@ NodeLink.prototype.initVis = function() {
 NodeLink.prototype.wrangleData = function() {
     const vis = this;
 
-    vis.start = performance.now();
+    // vis.start = performance.now();
 
     vis.centerNodeId = featuredCandidateId;
     // vis.centerNodeId = overlapNodes[Math.round(getRandomArbitrary(0, 100))].id;
@@ -183,13 +178,15 @@ NodeLink.prototype.wrangleData = function() {
         .filter((d) =>
             (includedCandidates.includes(d.source) && (vis.centerNodeId === d.target || vis.centerNodeId === d.target.id))
             || (includedCandidates.includes(d.target) && (vis.centerNodeId === d.source || vis.centerNodeId === d.source.id))
-
+            // || (includedCandidates.includes(d.source.id))
         );
 
     vis.directionalLinks.forEach(function(d) {
         d.direction = d.source === vis.centerNodeId ?
             "outbound" :
             "inbound";
+        d.source = typeof(d.source) === "object" ? d.source.id : d.source;
+        d.target = typeof(d.target) === "object" ? d.target.id : d.target;
     });
 
     vis.directionalLinks.forEach(d => {
@@ -214,8 +211,11 @@ NodeLink.prototype.wrangleData = function() {
         const correspondingLink = vis.selectedOverlapLinks.find((x) => vis.direction === "outbound" ?
             x.target === d.id :
             x.source === d.id);
+
         const correspondingOutboundArrow = vis.directionalLinks.find((x) => x.target === d.id);
         const correspondingInboundArrow = vis.directionalLinks.find((x) => x.source === d.id);
+
+        // console.log(correspondingOutboundArrow, correspondingInboundArrow);
 
         const radiusVal = typeof(correspondingLink) === "undefined" ? vis.centerNodeRadiusVal : correspondingLink.pct_val;
         d.radiusVal =  vis.circleRadius(radiusVal);
@@ -255,10 +255,11 @@ NodeLink.prototype.wrangleData = function() {
     // console.log("Set New Data on Nodes/Links", performance.now() - vis.start);
 
     // vis.simulation = d3.forceSimulation(vis.overlapNodes)
-    //     .force("charge", d3.forceManyBody().strength(-1))
+    //     .force("charge", d3.forceManyBody().strength(-450))
+    //     .force("charge", d3.forceCollide().radius(d => vis.circleRadius(d.radiusVal)))
     //     .force("center", d3.forceCenter(vis.width / 2, vis.height / 2))
     //     .force("link", d3.forceLink(vis.selectedOverlapLinks).id(d => d.id).distance(linkDistance))
-    //     .force("r", d3.forceRadial(function(d,i) { return i > 40 ? linkDistance + 100 : linkDistance; }, vis.width / 2, vis.height /2))
+    //     // .force("r", d3.forceRadial(function(d,i) { return i > 40 ? linkDistance + 100 : linkDistance; }, vis.width / 2, vis.height /2))
     //     .stop();
 
     vis.updateVis();
@@ -413,7 +414,7 @@ NodeLink.prototype.updateVis = function() {
         .join(
             enter => enter.append("circle")
                 .attr("class", "candidate-node")
-                .attr("fill", (d) => vis.partyColor(d.party))
+                .attr("fill", (d) => partyColor(d.party))
                 .attr("fill-opacity", 0.2)
                 .style("z-index", 10)
                 .on("mouseover", (d) => {
@@ -457,7 +458,7 @@ NodeLink.prototype.updateVis = function() {
                 .attr("x", vis.width/2)
                 .attr("y", vis.height/2)
                 .style("stroke-width", "2px")
-                .style("stroke", d => vis.partyColor(d.party))
+                .style("stroke", d => partyColor(d.party))
                 // .call(drag(vis.simulation))
                 .call(enter => enter.transition()
                     .duration(transitionDuration)
