@@ -17,19 +17,47 @@ BeeSwarm.prototype.initVis = function() {
         .append("svg")
         .attr("viewBox", [0, 0, vis.width, vis.height]);
 
-    vis.projection = d3.geoAlbersUsa()
+    vis.projection = geoAlbersUsaPr()
         .scale(vis.width)
         .translate([vis.width / 2, vis.height / 2]);
+
+    // Add contribution totals to the properties of each state feature
+    stateMap.features.forEach(state => {
+        const trueCounts = stateSummaryCounts[state.properties.SHORT_NAME];
+        let contributionCounts = {};
+
+        contributionCounts['DEM'] = {'president': 0, 'house': 0, 'senate': 0};
+        contributionCounts['REP'] = {'president': 0, 'house': 0, 'senate': 0};
+        contributionCounts['OTH'] = {'president': 0, 'house': 0, 'senate': 0};
+
+        Object.keys(trueCounts).forEach(party => {
+            let partyGroup = (party === 'DEM' || party === 'DFL') ? 'DEM' : (party === 'REP') ? 'REP' : 'OTH';
+
+            Object.keys(trueCounts[party]).forEach(office => {
+                contributionCounts[partyGroup][office] += trueCounts[party][office]
+            })
+        });
+
+        state.properties.contributionCounts = contributionCounts;
+        // state.properties.donorCounts = {};
+    });
+
+    vis.initStateTooltip();
 
     vis.usMap = vis.svg.append("g")
         .selectAll("path")
         .data(stateMap.features)
         .join("path")
+            .attr("id", d => `state-${d.properties.SHORT_NAME}`)
             .attr("fill", "white")
             .attr("d", d3.geoPath()
                 .projection(vis.projection)
             )
-            .style("stroke", "black");
+            .style("stroke", "black")
+            .on("mouseover", (d,i,n) => {
+                vis.tip.show(d, n[i]);
+            })
+            .on("mouseout", vis.tip.hide);
 
     let stateCenters = {};
     stateMap.features.forEach(d => {
@@ -38,7 +66,7 @@ BeeSwarm.prototype.initVis = function() {
     });
 
     // This is where all uncategorized data will lie (unreported individual donations/committee contributions)
-    stateCenters['uncategorized'] = [0.9*vis.width, 0.7*vis.height];
+    stateCenters['uncategorized'] = [0.9*vis.width, 0.5*vis.height];
     // Offset California by a little to avoid some of the Nevada overlap
     stateCenters['CA'][0] -= 20;
 
@@ -62,9 +90,19 @@ BeeSwarm.prototype.initVis = function() {
         // .attr("r", d => vis.beeRadius(d.total_receipts))
         .style("stroke", "black")
         .style("stroke-width", 0.5)
-        .attr("fill", d => partyColor(d.party));
+        .attr("fill", d => partyColor(d.party))
+        .on("mouseover", d => {
+            let featureData = stateMap.features.find(x => x.properties.SHORT_NAME === d.state);
+            let matchingState = vis.svg.select(`#state-${d.state}`).node();
+            vis.tip.show(featureData, matchingState);
+        })
+        .on("mouseout", vis.tip.hide);
 
     vis.tick = () => {
+        for (let i = 0; i < 2; i++) {
+            vis.simulation.tick();
+          }
+
 		d3.selectAll('.bee-node')
 			.attr('cx', d => d.x)
 			.attr('cy', d => d.y)
@@ -77,7 +115,7 @@ BeeSwarm.prototype.initVis = function() {
 
     vis.officeTypeCoordinates = d3.scaleOrdinal()
         .domain(['president', 'senate', 'house'])
-        .range([[vis.width/3, 0.2*vis.height], [vis.width/3, 0.35*vis.height], [vis.width/3, 0.5*vis.height]])
+        .range([[vis.width/3, 0.2*vis.height], [vis.width/3, 0.4*vis.height], [vis.width/3, 0.6*vis.height]])
         .unknown([vis.width/3, 0.8*vis.height]);
 
 
@@ -85,8 +123,8 @@ BeeSwarm.prototype.initVis = function() {
         d3.forceSimulation(vis.includedBlocks)
             .force('x', d3.forceX( d => (d.party === 'REP' ? 3 : -3) + stateCenters[d.state][0]).strength(0.9))
             .force('y', d3.forceY( d => stateCenters[d.state][1]).strength(0.9))
-            .force('repel', d3.forceManyBody().strength(-30).distanceMax(10))
-            .force('collide', d3.forceCollide(d => vis.beeRadius(d.total_receipts)))
+            .force('repel', d3.forceManyBody().strength(-20).distanceMax(5))
+            .force('collide', d3.forceCollide(3))
             // .alphaDecay(0.005)
             .alpha(0.12)
             .on('tick', vis.tick);
@@ -155,20 +193,21 @@ BeeSwarm.prototype.sortByCandidates = function() {
     const presidentXScale = d3.scaleOrdinal()
         .domain(candidateGroups[0].map(d => d.fec_id))
         .range([0.25, 0.35, 0.45, 0.55, 0.65, 0.75])
-        .unknown([1.1]);
+        .unknown(0.9);
 
     const senateXScale = d3.scaleOrdinal()
         .domain(candidateGroups[1].map(d => d.fec_id))
         .range([0.25, 0.35, 0.45, 0.55, 0.65, 0.75])
-        .unknown([1.1]);
+        .unknown(0.9);
 
     const houseXScale = d3.scaleOrdinal()
         .domain(candidateGroups[2].map(d => d.fec_id))
         .range([0.25, 0.35, 0.45, 0.55, 0.65, 0.75])
-        .unknown([1.1]);
+        .unknown(0.9);
 
     vis.simulation
-        .alpha(0.3)
+        .alpha(0.2)
+        // .force('force', d3.forceManyBody().strength(-2))
         .force('x', d3.forceX( d => {
             if (d.race_type === "president") {
                 return presidentXScale(d.fec_id)*vis.width;
@@ -198,8 +237,8 @@ BeeSwarm.prototype.sortByCandidates = function() {
                 return houseXScale(d.fec_id)*vis.width;
             }
         })
-        .attr("y", d => vis.officeTypeCoordinates(d.race_type)[1] - 60)
-        .style("font-size", "10px")
+        .attr("y", d => vis.officeTypeCoordinates(d.race_type)[1] - 90)
+        .style("font-size", "9px")
         .style("text-anchor", "middle")
         .text(d => `${d.first_name} ${d.last_name} (${d.full_candidate_district})`)
 
@@ -211,7 +250,9 @@ BeeSwarm.prototype.hideMap = function() {
     vis.usMap
         .transition()
         .duration(1000)
-        .attr("opacity", 0)
+        .attr("opacity", 0);
+
+    d3.select(".beeswarm-state-tip").remove();
 
 };
 
@@ -221,9 +262,57 @@ BeeSwarm.prototype.showMap = function() {
     vis.usMap
         .transition()
         .duration(1000)
-        .attr("opacity", 1)
+        .attr("opacity", 1);
+
+    vis.initStateTooltip();
 
 };
+
+
+BeeSwarm.prototype.initStateTooltip = function() {
+    const vis = this;
+
+    vis.tip = d3.tip()
+        .attr("class", "d3-tip beeswarm-state-tip")
+        .offset([10, 0])
+        .html(function(d) {
+            let outputString = '<div>';
+            outputString += `<div style="text-align: center;"><span><strong>${d.properties.NAME}</strong></span></div><br>`;
+
+            outputString += '<table><tr>\n' +
+                '    <td></td>\n' +
+                '    <th scope="col">DEM</th>\n' +
+                '    <th scope="col">GOP</th>\n' +
+                '    <th scope="col">OTHER</th>\n' +
+                '  </tr>\n' +
+                '  <tr>\n' +
+                '    <th scope="row">President</th>\n' +
+                `    <td>${d3.format("$,.0f")(d.properties.contributionCounts.DEM.president)}</td>\n` +
+                `    <td>${d3.format("$,.0f")(d.properties.contributionCounts.REP.president)}</td>\n` +
+                `    <td>${d3.format("$,.0f")(d.properties.contributionCounts.OTH.president)}</td>\n` +
+                '  </tr>\n' +
+                '  <tr>\n' +
+                '    <th scope="row">Senate</th>\n' +
+                `    <td>${d3.format("$,.0f")(d.properties.contributionCounts.DEM.senate)}</td>\n` +
+                `    <td>${d3.format("$,.0f")(d.properties.contributionCounts.REP.senate)}</td>\n` +
+                `    <td>${d3.format("$,.0f")(d.properties.contributionCounts.OTH.senate)}</td>\n` +
+                '  </tr>' +
+                '  <tr>\n' +
+                    '    <th scope="row">House</th>\n' +
+                    `    <td>${d3.format("$,.0f")(d.properties.contributionCounts.DEM.house)}</td>\n` +
+                    `    <td>${d3.format("$,.0f")(d.properties.contributionCounts.REP.house)}</td>\n` +
+                    `    <td>${d3.format("$,.0f")(d.properties.contributionCounts.OTH.house)}</td>\n` +
+                    '  </tr></table>'
+
+            // outputString += `<span>Democratic Money:</span> <span style="float: right;">${d3.format("$,.0f")(d.properties.contributionCounts.DEM.president)}</span><br>`;
+
+            outputString += '</div>';
+
+            return outputString
+        });
+
+    vis.svg.call(vis.tip);
+}
 
 const getSubsetCounts = (array, office, parties) => {
     array = array.slice().filter(d => d.race_type === office && parties.includes(d.party));

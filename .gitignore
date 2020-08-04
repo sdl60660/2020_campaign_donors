@@ -1,5 +1,4 @@
-*/*.csv
-*.csv
+
 *.pem
 
 __pycache__
@@ -12,6 +11,8 @@ data_processing/raw_data
 data_processing/processed_data
 data_processing/candidate_data
 data_processing/table_exports
+data_processing/db_outputs
+data_processing/**/*.csv
 
 retired_code
 

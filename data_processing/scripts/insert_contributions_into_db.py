@@ -21,7 +21,7 @@ def clean_chunk(chunk):
                 chunk[i][j] = None
         if len(row[2].split('~')[-1]) > 5:
             chunk[i][2] = row[2].split('~')[0] + '~' + row[2].split('~')[1] + '~' + row[2].split('~')[-1][:5]
-        if row[-2] and row[0]:
+        if row[-2] and row[0] and row[1]:
             out_chunk.append(row)
 
     return out_chunk
@@ -32,8 +32,11 @@ CHUNK_LENGTH = 10000
 db = Database(config)
 
 with open('../processed_data/consolidated_contributions.csv', 'r+') as f:
-    reader_file = csv.reader(f)
-    row_count = len(list(reader_file)) - 1 # to account for header row
+    for i, l in enumerate(f):
+        pass
+    row_count = i
+    # reader_file = csv.reader(f)
+    # row_count = len(list(reader_file)) - 1 # to account for header row
     # row_count = 14032102 - 1
     print(row_count)
 
@@ -57,6 +60,8 @@ with open('../processed_data/consolidated_contributions.csv', 'r') as f:
             continue
 
         chunk = clean_chunk(chunk)
+        if len(chunk) == 0:
+            continue
         insert_chunk(chunk)
         # db.conn.close()
 

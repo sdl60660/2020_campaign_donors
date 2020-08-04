@@ -308,6 +308,22 @@ hr {
     user-select: none;
 }
 
+table{
+    border-collapse:collapse;
+    border:1px solid black;
+    border-style: hidden;
+}
+
+table td,th{
+    border:1px solid black;
+    padding: 5px;
+    text-align: center;
+}
+
+table td {
+    text-align: right;
+}
+
 
 /*Scroll Arrow at Top of Page*/
 

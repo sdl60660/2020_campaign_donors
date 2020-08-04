@@ -43,7 +43,7 @@ def process_donor(split_line):
 	}
 
 def process_donation(split_line, donor_id, committee_dict, candidates):
-	if int(split_line[14]) < 0:
+	if int(split_line[14]) < 0 or split_line[18] == 'X':
 		return None
 
 	try:
