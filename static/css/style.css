@@ -1,4 +1,12 @@
 
+:root {
+    /*--spacer-top: 330px;*/
+    /*--spacer-bottom: 370px;*/
+    --spacer-mobile: 100vh;
+    --annotation-width: 300px;
+}
+
+
 .row {
 	/*width: 100%;*/
 }
@@ -55,18 +63,22 @@ strong {
 	display: inline-block;
 	width: var(--annotation-width);
 	top: 0px;
+    left: 50%;
+    text-align: center;
 	z-index: 50;
 }
 
 .step {
-	margin-top: var(--spacer-top);
-	margin-bottom: var(--spacer-bottom);
-	margin-left: 10px;
+	margin-top: 100vh;
+	/*margin-bottom: var(--spacer-bottom);*/
+	/*margin-left: 10px;*/
+    transform: translateX(-50%);
 
     position: relative;
 
 	min-height: 320px;
 	border-radius: 15px;
+    opacity: 0.8;
 
     background-color: white;
     overflow: hidden;

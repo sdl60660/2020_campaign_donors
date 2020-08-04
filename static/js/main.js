@@ -237,12 +237,12 @@ function activate(index) {
 
     // Fade/show corresponding annotation slide
     $("section.step")
-        .css("opacity", hiddenOpacity)
+        // .css("opacity", hiddenOpacity)
         .css("z-index", 10);
 
     if (index-1 > 0) {
         $("section.step").eq(index - 1)
-            .css("opacity", 1.0)
+            // .css("opacity", 1.0)
             .css("z-index", 51);
     }
 
@@ -334,12 +334,20 @@ function setActivateFunctions() {
 
     // These are example from another project. You'll need to set your own activate functions, but these are kept in as a template
 
-    // // Intro tile functions
-    // activateFunctions[0] = displayIntroText;
+    // Intro tile functions
+    activateFunctions[0] = () => console.log('test function 0');
 
-    // // Sunburst tile functions
-    // activateFunctions[1] = showSunburst;
-    // activateFunctions[2] = showDisciplinaryGroups;
+    // Beeswarm tile functions
+    activateFunctions[1] = () => {
+        beeSwarm.hideMap();
+        beeSwarm.sortByParty();
+    };
+    activateFunctions[2] = () => {
+        beeSwarm.sortByOfficeType()
+    };
+    activateFunctions[3] = () => {
+        beeSwarm.sortByCandidates();
+    };
 
 }
 
@@ -352,9 +360,9 @@ function setTileWrapperHeights() {
 
     // Sunburst annotations run from the second annotation div (first visible) to the ninth (top of ten)
     // There's a little extra finagling at the end to get the margin between the two viz wrappers correct
-    // const sunburstWrapperHeight = scrollerDivObjects[9].getBoundingClientRect().bottom - scrollerDivObjects[1].getBoundingClientRect().top + 50 - 450;
-    // $("#sunburst-wrapper")
-    //     .css("height", sunburstWrapperHeight);
+    const beeswarmWrapperHeight = scrollerDivObjects[5].getBoundingClientRect().bottom - scrollerDivObjects[1].getBoundingClientRect().top;
+    $("#beeswarm-wrapper")
+        .css("height", beeswarmWrapperHeight);
 
     // // Flowchart annotation divs run from the tenth annotation div to the fourteenth
     // const flowChartWrapperHeight = scrollerDivObjects[scrollerDivObjects.length - 1].getBoundingClientRect().top - scrollerDivObjects[9].getBoundingClientRect().top + 700;
@@ -385,9 +393,9 @@ function main() {
     determinePhoneBrowsing();
     // setScrollArrow();
     // setWindowFunctions();
-    // setScrollDispatcher();
-    // setActivateFunctions();
-    // setTileWrapperHeights();
+    setScrollDispatcher();
+    setActivateFunctions();
+    setTileWrapperHeights();
 
     Promise.all(promises).then(function(allData) {
 
@@ -404,11 +412,12 @@ function main() {
         $(".loadring-container")
             .hide();
 
+        $("#intro-wrapper")
+            .css("visibility", "visible");
+
         initSlider();
         buildCandidateDropdowns();
 
-        // $("#intro-wrapper")
-        //     .css("visibility", "visible");
 
         nodeLink = new NodeLink("#nodelink-area");
         beeSwarm = new BeeSwarm("#beeswarm-area");
