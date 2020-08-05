@@ -1,4 +1,6 @@
 
+let tickCount = 0;
+
 BeeSwarm = function(_parentElement) {
     this.parentElement = _parentElement;
 
@@ -102,9 +104,13 @@ BeeSwarm.prototype.initVis = function() {
         .on("mouseout", vis.tip.hide);
 
     vis.tick = () => {
-        for (let i = 0; i < 2; i++) {
-            vis.simulation.tick();
-          }
+        tickCount += 1;
+
+        // for (let i = 0; i < 2; i++) {
+        //     vis.simulation.tick();
+        //   }
+
+        vis.simulation.tick();
 
 		d3.selectAll('.bee-node')
 			.attr('cx', d => d.x)
@@ -114,7 +120,7 @@ BeeSwarm.prototype.initVis = function() {
     vis.partyCoordinates = d3.scaleOrdinal()
         .domain(['DEM', 'DFL', 'REP'])
         .range([[vis.width/3, vis.height/2], [vis.width/3, vis.height/2], [2*vis.width/3, vis.height/2]])
-        .unknown([0.8*vis.width, 0.6*vis.height]);
+        .unknown([0.8*vis.width, vis.height/2]);
 
     vis.officeTypeCoordinates = d3.scaleOrdinal()
         .domain(['president', 'senate', 'house'])
@@ -130,7 +136,23 @@ BeeSwarm.prototype.initVis = function() {
             .force('collide', d3.forceCollide(3))
             // .alphaDecay(0.005)
             .alpha(0.12)
-            .on('tick', vis.tick);
+            .alphaDecay(0.005)
+            .on('tick', vis.tick)
+            .stop();
+
+
+
+
+    // for (let i = 0; i < 250; i++) vis.simulation.tick();
+    // vis.simulation.stop();
+
+    vis.beeswarm
+        .transition()
+        .delay(1000)
+        .duration(2500)
+        // .ease(d3.easeSin)
+        .attr("cx", d => d.map_x)
+        .attr("cy", d => d.map_y);
 
     vis.wrangleData();
 };
@@ -142,9 +164,34 @@ BeeSwarm.prototype.sortByParty = function() {
     vis.simulation
         // .alphaDecay(0.1)
         .alpha(0.3)
+        .alphaDecay(0.021)
         .force('x', d3.forceX( d => vis.partyCoordinates(d.party)[0]).strength(0.8))
-        .force('y', d3.forceY( d => vis.partyCoordinates(d.party)[1]).strength(0.8))
-        .restart()
+        .force('y', d3.forceY( d => vis.partyCoordinates(d.party)[1]).strength(0.8));
+        // .restart();
+
+    // for (let i = 0; i < 250; i++) vis.simulation.tick();
+    // vis.beeswarm
+    //     .transition()
+    //     .duration(2000)
+    //     .attr("cx", d => d.x)
+    //     .attr("cy", d => d.y);
+
+    vis.partyLabels = vis.svg.selectAll(".party-label-text")
+        .data(['DEM', 'REP', 'Other'])
+        .join("text")
+        .attr("class", "party-label-text")
+        .attr("x", d => vis.partyCoordinates(d)[0])
+        .attr("y", vis.height / 3)
+        .style("font-size", "20px")
+        .style("text-anchor", "middle")
+        .text(d => d);
+
+    vis.beeswarm
+        .transition()
+        .duration(2500)
+        // .ease(d3.easeSin)
+        .attr("cx", d => d.party_x)
+        .attr("cy", d => d.party_y);
 
 };
 
@@ -156,7 +203,11 @@ BeeSwarm.prototype.sortByOfficeType = function() {
         .alpha(0.3)
         // .force('x', d3.forceX( d => vis.officeTypeCoordinates(d.office_type)[0]).strength(0.8))
         .force('y', d3.forceY( d => vis.officeTypeCoordinates(d.race_type)[1]).strength(0.8))
-        .restart();
+        // .restart();
+
+    vis.partyLabels
+        .transition()
+        .attr("y", vis.height / 10);
 
     vis.officeTypeLabels = vis.svg.selectAll(".office-type-text")
         .data(['President', 'Senate', 'House'])
@@ -164,9 +215,16 @@ BeeSwarm.prototype.sortByOfficeType = function() {
         .attr("class", "office-type-text")
         .attr("x", vis.width / 9)
         .attr("y", d => vis.officeTypeCoordinates(d.toLowerCase())[1])
-        .style("font-size", "16px")
+        .style("font-size", "20px")
         .style("text-anchor", "middle")
         .text(d => d)
+
+    vis.beeswarm
+        .transition()
+        .duration(2500)
+        // .ease(d3.easeSin)
+        .attr("cx", d => d.office_x)
+        .attr("cy", d => d.office_y);
 
 };
 
@@ -223,7 +281,7 @@ BeeSwarm.prototype.sortByCandidates = function() {
             }
             // vis.officeTypeCoordinates(d.office_type)[0]
         }).strength(0.8))
-        .restart();
+        // .restart();
 
     vis.candidateLabels = vis.svg.selectAll(".candidate-label-text")
         .data(candidateGroups.flat())
@@ -243,9 +301,32 @@ BeeSwarm.prototype.sortByCandidates = function() {
         .attr("y", d => vis.officeTypeCoordinates(d.race_type)[1] - 90)
         .style("font-size", "9px")
         .style("text-anchor", "middle")
-        .text(d => `${d.first_name} ${d.last_name} (${d.full_candidate_district})`)
+        .text(d => `${d.first_name} ${d.last_name} (${d.full_candidate_district})`);
+
+
+    vis.beeswarm
+        .transition()
+        .duration(2500)
+        // .ease(d3.easeSin)
+        .attr("cx", d => d.candidate_x)
+        .attr("cy", d => d.candidate_y);
+
+
+    // d3.select("#beeswarm-area").append("select")
+    //     .attr("x", vis.width*0.75)
+    //     .attr("y", vis.height/2);
+
+    vis.removeLabels('.party-label-text');
 
 };
+
+
+BeeSwarm.prototype.removeLabels = function(labelClass) {
+    const vis = this;
+
+    vis.svg.selectAll(labelClass).remove();
+};
+
 
 BeeSwarm.prototype.hideMap = function() {
     const vis = this;

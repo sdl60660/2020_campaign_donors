@@ -133,18 +133,21 @@ chart_blocks['race_type'] = ''
 
 remainder_counts = defaultdict(lambda : defaultdict(float))
 for index, candidate in large_candidate_totals.iterrows():
-    num_blocks = math.floor(candidate['total_receipts'] / block_size)
+    num_blocks = int(math.floor(candidate['total_receipts'] / block_size))
 
     remainder_counts[candidate['party']][candidate['race_type']] += candidate['total_receipts'] % block_size
 
     candidate_blocks = chart_blocks.loc[(chart_blocks['fec_id'] == '') & (chart_blocks['party'] == candidate['party'])]
+    # This will ensure that we're attaching candidate information to blocks with state data first
+    # Ultimately, due to rounding erros, we'll end up with extra, unassigned blocks that we'll need to cut...
+    # from the dataset. We'll want these to be state = 'uncategorized' blocks so that we're not misrepresenting the map data
+    candidate_blocks['state_uncategorized'] = candidate_blocks['state'] == 'uncategorized'
+    candidate_blocks = candidate_blocks.sort(['state_uncategorized'], ascending=True)
 
     for block_num in range(num_blocks):
         for col in ['first_name', 'last_name', 'fec_id', 'race_type']:
             chart_blocks.at[candidate_blocks.index.values[block_num], col] = candidate[col]
 
-
-print(chart_blocks)
 
 small_candidate_totals = candidate_totals.loc[candidate_totals['total_receipts'] < block_size]
 for index,candidate in small_candidate_totals.iterrows():
@@ -154,6 +157,8 @@ for index,candidate in small_candidate_totals.iterrows():
 for party in remainder_counts.keys():
     uncategorized_blocks = chart_blocks.loc[(chart_blocks['fec_id'] == '')
                                             & (chart_blocks['party'] == party)]
+    uncategorized_blocks['state_uncategorized'] = uncategorized_blocks['state'] == 'uncategorized'
+    uncategorized_blocks = uncategorized_blocks.sort(['state_uncategorized'], ascending=True)
 
     total_party_remainder = remainder_counts[party]['house'] + remainder_counts[party]['president'] + remainder_counts[party]['senate']
     for office_type in ['president', 'senate', 'house']:
@@ -164,10 +169,11 @@ for party in remainder_counts.keys():
             chart_blocks.at[uncategorized_blocks.index.values[block_num], 'race_type'] = office_type
             chart_blocks.at[uncategorized_blocks.index.values[block_num], 'fec_id'] = '[remaining candidates]'
 
-print(len(chart_blocks))
 output_data = []
 for i, row in chart_blocks.iterrows():
-    output_data.append(row.to_dict())
+    block = row.to_dict()
+    block['block_id'] = str(i)
+    output_data.append(block)
 
 
 output_data = [x for x in output_data if x['race_type'] != '']
