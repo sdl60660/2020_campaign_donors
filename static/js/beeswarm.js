@@ -202,12 +202,13 @@ BeeSwarm.prototype.sortByOfficeType = function() {
         // .alphaDecay(0.1)
         .alpha(0.3)
         // .force('x', d3.forceX( d => vis.officeTypeCoordinates(d.office_type)[0]).strength(0.8))
-        .force('y', d3.forceY( d => vis.officeTypeCoordinates(d.race_type)[1]).strength(0.8))
+        .force('y', d3.forceY( d => vis.officeTypeCoordinates(d.race_type)[1]).strength(0.8));
         // .restart();
 
     vis.partyLabels
         .transition()
-        .attr("y", vis.height / 10);
+        .duration(1000)
+        .attr("y", vis.height / 13);
 
     vis.officeTypeLabels = vis.svg.selectAll(".office-type-text")
         .data(['President', 'Senate', 'House'])
@@ -298,7 +299,8 @@ BeeSwarm.prototype.sortByCandidates = function() {
                 return houseXScale(d.fec_id)*vis.width;
             }
         })
-        .attr("y", d => vis.officeTypeCoordinates(d.race_type)[1] - 90)
+        .attr("y", d => (d.race_type) === "president" ? vis.officeTypeCoordinates(d.race_type)[1] - 100 :
+            vis.officeTypeCoordinates(d.race_type)[1] - 50)
         .style("font-size", "9px")
         .style("text-anchor", "middle")
         .text(d => `${d.first_name} ${d.last_name} (${d.full_candidate_district})`);
