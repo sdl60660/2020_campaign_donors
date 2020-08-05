@@ -65,8 +65,8 @@ strong {
 	top: 0px;
     left: 50%;
     text-align: center;
-	z-index: -1;
 }
+
 
 .step {
 	margin-top: 100vh;
@@ -90,7 +90,8 @@ strong {
 .step.phantom {
     opacity: 0.0;
     z-index: -1;
-    margin-bottom: 61vh;
+    width: 0;
+    margin-bottom: 100vh;
 }
 
 .step .title {
