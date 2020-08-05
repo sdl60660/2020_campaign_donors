@@ -335,16 +335,31 @@ function setActivateFunctions() {
     // These are example from another project. You'll need to set your own activate functions, but these are kept in as a template
 
     // Intro tile functions
-    activateFunctions[0] = () => console.log('test function 0');
+    activateFunctions[0] = () => {
+        if (scrollDirection === "up") {
+
+            beeSwarm.removeLabels(".party-label-text");
+            beeSwarm.sortByGeo();
+            beeSwarm.showMap();
+
+        }
+    };
 
     // Beeswarm tile functions
     activateFunctions[1] = () => {
         beeSwarm.hideMap();
         beeSwarm.sortByParty();
-        beeSwarm.removeLabels(".office-type-text");
+
+        if (scrollDirection === "up") {
+            beeSwarm.removeLabels(".office-type-text");
+        }
     };
     activateFunctions[2] = () => {
-        beeSwarm.sortByOfficeType()
+        beeSwarm.sortByOfficeType();
+
+        if (scrollDirection === "up") {
+            beeSwarm.removeLabels(".candidate-label-text");
+        }
     };
     activateFunctions[3] = () => {
         beeSwarm.sortByCandidates();

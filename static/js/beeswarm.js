@@ -64,22 +64,22 @@ BeeSwarm.prototype.initVis = function() {
             })
             .on("mouseout", vis.tip.hide);
 
-    let stateCenters = {};
+    vis.stateCenters = {};
     stateMap.features.forEach(d => {
         let centroid = d3.geoPath().centroid(d);
-        stateCenters[d.properties.SHORT_NAME] = vis.projection(centroid);
+        vis.stateCenters[d.properties.SHORT_NAME] = vis.projection(centroid);
     });
 
     // This is where all uncategorized data will lie (unreported individual donations/committee contributions)
-    stateCenters['uncategorized'] = [0.9*vis.width, 0.5*vis.height];
+    vis.stateCenters['uncategorized'] = [0.9*vis.width, 0.5*vis.height];
     // Offset California by a little to avoid some of the Nevada overlap
-    stateCenters['CA'][0] -= 20;
+    vis.stateCenters['CA'][0] -= 20;
 
     vis.beeRadius = d3.scaleLinear()
         .domain([0, 1000000])
         .range([0, 3]);
 
-    vis.includedBlocks = beeswarmMoneyBlocks.filter(d => d.state in stateCenters);
+    vis.includedBlocks = beeswarmMoneyBlocks.filter(d => d.state in vis.stateCenters);
 
     vis.beeswarm = vis.svg.append("g")
         .attr("id", "beeswarm-nodes")
@@ -89,8 +89,8 @@ BeeSwarm.prototype.initVis = function() {
         .data(vis.includedBlocks)
         .join("circle")
         .attr("class", "bee-node")
-        .attr("cx", vis.width / 2)
-        .attr("cy", -1)
+        .attr("cx", d => vis.stateCenters[d.state][0])
+        .attr("cy", d => vis.stateCenters[d.state][1])
         .attr("r", 3)
         // .attr("r", d => vis.beeRadius(d.total_receipts))
         .style("stroke", "black")
@@ -130,8 +130,8 @@ BeeSwarm.prototype.initVis = function() {
 
     vis.simulation =
         d3.forceSimulation(vis.includedBlocks)
-            .force('x', d3.forceX( d => (d.party === 'REP' ? 3 : -3) + stateCenters[d.state][0]).strength(0.9))
-            .force('y', d3.forceY( d => stateCenters[d.state][1]).strength(0.9))
+            .force('x', d3.forceX( d => (d.party === 'REP' ? 3 : -3) + vis.stateCenters[d.state][0]).strength(0.9))
+            .force('y', d3.forceY( d => vis.stateCenters[d.state][1]).strength(0.9))
             .force('repel', d3.forceManyBody().strength(-20).distanceMax(5))
             .force('collide', d3.forceCollide(3))
             // .alphaDecay(0.005)
@@ -140,21 +140,20 @@ BeeSwarm.prototype.initVis = function() {
             .on('tick', vis.tick)
             .stop();
 
+    vis.sortByGeo();
+};
 
 
-
-    // for (let i = 0; i < 250; i++) vis.simulation.tick();
-    // vis.simulation.stop();
+BeeSwarm.prototype.sortByGeo = function() {
+    const vis = this;
 
     vis.beeswarm
         .transition()
-        .delay(1000)
+        .delay(500)
         .duration(2500)
         // .ease(d3.easeSin)
         .attr("cx", d => d.map_x)
         .attr("cy", d => d.map_y);
-
-    vis.wrangleData();
 };
 
 
@@ -416,31 +415,4 @@ BeeSwarm.prototype.initStateTooltip = function() {
         });
 
     vis.svg.call(vis.tip);
-}
-
-const getSubsetCounts = (array, office, parties) => {
-    array = array.slice().filter(d => d.race_type === office && parties.includes(d.party));
-
-    let counts = array.reduce((p, c) => {
-        let fec_id = c.fec_id;
-        if (!p.hasOwnProperty(fec_id)) {
-            p[fec_id] = 0;
-        }
-        p[fec_id]++;
-        return p;
-        }, {});
-
-    return counts;
-}
-
-BeeSwarm.prototype.wrangleData = function() {
-    const vis = this;
-
-    vis.updateVis();
-
-};
-
-BeeSwarm.prototype.updateVis = function() {
-    const vis = this;
-
 };
