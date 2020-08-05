@@ -341,6 +341,7 @@ function setActivateFunctions() {
     activateFunctions[1] = () => {
         beeSwarm.hideMap();
         beeSwarm.sortByParty();
+        beeSwarm.removeLabels(".office-type-text");
     };
     activateFunctions[2] = () => {
         beeSwarm.sortByOfficeType()

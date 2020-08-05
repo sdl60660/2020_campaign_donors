@@ -65,7 +65,7 @@ strong {
 	top: 0px;
     left: 50%;
     text-align: center;
-	z-index: 50;
+	z-index: -1;
 }
 
 .step {
@@ -79,6 +79,8 @@ strong {
 	min-height: 320px;
 	border-radius: 15px;
     opacity: 0.8;
+
+    z-index: 50;
 
     background-color: white;
     overflow: hidden;
