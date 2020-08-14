@@ -43,7 +43,7 @@ def process_donor(split_line):
 	}
 
 def process_donation(split_line, donor_id, committee_dict, candidates):
-	if int(split_line[14]) < 0 or split_line[18] == 'X':
+	if int(split_line[14]) < 0 or split_line[-3] == 'X':
 		return None
 
 	try:
@@ -77,7 +77,10 @@ committee_dict = {}
 ccl = open('../raw_data/fec_bulk_data/ccl.txt', 'r')
 for line in ccl:
 	data = line.split('|')
-	committee_dict[data[3]] = data[0]
+	# This filters out joint-fundraising committees, as well as party committees, that are linked to individual candidates,
+	# but whose donation receipts do not directly fund their campaigns
+	if data[-2] != 'J' and data[-3] != 'Y' and data[-3] != 'X':
+		committee_dict[data[3]] = data[0]
 
 with open('../table_exports/candidates.csv', 'r') as f:
 	candidates = [x['fec_id'] for x in csv.DictReader(f)]

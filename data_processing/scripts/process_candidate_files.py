@@ -78,9 +78,20 @@ with open('../raw_data/fec_bulk_data/candidates-meta.txt', 'r') as f:
 with open('../table_exports/districts.csv', 'r') as f:
 	districts = {x['district_name']: x['id'] for x in csv.DictReader(f)}
 
-with open('../table_exports/members.csv', 'r') as f:
+with open('../table_exports/members.csv', 'r', encoding='ISO-8859-1') as f:
 	members = [x for x in csv.DictReader(f)]
 
+
+# For matching DB table column names
+new_column_mapping = {
+	'candidate_election_year': 'year',
+	'mailing_city': 'candidate_city',
+	'mailing_state': 'candidate_state',
+	'mailing_zip': 'candidate_zipcode'
+}
+for old_label, new_label in new_column_mapping.items():
+	output_columns.remove(old_label)
+	output_columns.append(new_label)
 
 for k,v in candidates.items():
 	v['fec_receipts_link'] = get_fec_link(v['fec_id'])
@@ -88,7 +99,7 @@ for k,v in candidates.items():
 	v['first_name'], v['last_name'] = format_candidate_names(v['candidate_name'])
 
 	v['incumbent'] = format_incumbent_status(v['incumbent_status'])
-
+	del v['incumbent_status']
 
 	if 'office_type' not in v.keys():
 		continue
@@ -112,7 +123,7 @@ for k,v in candidates.items():
 	try:
 		v['district_id'] = districts[v['full_candidate_district']]
 
-		if v['incumbent_status'] == 'INCUMBENT':
+		if v['incumbent'] == 'INCUMBENT':
 			for member in members:
 				if member['district'] == v['district_id'] and fuzz.partial_ratio(member['last_name'].lower(), v['last_name'].lower()) > 90:
 					v['member_id'] = member['bioguide_id']
@@ -120,12 +131,13 @@ for k,v in candidates.items():
 	except KeyError:
 		v['district_id'] = None
 
-	# For matching DB table column names
-	v['year'] = v['candidate_election_year']
-	v['candidate_city'] = v['mailing_city']
-	v['candidate_state'] = v['mailing_state']
-	v['candidate_zipcode'] = v['mailing_zip']
+	
+	for old_label, new_label in new_column_mapping.items():
+		v[new_label] = v[old_label]
+		del v[old_label]
 
+output_columns.remove('incumbent_status')
+output_columns.append('incumbent')
 
 
 with open('../processed_data/all_candidates.csv', 'w') as f:

@@ -35,11 +35,11 @@ race_type_dict = {
 }
 
 grouped_totals = state_mappings_df.groupby(['fec_id']).sum()[['total_receipts']]
-for candidate in meta_data_totals.iterrows():
-    fec_id = candidate[1]['fec_id']
+for i, candidate in meta_data_totals.iterrows():
+    fec_id = candidate['fec_id']
 
-    true_receipts = candidate[1]['total_receipts']
-    if true_receipts == np.nan:
+    true_receipts = candidate['total_receipts']
+    if np.isnan(true_receipts):
         true_receipts = 0
 
     if fec_id in grouped_totals.index:
@@ -49,15 +49,17 @@ for candidate in meta_data_totals.iterrows():
 
     receipt_difference = 0
     if not np.isnan(true_receipts):
+        if (calculated_receipts > true_receipts and calculated_receipts > 50000):
+            print(true_receipts, calculated_receipts, (candidate['first_name'] + ' ' + candidate['last_name']).replace(' ', '~'), candidate['fec_id'], candidate['fec_receipts_link'])
         receipt_difference = max(0, (true_receipts - calculated_receipts))
 
     if receipt_difference > 0:
 
         row_data = {'fec_id': fec_id,
                     'race_type': race_type_dict[fec_id[0]],
-                    'first_name': candidate[1]['first_name'],
-                    'last_name': candidate[1]['last_name'],
-                    'party': candidate[1]['party'],
+                    'first_name': candidate['first_name'],
+                    'last_name': candidate['last_name'],
+                    'party': candidate['party'],
                     'state': 'uncategorized',
                     'total_receipts': receipt_difference,
                     'total_contributions': None,
@@ -88,7 +90,7 @@ for index, row_data in state_mappings_df.iterrows():
 # for index, row_data in grouped_df.iterrows():
 for state, state_data in total_summary_counts.items():
     for party, party_data in state_data.items():
-        if state == np.nan or state == '' or state is None:
+        if type(state) == float or state == '' or state is None:
             state = 'uncategorized'
 
         total_receipts = sum(party_data.values())
@@ -142,7 +144,7 @@ for index, candidate in large_candidate_totals.iterrows():
     # Ultimately, due to rounding erros, we'll end up with extra, unassigned blocks that we'll need to cut...
     # from the dataset. We'll want these to be state = 'uncategorized' blocks so that we're not misrepresenting the map data
     candidate_blocks['state_uncategorized'] = candidate_blocks['state'] == 'uncategorized'
-    candidate_blocks = candidate_blocks.sort(['state_uncategorized'], ascending=True)
+    candidate_blocks = candidate_blocks.sort_values(by=['state_uncategorized'], ascending=True)
 
     for block_num in range(num_blocks):
         for col in ['first_name', 'last_name', 'fec_id', 'race_type']:
@@ -158,7 +160,7 @@ for party in remainder_counts.keys():
     uncategorized_blocks = chart_blocks.loc[(chart_blocks['fec_id'] == '')
                                             & (chart_blocks['party'] == party)]
     uncategorized_blocks['state_uncategorized'] = uncategorized_blocks['state'] == 'uncategorized'
-    uncategorized_blocks = uncategorized_blocks.sort(['state_uncategorized'], ascending=True)
+    uncategorized_blocks = uncategorized_blocks.sort_values(by=['state_uncategorized'], ascending=True)
 
     total_party_remainder = remainder_counts[party]['house'] + remainder_counts[party]['president'] + remainder_counts[party]['senate']
     for office_type in ['president', 'senate', 'house']:

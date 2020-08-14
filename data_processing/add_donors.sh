@@ -10,5 +10,9 @@ python insert_donors_into_db.py 					# inserts all donor info into database (~20
 python insert_contributions_into_db.py 				# inserts all contribution info into database (~2 hours)
 
 python run_sql_queries.py 							# runs all sql_queries to generate new db_outputs (~4 hours)
-python3.7 create_candidate_files.py 				# creates consolidated candidate files that live in candidate_data directory (~10 minutes)
-python create_candidate_list.py 					# creates new JSON file with list of candidates for use on the front-end (< 1 minute)
+
+python create_node_link_datafile.py
+python create_beeswarm_data.py
+
+# python3.7 create_candidate_files.py 				# creates consolidated candidate files that live in candidate_data directory (~10 minutes)
+# python create_candidate_list.py 					# creates new JSON file with list of candidates for use on the front-end (< 1 minute)

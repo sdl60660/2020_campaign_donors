@@ -351,6 +351,17 @@ BeeSwarm.prototype.showMap = function() {
 
     vis.initStateTooltip();
 
+    // vis.uncategorizedHoverCircle = vis.svg.append("circle")
+    //     .datum()
+    //     .attr("cx", 0.9*vis.width)
+    //     .attr("cy", 0.5*vis.height)
+    //     .attr("r", 100)
+    //     .on("mouseover", d => {
+    //         vis.tip.show()
+    //     })
+
+
+
 };
 
 

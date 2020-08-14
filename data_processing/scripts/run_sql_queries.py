@@ -18,10 +18,12 @@ with psycopg2.connect(host="localhost", database="candidate_fundraising", port="
 			if subdirectory == '.DS_Store':
 				continue
 			for file in os.listdir('../sql_queries/' + subdirectory):
-				sql_scripts.append(('../sql_queries/' + subdirectory + '/' + file))
+				if '.DS_Store' not in file:
+					sql_scripts.append(('../sql_queries/' + subdirectory + '/' + file))
 
 		print(sql_scripts)
 
 		for query in sql_scripts:
 			print(query)
-			cur.execute(open(query, 'r').read())
+			if 'demographics/' in query or 'overlap' in query:
+				cur.execute(open(query, 'r').read())
