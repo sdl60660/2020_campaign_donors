@@ -108,10 +108,13 @@ def process_state_file(state_file, contribution_csv, donor_csv):
 				keep_going = False
 
 
-with open('../raw_data/fec_bulk_data/ccl.txt') as f:
-	candidate_committee_linkages = [_.split('|') for _ in f.readlines()]
-	candidate_committee_dict = {x[3]: x[0] for x in candidate_committee_linkages}
-
+candidate_committee_dict = {}
+with open('../raw_data/fec_bulk_data/ccl.txt') as ccl:
+	for line in ccl:
+		data = line.split('|')
+		if data[-2] != 'J' and data[-3] != 'Y' and data[-3] != 'X':
+			candidate_committee_dict[data[3]] = data[0]
+			
 
 filings = [file for file in os.listdir('../raw_data/act_blue_fillings') if '.csv' in file]
 

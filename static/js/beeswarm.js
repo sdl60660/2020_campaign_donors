@@ -28,23 +28,19 @@ BeeSwarm.prototype.initVis = function() {
     // Add contribution totals to the properties of each state feature
     stateMap.features.forEach(state => {
         const trueCounts = stateSummaryCounts[state.properties.SHORT_NAME];
-        let contributionCounts = {};
-
-        contributionCounts['DEM'] = {'president': 0, 'house': 0, 'senate': 0};
-        contributionCounts['REP'] = {'president': 0, 'house': 0, 'senate': 0};
-        contributionCounts['OTH'] = {'president': 0, 'house': 0, 'senate': 0};
-
-        Object.keys(trueCounts).forEach(party => {
-            let partyGroup = (party === 'DEM' || party === 'DFL') ? 'DEM' : (party === 'REP') ? 'REP' : 'OTH';
-
-            Object.keys(trueCounts[party]).forEach(office => {
-                contributionCounts[partyGroup][office] += trueCounts[party][office]
-            })
-        });
+        let contributionCounts = summarizeContributionCounts(trueCounts);
 
         state.properties.contributionCounts = contributionCounts;
         // state.properties.donorCounts = {};
     });
+
+    vis.uncategorizedMapData = {'properties':
+            {'NAME': 'Donor Info Unknown',
+             'contributionCounts': summarizeContributionCounts(stateSummaryCounts['uncategorized'])}};
+
+    vis.selfFundingMapData = {'properties':
+            {'NAME': 'Self-Contributions',
+             'contributionCounts': summarizeContributionCounts(stateSummaryCounts['self_contribution'])}};
 
     vis.initStateTooltip();
 
@@ -71,7 +67,8 @@ BeeSwarm.prototype.initVis = function() {
     });
 
     // This is where all uncategorized data will lie (unreported individual donations/committee contributions)
-    vis.stateCenters['uncategorized'] = [0.9*vis.width, 0.5*vis.height];
+    vis.stateCenters['uncategorized'] = [0.9*vis.width, 0.73*vis.height];
+    vis.stateCenters['self_contribution'] = [0.9*vis.width, 0.45*vis.height];
     // Offset California by a little to avoid some of the Nevada overlap
     vis.stateCenters['CA'][0] -= 20;
 
@@ -97,8 +94,21 @@ BeeSwarm.prototype.initVis = function() {
         .style("stroke-width", 0.5)
         .attr("fill", d => partyColor(d.party))
         .on("mouseover", d => {
-            let featureData = stateMap.features.find(x => x.properties.SHORT_NAME === d.state);
-            let matchingState = vis.svg.select(`#state-${d.state}`).node();
+            let featureData;
+            let matchingState;
+
+            if (d.state === 'uncategorized') {
+                featureData = vis.uncategorizedMapData;
+                matchingState = vis.uncategorizedHoverCircle.node();
+            }
+            else if (d.state === 'self_contribution') {
+                featureData = vis.selfFundingMapData;
+                matchingState = vis.selfFundedHoverCircle.node();
+            }
+            else {
+                featureData = stateMap.features.find(x => x.properties.SHORT_NAME === d.state);
+                matchingState = vis.svg.select(`#state-${d.state}`).node();
+            }
             vis.tip.show(featureData, matchingState);
         })
         .on("mouseout", vis.tip.hide);
@@ -136,7 +146,7 @@ BeeSwarm.prototype.initVis = function() {
             .force('collide', d3.forceCollide(3))
             // .alphaDecay(0.005)
             .alpha(0.12)
-            .alphaDecay(0.005)
+            .alphaDecay(0.004)
             .on('tick', vis.tick)
             .stop();
 
@@ -150,22 +160,41 @@ BeeSwarm.prototype.sortByGeo = function() {
     vis.beeswarm
         .transition()
         .delay(500)
-        .duration(2500)
+        .duration(1500)
         // .ease(d3.easeSin)
         .attr("cx", d => d.map_x)
         .attr("cy", d => d.map_y);
+
+    vis.uncategorizedHoverCircle = vis.svg.append("circle")
+        .datum(vis.uncategorizedMapData)
+        .attr("cx", 0.9*vis.width)
+        .attr("cy", 0.73*vis.height)
+        .attr("r", 120)
+        .style("opacity", 0)
+        .on("mouseover", vis.tip.show);
+
+    vis.selfFundedHoverCircle = vis.svg.append("circle")
+        .datum(vis.selfFundingMapData)
+        .attr("cx", 0.9*vis.width)
+        .attr("cy", 0.45*vis.height)
+        .attr("r", 120)
+        .style("opacity", 0)
+        .on("mouseover", vis.tip.show);
 };
 
 
 BeeSwarm.prototype.sortByParty = function() {
     const vis = this;
 
+    vis.uncategorizedHoverCircle.remove();
+    vis.selfFundedHoverCircle.remove();
+
     vis.simulation
         // .alphaDecay(0.1)
         .alpha(0.3)
         .alphaDecay(0.021)
         .force('x', d3.forceX( d => vis.partyCoordinates(d.party)[0]).strength(0.8))
-        .force('y', d3.forceY( d => vis.partyCoordinates(d.party)[1]).strength(0.8));
+        .force('y', d3.forceY( d => vis.partyCoordinates(d.party)[1]).strength(0.8))
         // .restart();
 
     // for (let i = 0; i < 250; i++) vis.simulation.tick();
@@ -187,7 +216,7 @@ BeeSwarm.prototype.sortByParty = function() {
 
     vis.beeswarm
         .transition()
-        .duration(2500)
+        .duration(1500)
         // .ease(d3.easeSin)
         .attr("cx", d => d.party_x)
         .attr("cy", d => d.party_y);
@@ -201,7 +230,7 @@ BeeSwarm.prototype.sortByOfficeType = function() {
         // .alphaDecay(0.1)
         .alpha(0.3)
         // .force('x', d3.forceX( d => vis.officeTypeCoordinates(d.office_type)[0]).strength(0.8))
-        .force('y', d3.forceY( d => vis.officeTypeCoordinates(d.race_type)[1]).strength(0.8));
+        .force('y', d3.forceY( d => vis.officeTypeCoordinates(d.race_type)[1]).strength(0.8))
         // .restart();
 
     vis.partyLabels
@@ -221,7 +250,7 @@ BeeSwarm.prototype.sortByOfficeType = function() {
 
     vis.beeswarm
         .transition()
-        .duration(2500)
+        .duration(1500)
         // .ease(d3.easeSin)
         .attr("cx", d => d.office_x)
         .attr("cy", d => d.office_y);
@@ -307,7 +336,7 @@ BeeSwarm.prototype.sortByCandidates = function() {
 
     vis.beeswarm
         .transition()
-        .duration(2500)
+        .duration(1500)
         // .ease(d3.easeSin)
         .attr("cx", d => d.candidate_x)
         .attr("cy", d => d.candidate_y);
@@ -350,18 +379,6 @@ BeeSwarm.prototype.showMap = function() {
         .attr("opacity", 1);
 
     vis.initStateTooltip();
-
-    // vis.uncategorizedHoverCircle = vis.svg.append("circle")
-    //     .datum()
-    //     .attr("cx", 0.9*vis.width)
-    //     .attr("cy", 0.5*vis.height)
-    //     .attr("r", 100)
-    //     .on("mouseover", d => {
-    //         vis.tip.show()
-    //     })
-
-
-
 };
 
 
@@ -427,3 +444,23 @@ BeeSwarm.prototype.initStateTooltip = function() {
 
     vis.svg.call(vis.tip);
 };
+
+
+function summarizeContributionCounts(trueCounts) {
+
+    let contributionCounts = {};
+
+    contributionCounts['DEM'] = {'president': 0, 'house': 0, 'senate': 0};
+        contributionCounts['REP'] = {'president': 0, 'house': 0, 'senate': 0};
+        contributionCounts['OTH'] = {'president': 0, 'house': 0, 'senate': 0};
+
+        Object.keys(trueCounts).forEach(party => {
+            let partyGroup = (party === 'DEM' || party === 'DFL') ? 'DEM' : (party === 'REP') ? 'REP' : 'OTH';
+
+            Object.keys(trueCounts[party]).forEach(office => {
+                contributionCounts[partyGroup][office] += trueCounts[party][office]
+            })
+        });
+
+    return contributionCounts;
+}

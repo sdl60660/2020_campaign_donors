@@ -32,6 +32,7 @@ let stateMap = null;
 let beeswarmMoneyBlocks = null;
 let stateSummaryCounts = null;
 let candidateMeta = null;
+let donorDemographics = null;
 
 let overlapThreshold = 5;
 let featuredCandidateId = "H8NY15148";
@@ -365,6 +366,20 @@ function setActivateFunctions() {
         beeSwarm.sortByCandidates();
     };
 
+    activateFunctions[4] = () => {
+        beeSwarm.sortByCandidates();
+    };
+    activateFunctions[5] = () => {
+        beeSwarm.sortByCandidates();
+    };
+    activateFunctions[6] = () => {
+        beeSwarm.sortByCandidates();
+    };
+    activateFunctions[7] = () => {
+        beeSwarm.sortByCandidates();
+    };
+
+
 }
 
 
@@ -396,7 +411,8 @@ function main() {
         d3.json("static/data/states.geojson"),
         d3.json("static/data/beeswarm_money_blocks.json"),
         d3.json("static/data/state_summary_counts.json"),
-        d3.csv("static/data/candidates_meta.csv")
+        d3.csv("static/data/candidates_meta.csv"),
+        d3.csv("static/data/donor_demographics.csv")
     ];
 
     // Initialize both main viz tiles to faded
@@ -424,6 +440,7 @@ function main() {
         candidateMeta = allData[5];
         candidateMeta
             .forEach(d => d.total_receipts = +d.total_receipts);
+        donorDemographics = allData[6];
 
         $(".loadring-container")
             .hide();
@@ -434,9 +451,10 @@ function main() {
         initSlider();
         buildCandidateDropdowns();
 
-
-        nodeLink = new NodeLink("#nodelink-area");
         beeSwarm = new BeeSwarm("#beeswarm-area");
+        bubblePlot = new BubblePlot("#bubbleplot-area");
+        nodeLink = new NodeLink("#nodelink-area");
+
 
         // If user loads visualization in the middle of the page, run all activate functions that they should have passed
         // already to "catch them up"

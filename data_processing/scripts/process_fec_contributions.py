@@ -48,6 +48,7 @@ def process_donation(split_line, donor_id, committee_dict, candidates):
 
 	try:
 		if committee_dict[split_line[0]] not in candidates:
+			print(committee_dict[split_line[0]])
 			return None
 			
 		return {
@@ -77,6 +78,7 @@ committee_dict = {}
 ccl = open('../raw_data/fec_bulk_data/ccl.txt', 'r')
 for line in ccl:
 	data = line.split('|')
+	# print(data)
 	# This filters out joint-fundraising committees, as well as party committees, that are linked to individual candidates,
 	# but whose donation receipts do not directly fund their campaigns
 	if data[-2] != 'J' and data[-3] != 'Y' and data[-3] != 'X':
