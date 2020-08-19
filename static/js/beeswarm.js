@@ -24,6 +24,7 @@ BeeSwarm.prototype.initVis = function() {
         .translate([vis.width / 2, vis.height / 2]);
 
 
+    vis.beeswarmTransitionTime = 1500;
 
     // Add contribution totals to the properties of each state feature
     stateMap.features.forEach(state => {
@@ -88,7 +89,7 @@ BeeSwarm.prototype.initVis = function() {
         .attr("class", "bee-node")
         .attr("cx", d => vis.stateCenters[d.state][0])
         .attr("cy", d => vis.stateCenters[d.state][1])
-        .attr("r", 3)
+        .attr("r", 2.5)
         // .attr("r", d => vis.beeRadius(d.total_receipts))
         .style("stroke", "black")
         .style("stroke-width", 0.5)
@@ -134,16 +135,16 @@ BeeSwarm.prototype.initVis = function() {
 
     vis.officeTypeCoordinates = d3.scaleOrdinal()
         .domain(['president', 'senate', 'house'])
-        .range([[vis.width/3, 0.2*vis.height], [vis.width/3, 0.4*vis.height], [vis.width/3, 0.6*vis.height]])
+        .range([[vis.width/3, 0.15*vis.height], [vis.width/3, 0.4*vis.height], [vis.width/3, 0.65*vis.height]])
         .unknown([vis.width/3, 0.8*vis.height]);
 
 
     vis.simulation =
         d3.forceSimulation(vis.includedBlocks)
-            .force('x', d3.forceX( d => (d.party === 'REP' ? 3 : -3) + vis.stateCenters[d.state][0]).strength(0.9))
+            .force('x', d3.forceX( d => (d.party === 'REP' ? 3 : -3) + vis.stateCenters[d.state][0]).strength(1.0))
             .force('y', d3.forceY( d => vis.stateCenters[d.state][1]).strength(0.9))
             .force('repel', d3.forceManyBody().strength(-20).distanceMax(5))
-            .force('collide', d3.forceCollide(3))
+            .force('collide', d3.forceCollide(2.5).strength(0.8).iterations(2))
             // .alphaDecay(0.005)
             .alpha(0.12)
             .alphaDecay(0.004)
@@ -160,7 +161,7 @@ BeeSwarm.prototype.sortByGeo = function() {
     vis.beeswarm
         .transition()
         .delay(500)
-        .duration(1500)
+        .duration(vis.beeswarmTransitionTime)
         // .ease(d3.easeSin)
         .attr("cx", d => d.map_x)
         .attr("cy", d => d.map_y);
@@ -195,6 +196,7 @@ BeeSwarm.prototype.sortByParty = function() {
         .alphaDecay(0.021)
         .force('x', d3.forceX( d => vis.partyCoordinates(d.party)[0]).strength(0.8))
         .force('y', d3.forceY( d => vis.partyCoordinates(d.party)[1]).strength(0.8))
+        .force('collide', d3.forceCollide(2.5).strength(1.0).iterations(20))
         // .restart();
 
     // for (let i = 0; i < 250; i++) vis.simulation.tick();
@@ -209,14 +211,14 @@ BeeSwarm.prototype.sortByParty = function() {
         .join("text")
         .attr("class", "party-label-text")
         .attr("x", d => vis.partyCoordinates(d)[0])
-        .attr("y", vis.height / 3)
+        .attr("y", vis.height / 4)
         .style("font-size", "20px")
         .style("text-anchor", "middle")
         .text(d => d);
 
     vis.beeswarm
         .transition()
-        .duration(1500)
+        .duration(vis.beeswarmTransitionTime)
         // .ease(d3.easeSin)
         .attr("cx", d => d.party_x)
         .attr("cy", d => d.party_y);
@@ -250,7 +252,7 @@ BeeSwarm.prototype.sortByOfficeType = function() {
 
     vis.beeswarm
         .transition()
-        .duration(1500)
+        .duration(vis.beeswarmTransitionTime)
         // .ease(d3.easeSin)
         .attr("cx", d => d.office_x)
         .attr("cy", d => d.office_y);
@@ -280,17 +282,17 @@ BeeSwarm.prototype.sortByCandidates = function() {
 
     });
 
-    const presidentXScale = d3.scaleOrdinal()
+    vis.presidentXScale = d3.scaleOrdinal()
         .domain(candidateGroups[0].map(d => d.fec_id))
         .range([0.25, 0.35, 0.45, 0.55, 0.65, 0.75])
         .unknown(0.9);
 
-    const senateXScale = d3.scaleOrdinal()
+    vis.senateXScale = d3.scaleOrdinal()
         .domain(candidateGroups[1].map(d => d.fec_id))
         .range([0.25, 0.35, 0.45, 0.55, 0.65, 0.75])
         .unknown(0.9);
 
-    const houseXScale = d3.scaleOrdinal()
+    vis.houseXScale = d3.scaleOrdinal()
         .domain(candidateGroups[2].map(d => d.fec_id))
         .range([0.25, 0.35, 0.45, 0.55, 0.65, 0.75])
         .unknown(0.9);
@@ -300,13 +302,13 @@ BeeSwarm.prototype.sortByCandidates = function() {
         // .force('force', d3.forceManyBody().strength(-2))
         .force('x', d3.forceX( d => {
             if (d.race_type === "president") {
-                return presidentXScale(d.fec_id)*vis.width;
+                return vis.presidentXScale(d.fec_id)*vis.width;
             }
             else if (d.race_type === "senate") {
-                return senateXScale(d.fec_id)*vis.width;
+                return vis.senateXScale(d.fec_id)*vis.width;
             }
             else {
-                return houseXScale(d.fec_id)*vis.width;
+                return vis.houseXScale(d.fec_id)*vis.width;
             }
             // vis.officeTypeCoordinates(d.office_type)[0]
         }).strength(0.8))
@@ -318,25 +320,27 @@ BeeSwarm.prototype.sortByCandidates = function() {
         .attr("class", "candidate-label-text")
         .attr("x", d => {
             if (d.race_type === "president") {
-                return presidentXScale(d.fec_id)*vis.width;
+                return vis.presidentXScale(d.fec_id)*vis.width;
             }
             else if (d.race_type === "senate") {
-                return senateXScale(d.fec_id)*vis.width;
+                return vis.senateXScale(d.fec_id)*vis.width;
             }
             else {
-                return houseXScale(d.fec_id)*vis.width;
+                return vis.houseXScale(d.fec_id)*vis.width;
             }
         })
         .attr("y", d => (d.race_type) === "president" ? vis.officeTypeCoordinates(d.race_type)[1] - 100 :
             vis.officeTypeCoordinates(d.race_type)[1] - 50)
-        .style("font-size", "9px")
+        .style("font-size", "12px")
         .style("text-anchor", "middle")
-        .text(d => `${d.first_name} ${d.last_name} (${d.full_candidate_district})`);
+        // .text(d => `${d.first_name} ${d.last_name} (${d.full_candidate_district})`);
+        .text(d => `${d.first_name} ${d.last_name}`);
+
 
 
     vis.beeswarm
         .transition()
-        .duration(1500)
+        .duration(vis.beeswarmTransitionTime)
         // .ease(d3.easeSin)
         .attr("cx", d => d.candidate_x)
         .attr("cy", d => d.candidate_y);
@@ -347,6 +351,156 @@ BeeSwarm.prototype.sortByCandidates = function() {
     //     .attr("y", vis.height/2);
 
     vis.removeLabels('.party-label-text');
+
+};
+
+
+BeeSwarm.prototype.separateSelfContributions = function() {
+    const vis = this;
+
+    vis.simulation
+        .alpha(0.2)
+        .force('y', d3.forceY( d => {
+            let yPosition = vis.officeTypeCoordinates(d.race_type)[1];
+
+            if (d.contribution_source === "self_contributions") {
+                yPosition += 100;
+            }
+            else {
+                yPosition -= 15;
+            }
+
+            return yPosition;
+        }).strength(0.8))
+        // .restart();
+
+    vis.beeswarm
+        .transition()
+        .duration(vis.beeswarmTransitionTime)
+        .attr("cx", d => d.selfDonation_x)
+        .attr("cy", d => d.selfDonation_y)
+        // .attr("opacity", d => d.contribution_source === "self_contributions" ? 1.0 : 0.5)
+};
+
+BeeSwarm.prototype.separateTransfersOther = function() {
+    const vis = this;
+
+    vis.simulation
+        .stop()
+        .alpha(0.3)
+        .force('y', d3.forceY( d => {
+            let yPosition = vis.officeTypeCoordinates(d.race_type)[1];
+
+            if (d.contribution_source === "self_contributions") {
+                if (d.race_type === 'house') {
+                    yPosition += 125;
+                }
+                else {
+                    yPosition += 110;
+                }
+            }
+            else if (d.contribution_source === 'transfers' || d.contribution_source === 'other') {
+                if (d.first_name === 'MICHAEL' && d.last_name === 'BLOOMBERG')  {
+                    yPosition += 20
+                }
+                else if (d.race_type === 'president') {
+                    yPosition += 30;
+                }
+                else if (d.race_type === 'senate') {
+                    yPosition += 55
+                }
+                else {
+                    yPosition += 65
+                }
+            }
+            else if(d.race_type === 'president') {
+                yPosition -= 40;
+            }
+            else {
+                yPosition -= 20;
+            }
+
+            return yPosition;
+        }).strength(0.9))
+        // .restart();
+
+    vis.beeswarm
+        .transition()
+        .duration(vis.beeswarmTransitionTime)
+        .attr("cx", d => d.transfers_x)
+        .attr("cy", d => d.transfers_y)
+        // .attr("opacity", d => (d.contribution_source === "transfers" || d.contribution_source === "other") ? 1.0 : 0.5)
+};
+
+
+BeeSwarm.prototype.separateIndividualDonationTypes = function() {
+    const vis = this;
+
+    vis.simulation
+        .alpha(0.3)
+        // .force('force', d3.forceManyBody().strength(-2))
+        .force('x', d3.forceX( d => {
+            let xPosition = null;
+
+            if (d.race_type === "president") {
+                xPosition = vis.presidentXScale(d.fec_id)*vis.width;
+            }
+            else if (d.race_type === "senate") {
+                xPosition = vis.senateXScale(d.fec_id)*vis.width;
+            }
+            else {
+                xPosition = vis.houseXScale(d.fec_id)*vis.width;
+            }
+
+            if (d.contribution_source === "small_donor_contributions") {
+                if (xPosition / vis.width == 0.9) {
+                    if (d.race_type === 'president') {
+                        xPosition += 30
+                    }
+                    else if (d.race_type === 'senate') {
+                        xPosition += 32
+                    }
+                    else {
+                        xPosition += 40
+                    }
+                }
+                else {
+                    xPosition += 25
+                }
+            }
+            else if (d.contribution_source === "large_donor_contributions") {
+                if (xPosition / vis.width == 0.9) {
+                    if (d.race_type === 'president') {
+                        xPosition -= 30
+                    }
+                    else if (d.race_type === 'senate') {
+                        xPosition -= 32
+                    }
+                    else {
+                        xPosition -= 40
+                    }
+                }
+                else {
+                    xPosition -= 25
+                }
+            }
+
+            if (d.contribution_source !== "small_donor_contributions" && d.contribution_source !== "large_donor_contributions" && d.contribution_source !== 'transfers' &&
+            d.contribution_source !== "other" && d.contribution_source !== "self_contributions") {
+                console.log(d.contribution_source, d)
+            }
+
+            return xPosition;
+            // vis.officeTypeCoordinates(d.office_type)[0]
+        }).strength(0.9))
+        // .restart();
+
+    vis.beeswarm
+        .transition()
+        .duration(vis.beeswarmTransitionTime)
+        .attr("cx", d => d.individualDonation_x)
+        .attr("cy", d => d.individualDonation_y)
+        // .attr("opacity", d => (d.contribution_source === "small_donor_contributions" || d.contribution_source === "large_donor_contributions") ? 1.0 : 0.5)
 
 };
 

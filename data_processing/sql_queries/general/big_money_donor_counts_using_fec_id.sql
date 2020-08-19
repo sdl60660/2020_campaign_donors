@@ -7,6 +7,7 @@ first_name
 , party
 , race_type
 , incumbent
+, year
 , total_donated
 FROM
 	

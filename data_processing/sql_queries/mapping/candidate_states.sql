@@ -6,6 +6,7 @@ candidates.fec_id
 , candidates.last_name
 , candidates.race_type
 , candidates.party
+, candidates.year
 , donors.state
 , SUM(contributions.contribution_amount) AS "total_receipts"
 , COUNT(DISTINCT contributions.donor) AS "total_contributors"

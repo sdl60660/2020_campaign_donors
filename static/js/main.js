@@ -368,13 +368,13 @@ function setActivateFunctions() {
     };
 
     activateFunctions[4] = () => {
-        beeSwarm.sortByCandidates();
+        beeSwarm.separateSelfContributions();
     };
     activateFunctions[5] = () => {
-        beeSwarm.sortByCandidates();
+        beeSwarm.separateTransfersOther();
     };
     activateFunctions[6] = () => {
-        beeSwarm.sortByCandidates();
+        beeSwarm.separateIndividualDonationTypes();
     };
     activateFunctions[7] = () => {
         beeSwarm.sortByCandidates();
@@ -392,7 +392,7 @@ function setTileWrapperHeights() {
 
     // Sunburst annotations run from the second annotation div (first visible) to the ninth (top of ten)
     // There's a little extra finagling at the end to get the margin between the two viz wrappers correct
-    const beeswarmWrapperHeight = scrollerDivObjects[5].getBoundingClientRect().bottom - scrollerDivObjects[1].getBoundingClientRect().top;
+    const beeswarmWrapperHeight = scrollerDivObjects[8].getBoundingClientRect().bottom - scrollerDivObjects[1].getBoundingClientRect().top;
     $("#beeswarm-wrapper")
         .css("height", beeswarmWrapperHeight);
 
