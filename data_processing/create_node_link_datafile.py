@@ -5,7 +5,7 @@ import os
 
 
 # Minimum number of donors for inclusion in node-link candidate overlap diagram
-donor_threshold = 3000
+donor_threshold = 5000
 
 # Load full dataset of candidate overlaps, as pulled from database
 df = pd.read_csv('db_outputs/filtered_candidate_overlap.csv')
@@ -50,6 +50,10 @@ for candidate in candidate_set:
 
     nodes.append(node)
 
+
+# Create id to candidate name dictionary to use on front-end and avoid having to pass names through on each link
+candidate_ids = {x['id']: x['display_name'] for x in nodes}
+
 # Create an empty list to store link values
 links = []
 for node in nodes:
@@ -62,14 +66,18 @@ for node in nodes:
     # For each matching value, create a link entry containing the source (primary candidate), target (caompared candidate),
     # a percentage value for overlap (as a percentage of the source's total donors) and a raw value (total number of overlapping donors)
     for index, row in overlaps.iterrows():
-        links.append({
-            'source': row['primary_candidate_fec_id'],
-            'target': row['compared_candidate_fec_id'],
-            'pct_val': round(100*(row['overlap_count'] / row['total_primary_donors']), 1),
-            'raw_val': row['overlap_count'],
-            'source_name': row['primary_candidate'].split(' ')[-2],
-            'target_name': row['compared_candidate'].split(' ')[-2]
-        })
+        overlap = 100*(row['overlap_count'] / row['total_primary_donors'])
+
+        reverse_link = filtered_df.loc[(filtered_df['primary_candidate_fec_id'] == row['compared_candidate_fec_id']) & (filtered_df['compared_candidate_fec_id'] == row['primary_candidate_fec_id'])]
+        reverse_overlap = (100*reverse_link['overlap_count']/reverse_link['total_primary_donors']).values[0]
+
+        if overlap >= 1.0 or reverse_overlap >= 1.0:
+            links.append({
+                'source': row['primary_candidate_fec_id'],
+                'target': row['compared_candidate_fec_id'],
+                'pct_val': round(overlap, 1),
+                'raw_val': row['overlap_count']
+            })
 
 
 with open('../static/data/candidate_overlap_nodes.json', 'w') as f:
@@ -77,3 +85,6 @@ with open('../static/data/candidate_overlap_nodes.json', 'w') as f:
 
 with open('../static/data/candidate_overlap_links.json', 'w') as f:
     json.dump(links, f)
+
+with open('../static/data/candidate_id_name_lookup.json', 'w') as f:
+    json.dump(candidate_ids, f)

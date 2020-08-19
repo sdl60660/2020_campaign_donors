@@ -48,10 +48,10 @@ BubblePlot.prototype.initVis = function() {
 
 
     vis.xAxisLabel = vis.g.append("text")
-        .attr("transform", `translate(${vis.width / 2}, ${vis.height + 35})`)
+        .attr("transform", `translate(${vis.width / 2}, ${vis.height + 38})`)
         .attr("text-anchor", "middle")
         .style("font-size", "16px")
-        .text("Majority-White (%)");
+        .text("Majority-White Zipcodes (%)");
 
     vis.xAxisTip = vis.g.append("text")
         .attr("transform", `translate(${vis.width}, ${vis.height - 15})`)
@@ -65,7 +65,7 @@ BubblePlot.prototype.initVis = function() {
         .style("font-size", "16px")
         .attr("x", -vis.height / 2)
         .attr("y", -35)
-        .text("High-Income (%)");
+        .text("High-Income Zipcodes (%)");
 
     vis.yAxisTip = vis.g.append("text")
         .attr("transform", `rotate(-90)`)

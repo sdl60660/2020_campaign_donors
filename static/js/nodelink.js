@@ -362,7 +362,7 @@ NodeLink.prototype.updateVis = function() {
             })
             .style("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
             .text((d) => {
-                return `${d.source_name} donors to ${d.target_name}: ${d3.format(".1f")(d.pct_val)}%`
+                return `${candidateIdNames[d.source]} donors to ${candidateIdNames[d.target]}: ${d3.format(".1f")(d.pct_val)}%`
             });
 
     // console.log("Appended Link Text 2", performance.now() - vis.start);
