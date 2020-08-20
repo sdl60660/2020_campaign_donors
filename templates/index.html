@@ -50,37 +50,30 @@
     <div id="sections">
         <div class="mobile-spacer"  id="first-spacer"></div>
         <section class="step phantom">
-            <div class="title"></div>
             <div class="body" style="height: 350px;"></div>
         </section>
         <div class="mobile-spacer"></div>
         <section class="step" id="first-annotation">
-            <div class="title"></div>
             <div class="body"></div>
         </section>
         <div class="mobile-spacer"></div>
         <section class="step">
-            <div class="title"></div>
             <div class="body"></div>
         </section>
         <div class="mobile-spacer"></div>
         <section class="step">
-            <div class="title"></div>
             <div class="body"></div>
         </section>
         <div class="mobile-spacer"></div>
         <section class="step">
-            <div class="title"></div>
             <div class="body"></div>
         </section>
         <div class="mobile-spacer"></div>
         <section class="step">
-            <div class="title"></div>
             <div class="body"></div>
         </section>
         <div class="mobile-spacer"></div>
         <section class="step">
-            <div class="title"></div>
             <div class="body"></div>
         </section>
         <div class="mobile-spacer"></div>
@@ -108,7 +101,7 @@
             <div class="body"></div>
         </section>
         <div class="mobile-spacer"></div>
-        <section class="step">
+        <section class="step phantom">
             <div class="body"></div>
         </section>
         <div class="mobile-spacer"></div>
@@ -171,7 +164,33 @@
     </div>
 
     <!-- Third Wrapper/Tile -->
-    <div class="tile-wrapper" id="nodelink-wrapper">
+    <div class="tile-wrapper" id="nodelink-wrapper" style="margin-top: 20vh">
+    <div class="container" id="nodelink-intro" style="text-align: center; margin: auto;">
+        <div class="col-md-1"></div>
+        <div class="col-md-10" style="text-align: left">
+            <p>
+                Finally, we can look at donors who contributed to multiple candidates to better understand
+                overlap between candidates. The diagram below shows candidates who share individual donors with
+                the selected candidate in the center. The higher the overlap, the larger the outside candidate's
+                "bubble" is.
+            </p>
+            <br>
+            <p>
+                You can hover over any bubble for more details and click on any bubble to switch the center candidate.
+            </p>
+            <br>
+            <p>
+                Note that by default, the diagram will display "outbound" overlap (designated with <span id="blue-highlight">blue</span>
+                arrows), meaning it shows the percentage of the selected candidate's donors who donated to the outside candidate.
+                It can be toggled to instead display "inbound" overlap (designated with the <span id="green-highlight">green</span>
+                arrows), meaning the percentage of the outside candidate's donors who donated to the selected candidate.
+            </p>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+
+     <div class="spacer"></div>
+
     <div class="container viz-tile" id="nodelink-tile">
         <div class="row">
             <div class="col-md-2"></div>

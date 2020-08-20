@@ -47,7 +47,7 @@ NodeLink.prototype.initVis = function() {
         });
     vis.svg.call(vis.tip);
 
-    vis.minCircleRadius = 11;
+    vis.minCircleRadius = 15;
     vis.centerNodeRadiusVal = 90;
     // Scales for node radius and with of line depending on overlap percentage
     vis.circleRadius = d3.scalePow()
@@ -483,34 +483,6 @@ NodeLink.prototype.updateVis = function() {
 
 
         );
-
-    // vis.simulation.on("tick", () => {
-    //     vis.straightLink
-    //         // .attr("x1", d => d.source.x)
-    //         // .attr("y1", d => d.source.y)
-    //         // This x1/y1 (opposed to the one above) will work to pin the featured candidate bubble to the center
-    //         .attr("x1", vis.width / 2)
-    //         .attr("y1", vis.height / 2)
-    //         .attr("x2", d => d.target.x)
-    //         .attr("y2", d => d.target.y);
-    //
-    //     vis.curvedLink.attr("d", d => linkArc(d, false));
-    //     vis.hiddenLink.attr("d", d => linkArc(d, true));
-    //
-    //     vis.node
-    //         // These conditionals work to pin the featured candidate bubble to the center
-    //         .attr("cx", d => d.id === vis.centerNodeId ? vis.width / 2 : d.x)
-    //         .attr("cy", d => d.id === vis.centerNodeId ? vis.height / 2 : d.y);
-    //
-    //     vis.images
-    //         .attr("cx", d => d.id === vis.centerNodeId ? vis.width / 2 : d.x)
-    //         .attr("cy", d => d.id === vis.centerNodeId ? vis.height / 2 : d.y)
-    //   });
-    // vis.simulation.alpha(1).restart();
-    // vis.simulation.nodes(vis.node);
-    // vis.simulation.force("link").links(links);
-
-    // console.log("Appended Nodes", performance.now() - vis.start);
 
 };
 

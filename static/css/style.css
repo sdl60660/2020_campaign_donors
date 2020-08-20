@@ -319,6 +319,23 @@ hr {
     user-select: none;
 }
 
+
+#blue-highlight {
+    padding: 1px 2px;
+
+    border-radius: 3px;
+    background-color: rgba(0,0,255,0.6);
+}
+
+
+#green-highlight {
+    padding: 1px 2px;
+
+    border-radius: 3px;
+    background-color: rgba(0,128,0,0.6);
+}
+
+
 table{
     border-collapse:collapse;
     border:1px solid black;
