@@ -381,7 +381,7 @@ BeeSwarm.prototype.sortByCandidates = function() {
         .attr("y", vis.officeTypeCoordinates("president")[1] - 100)
         .style("font-size", "12px")
         .style("text-anchor", "middle")
-        .text("ALL REMAINING CANDIDATES");
+        .text("ALL OTHER CANDIDATES");
 
 
     vis.beeswarm
