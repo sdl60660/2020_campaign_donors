@@ -58,6 +58,18 @@ BeeSwarm.prototype.initVis = function() {
             .style("stroke", "black")
             .on("mouseover", (d,i,n) => {
                 vis.tip.show(d, n[i]);
+
+                let highlightTip = $(".beeswarm-state-tip");
+
+                // Get screen coordinates of the corresponding plot bubble
+                let stateY = n[i].getBoundingClientRect().y;
+
+                // Get the height of the tooltip to offset
+                let tooltipHeight = highlightTip[0].getBoundingClientRect().height;
+
+                highlightTip
+                    .css("position", "fixed")
+                    .css("top", stateY - tooltipHeight);
             })
             .on("mouseout", vis.tip.hide);
 
@@ -111,6 +123,18 @@ BeeSwarm.prototype.initVis = function() {
                 matchingState = vis.svg.select(`#state-${d.state}`).node();
             }
             vis.tip.show(featureData, matchingState);
+
+            let highlightTip = $(".beeswarm-state-tip");
+
+            // Get screen coordinates of the corresponding plot bubble
+            let stateY = matchingState.getBoundingClientRect().y;
+
+            // Get the height of the tooltip to offset
+            let tooltipHeight = highlightTip[0].getBoundingClientRect().height;
+
+            highlightTip
+                .css("position", "fixed")
+                .css("top", stateY - tooltipHeight);
         })
         .on("mouseout", vis.tip.hide);
 
@@ -541,25 +565,25 @@ BeeSwarm.prototype.initStateTooltip = function() {
 
     vis.tip = d3.tip()
         .attr("class", "d3-tip beeswarm-state-tip")
-        .attr("position", "fixed")
-        .offset(() => {
-            // Find offset of the top of the flowchart-wrapper from the top of the page (this will vary based on window size)
-            const tileOffset = $("#beeswarm-wrapper")[0].getBoundingClientRect().y;
-            // Find offset from top of page to flowchart-tile
-            const trueMarginSize = $("#beeswarm-tile")[0].getBoundingClientRect().y;
-
-            // yOffset will be used to adjust the top position of the tooltip
-            // Before the flowchart has fallen into its fixed position, no adjustment is necessary, so this shoul come out to 0
-            // After the flowchart has fallen into fixed, position, this will be the difference between the trueMarginSize and the tileOffset
-            // Without this offset, the tooltip would render in a position as if the the flowchart is in its original, pre-scroll location
-            let yOffset = trueMarginSize - Math.min(trueMarginSize, tileOffset) + 10;
-
-            if (typeof window.chrome === "undefined") {
-                yOffset = 10;
-            }
-
-            return [yOffset, 0];
-        })
+        // .attr("position", "fixed")
+        // .offset(() => {
+        //     // Find offset of the top of the flowchart-wrapper from the top of the page (this will vary based on window size)
+        //     const tileOffset = $("#beeswarm-wrapper")[0].getBoundingClientRect().y;
+        //     // Find offset from top of page to flowchart-tile
+        //     const trueMarginSize = $("#beeswarm-tile")[0].getBoundingClientRect().y;
+        //
+        //     // yOffset will be used to adjust the top position of the tooltip
+        //     // Before the flowchart has fallen into its fixed position, no adjustment is necessary, so this shoul come out to 0
+        //     // After the flowchart has fallen into fixed, position, this will be the difference between the trueMarginSize and the tileOffset
+        //     // Without this offset, the tooltip would render in a position as if the the flowchart is in its original, pre-scroll location
+        //     let yOffset = trueMarginSize - Math.min(trueMarginSize, tileOffset) + 10;
+        //
+        //     if (typeof window.chrome === "undefined") {
+        //         yOffset = 10;
+        //     }
+        //
+        //     return [yOffset, 0];
+        // })
         .html(function(d) {
             let outputString = '<div>';
             outputString += `<div style="text-align: center;"><span><strong>${d.properties.NAME}</strong></span></div><br>`;
