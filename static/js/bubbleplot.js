@@ -80,28 +80,8 @@ BubblePlot.prototype.initVis = function() {
     vis.circleContainer = vis.g.append("g");
     vis.plotLabelContainer = vis.g.append("g");
 
-
-
     vis.tip = d3.tip()
         .attr('class', 'd3-tip bubbleplot-tip')
-        // .offset(() => {
-        //     // Find offset of the top of the flowchart-wrapper from the top of the page (this will vary based on window size)
-        //     const tileOffset = $("#bubbleplot-wrapper")[0].getBoundingClientRect().y;
-        //     // Find offset from top of page to flowchart-tile
-        //     const trueMarginSize = $("#bubbleplot-tile")[0].getBoundingClientRect().y;
-        //
-        //     // yOffset will be used to adjust the top position of the tooltip
-        //     // Before the flowchart has fallen into its fixed position, no adjustment is necessary, so this shoul come out to 0
-        //     // After the flowchart has fallen into fixed, position, this will be the difference between the trueMarginSize and the tileOffset
-        //     // Without this offset, the tooltip would render in a position as if the the flowchart is in its original, pre-scroll location
-        //     let yOffset = trueMarginSize - Math.min(trueMarginSize, tileOffset) + 5;
-        //
-        //     if (typeof window.chrome === "undefined") {
-        //         yOffset = 5;
-        //     }
-        //
-        //     return [yOffset, 0];
-        // })
         .html(d => {
             let tiptext = '<div style="text-align:center">';
             tiptext += `<span><strong>${d.candidate_name} (${d.district_name})</strong></span><br><br>`;
