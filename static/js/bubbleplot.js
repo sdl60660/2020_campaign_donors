@@ -9,7 +9,7 @@ BubblePlot = function(_parentElement) {
 BubblePlot.prototype.initVis = function() {
     const vis = this;
 
-    vis.margin = {top: 50, right: 50, bottom: 60, left: 60};
+    vis.margin = {top: 50, right: 0, bottom: 60, left: 60};
 
     // Set height/width of viewBox
     vis.width = 900 - vis.margin.left - vis.margin.right;

@@ -17,7 +17,7 @@ BeeSwarm.prototype.initVis = function() {
     // Initialize SVG
     vis.svg = d3.select(vis.parentElement)
         .append("svg")
-        .attr("viewBox", [0, 0, vis.width, vis.height]);
+        .attr("viewBox", [0, 0, vis.width*1.03, vis.height]);
 
     vis.projection = geoAlbersUsaPr()
         .scale(vis.width)
@@ -338,8 +338,9 @@ BeeSwarm.prototype.sortByCandidates = function() {
         }).strength(0.8))
         // .restart();
 
+    let allCandidateLabels = candidateGroups.flat();
     vis.candidateLabels = vis.svg.selectAll(".candidate-label-text")
-        .data(candidateGroups.flat())
+        .data(allCandidateLabels)
         .join("text")
         .attr("class", "candidate-label-text")
         .attr("x", d => {
@@ -360,6 +361,14 @@ BeeSwarm.prototype.sortByCandidates = function() {
         // .text(d => `${d.first_name} ${d.last_name} (${d.full_candidate_district})`);
         .text(d => `${d.first_name} ${d.last_name}`);
 
+    // Remaining Candidates Label
+    vis.remainingCandidateLabel = vis.svg.append("text")
+        .attr("class", ".candidate-label-text")
+        .attr("x", 0.9*vis.width)
+        .attr("y", vis.officeTypeCoordinates("president")[1] - 100)
+        .style("font-size", "12px")
+        .style("text-anchor", "middle")
+        .text("ALL REMAINING CANDIDATES");
 
 
     vis.beeswarm
@@ -375,6 +384,7 @@ BeeSwarm.prototype.sortByCandidates = function() {
     //     .attr("y", vis.height/2);
 
     vis.removeLabels('.party-label-text');
+    vis.removeLabels(".contribution-type-label");
 
 };
 
@@ -382,21 +392,66 @@ BeeSwarm.prototype.sortByCandidates = function() {
 BeeSwarm.prototype.separateSelfContributions = function() {
     const vis = this;
 
+    const selfContributionOffset = 100;
+    const allOthersOffset = -15;
+
     vis.simulation
         .alpha(0.2)
         .force('y', d3.forceY( d => {
             let yPosition = vis.officeTypeCoordinates(d.race_type)[1];
 
             if (d.contribution_source === "self_contributions") {
-                yPosition += 100;
+                yPosition += selfContributionOffset;
             }
             else {
-                yPosition -= 15;
+                yPosition += allOthersOffset;
             }
 
             return yPosition;
         }).strength(0.8))
         // .restart();
+
+    vis.removeLabels(".contribution-type-label");
+
+    vis.selfContributionLabel = vis.svg.append("text")
+        .attr("class", "contribution-type-label")
+        .attr("x", vis.width*0.94)
+        .attr("y", vis.officeTypeCoordinates("president")[1] + selfContributionOffset)
+        .style("font-size", "10px")
+        .style("text-anchor", "start")
+        .text("Self-Contributions");
+
+    vis.allOtherContributionLabel = vis.svg.append("text")
+        .attr("class", "contribution-type-label")
+        .attr("x", vis.width*0.94)
+        .attr("y", vis.officeTypeCoordinates("president")[1] + allOthersOffset)
+        .style("font-size", "10px")
+        .style("text-anchor", "start")
+        .text("All Other Sources");
+
+    vis.individualContributionLabel = vis.svg.append("text")
+        .attr("class", "contribution-type-label")
+        .attr("x", vis.width*0.94)
+        .style("font-size", "10px")
+        .style("text-anchor", "start")
+        .text("");
+
+    vis.largeContributionLabel = vis.svg.append("text")
+        .attr("class", "contribution-type-label")
+        .attr("x", 0.9*vis.width + -30)
+        .attr("y", vis.officeTypeCoordinates("president")[1] - 75)
+        .style("font-size", "10px")
+        .style("text-anchor", "middle")
+        .text("");
+
+    vis.smallContributionLabel = vis.svg.append("text")
+        .attr("class", "contribution-type-label")
+        .attr("x", 0.9*vis.width + 30)
+        .attr("y", vis.officeTypeCoordinates("president")[1] - 75)
+        .style("font-size", "10px")
+        .style("text-anchor", "middle")
+        .text("");
+
 
     vis.beeswarm
         .transition()
@@ -448,6 +503,27 @@ BeeSwarm.prototype.separateTransfersOther = function() {
         }).strength(0.9))
         // .restart();
 
+    vis.selfContributionLabel
+        .transition()
+        .duration(vis.beeswarmTransitionTime)
+        .attr("y", vis.officeTypeCoordinates("president")[1] + 110);
+
+    vis.allOtherContributionLabel
+        .transition()
+        .duration(vis.beeswarmTransitionTime)
+        .attr("y", vis.officeTypeCoordinates("president")[1] + 30)
+        .text("Transfers");
+
+    vis.individualContributionLabel
+        .attr("y", vis.officeTypeCoordinates("president")[1] - 40)
+        .text("Individual Contributions");
+
+    vis.largeContributionLabel
+        .text("");
+
+    vis.smallContributionLabel
+        .text("");
+
     vis.beeswarm
         .transition()
         .duration(vis.beeswarmTransitionTime)
@@ -477,7 +553,7 @@ BeeSwarm.prototype.separateIndividualDonationTypes = function() {
             }
 
             if (d.contribution_source === "small_donor_contributions") {
-                if (xPosition / vis.width == 0.9) {
+                if (xPosition / vis.width === 0.9) {
                     if (d.race_type === 'president') {
                         xPosition += 30
                     }
@@ -493,7 +569,7 @@ BeeSwarm.prototype.separateIndividualDonationTypes = function() {
                 }
             }
             else if (d.contribution_source === "large_donor_contributions") {
-                if (xPosition / vis.width == 0.9) {
+                if (xPosition / vis.width === 0.9) {
                     if (d.race_type === 'president') {
                         xPosition -= 30
                     }
@@ -518,6 +594,14 @@ BeeSwarm.prototype.separateIndividualDonationTypes = function() {
             // vis.officeTypeCoordinates(d.office_type)[0]
         }).strength(0.9))
         // .restart();
+
+
+    vis.largeContributionLabel
+        .text("$200+");
+
+    vis.smallContributionLabel
+        .text("<$200");
+
 
     vis.beeswarm
         .transition()
