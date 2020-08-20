@@ -377,7 +377,26 @@ function setActivateFunctions() {
         beeSwarm.separateIndividualDonationTypes();
     };
     activateFunctions[7] = () => {
-        console.log("7");
+        // Intro tile for bubbleplot
+    };
+    activateFunctions[8] = () => {
+        bubblePlot.resetHighlighting();
+    };
+    activateFunctions[9] = () => {
+        bubblePlot.highlightParty(['REP']);
+    };
+    activateFunctions[10] = () => {
+        bubblePlot.highlightParty(['DEM', 'DFL']);
+    };
+    activateFunctions[11] = () => {
+        bubblePlot.highlightCandidates(['SANDERS', 'KLOBUCHAR', 'SPANBERGER']);
+        bubblePlot.yVariable = 'income';
+        bubblePlot.wrangleData();
+    };
+    activateFunctions[12] = () => {
+        bubblePlot.resetHighlighting();
+        bubblePlot.yVariable = 'education';
+        bubblePlot.wrangleData();
     };
 
 
@@ -395,6 +414,11 @@ function setTileWrapperHeights() {
     const beeswarmWrapperHeight = scrollerDivObjects[8].getBoundingClientRect().bottom - scrollerDivObjects[1].getBoundingClientRect().top;
     $("#beeswarm-wrapper")
         .css("height", beeswarmWrapperHeight);
+
+
+    const bubblePlotWrapperHeight = scrollerDivObjects[14].getBoundingClientRect().bottom - scrollerDivObjects[9].getBoundingClientRect().top;
+    $("#bubbleplot-wrapper")
+        .css("height", bubblePlotWrapperHeight);
 
     // // Flowchart annotation divs run from the tenth annotation div to the fourteenth
     // const flowChartWrapperHeight = scrollerDivObjects[scrollerDivObjects.length - 1].getBoundingClientRect().top - scrollerDivObjects[9].getBoundingClientRect().top + 700;

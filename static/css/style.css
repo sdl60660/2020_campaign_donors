@@ -250,10 +250,6 @@ strong {
 	border: 1px solid black;
 	z-index: 100;
     padding: 12px;
-}
-
-.d3-tip {
-    position: fixed;
     line-height: 1;
 }
 

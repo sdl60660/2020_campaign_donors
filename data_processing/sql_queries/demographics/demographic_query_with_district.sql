@@ -5,6 +5,7 @@
  , candidates.year
  , candidates.party
  , candidates.fec_receipts_link
+ , candidates.last_name
  , members.bioguide_id
  , members.trump_score
  , members.ideology_score

@@ -211,7 +211,7 @@ BeeSwarm.prototype.sortByParty = function() {
         .join("text")
         .attr("class", "party-label-text")
         .attr("x", d => vis.partyCoordinates(d)[0])
-        .attr("y", vis.height / 4)
+        .attr("y", vis.height / 3)
         .style("font-size", "20px")
         .style("text-anchor", "middle")
         .text(d => d);
@@ -238,7 +238,7 @@ BeeSwarm.prototype.sortByOfficeType = function() {
     vis.partyLabels
         .transition()
         .duration(1000)
-        .attr("y", vis.height / 13);
+        .attr("y", 15);
 
     vis.officeTypeLabels = vis.svg.selectAll(".office-type-text")
         .data(['President', 'Senate', 'House'])
@@ -567,7 +567,7 @@ BeeSwarm.prototype.initStateTooltip = function() {
             outputString += '<table><tr>\n' +
                 '    <td></td>\n' +
                 '    <th scope="col">DEM</th>\n' +
-                '    <th scope="col">GOP</th>\n' +
+                '    <th scope="col">REP</th>\n' +
                 '    <th scope="col">OTHER</th>\n' +
                 '  </tr>\n' +
                 '  <tr>\n' +

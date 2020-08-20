@@ -6,7 +6,7 @@ df = df.loc[df['year'] == 2020]
 
 print(df.columns)
 
-df = df[['fec_id', 'candidate_name', 'party', 'donor_count',
+df = df[['fec_id', 'candidate_name', 'last_name', 'party', 'donor_count',
        'first_quartile_bachelors_pct', 'second_quartile_bachelors_pct',
        'third_quartile_bachelors_pct', 'fourth_quartile_bachelors_pct',
        'first_quartile_household_income', 'second_quartile_household_income',

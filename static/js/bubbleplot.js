@@ -27,10 +27,10 @@ BubblePlot.prototype.initVis = function() {
         .domain([60, 100])
         .range([0, vis.width]);
 
-    vis.y = d3.scalePow()
-        .domain([0, 80])
+    vis.y = d3.scaleLinear()
+        .domain([30, 100])
         .range([vis.height, 0])
-        .exponent(2);
+        // .exponent(2);
 
     vis.radius = d3.scaleLinear()
         // .domain()
@@ -76,11 +76,32 @@ BubblePlot.prototype.initVis = function() {
         .text("More Donors From High-Income Zipcodes ⟶");
 
 
-    vis.circles = vis.g.selectAll('circle');
+    // vis.circles = vis.g.selectAll('circle');
+    vis.circleContainer = vis.g.append("g");
+    vis.plotLabelContainer = vis.g.append("g");
+
 
 
     vis.tip = d3.tip()
-        .attr('class', 'd3-tip')
+        .attr('class', 'd3-tip bubbleplot-tip')
+        // .offset(() => {
+        //     // Find offset of the top of the flowchart-wrapper from the top of the page (this will vary based on window size)
+        //     const tileOffset = $("#bubbleplot-wrapper")[0].getBoundingClientRect().y;
+        //     // Find offset from top of page to flowchart-tile
+        //     const trueMarginSize = $("#bubbleplot-tile")[0].getBoundingClientRect().y;
+        //
+        //     // yOffset will be used to adjust the top position of the tooltip
+        //     // Before the flowchart has fallen into its fixed position, no adjustment is necessary, so this shoul come out to 0
+        //     // After the flowchart has fallen into fixed, position, this will be the difference between the trueMarginSize and the tileOffset
+        //     // Without this offset, the tooltip would render in a position as if the the flowchart is in its original, pre-scroll location
+        //     let yOffset = trueMarginSize - Math.min(trueMarginSize, tileOffset) + 5;
+        //
+        //     if (typeof window.chrome === "undefined") {
+        //         yOffset = 5;
+        //     }
+        //
+        //     return [yOffset, 0];
+        // })
         .html(d => {
             let tiptext = '<div style="text-align:center">';
             tiptext += `<span><strong>${d.candidate_name} (${d.district_name})</strong></span><br><br>`;
@@ -96,12 +117,34 @@ BubblePlot.prototype.initVis = function() {
         });
     vis.svg.call(vis.tip);
 
+    vis.yVariable = 'income';
+
 
     vis.wrangleData();
 };
 
 BubblePlot.prototype.wrangleData = function() {
     const vis = this;
+
+    if (vis.yVariable === 'education') {
+        vis.yAccessor = 'high_bachelors_zipcode_pct';
+
+        vis.yAxisLabel
+            .text("High Bachelors Attainment Zipcodes (%)");
+
+        vis.yAxisTip
+            .text("More Donors From Zipcodes With High Bachelors Degree Attainment ⟶");
+    }
+    else {
+        // if equals 'income'
+        vis.yAccessor = 'high_income_zipcode_pct';
+
+        vis.yAxisLabel
+            .text("High-Income Zipcodes (%)");
+
+        vis.yAxisTip
+            .text("More Donors From High-Income Zipcodes ⟶");
+    }
 
     vis.chartData = donorDemographics.slice();
     vis.chartData = vis.chartData
@@ -119,18 +162,108 @@ BubblePlot.prototype.wrangleData = function() {
 BubblePlot.prototype.updateVis = function() {
     const vis = this;
 
-    vis.circles
-        .data(vis.chartData)
-        .join('circle')
-        .attr('cx', d => vis.x(100*d.majority_white_zipcode_pct))
-        .attr('cy', d => vis.y(100*d.high_income_zipcode_pct))
-        .attr('r', d => vis.radius(d.donor_count))
-        .style('fill', d => partyColor(d.party))
-        .style('fill-opacity', 0.85)
-        .style('stroke-width', '1px')
-        .style('stroke', 'black')
-        .on('mouseover', vis.tip.show)
-        .on('mouseout', vis.tip.hide)
+    console.log(vis.chartData);
 
+    vis.circles = vis.circleContainer.selectAll("circle")
+        .data(vis.chartData, d => d.fec_id)
+        .join(
+            enter => enter.append("circle")
+                .attr('cx', d => vis.x(100*d.majority_white_zipcode_pct))
+                .attr('cy', d => vis.y(100*d[vis.yAccessor]))
+                .attr('r', d => vis.radius(d.donor_count))
+                .style('fill', d => partyColor(d.party))
+                .style('opacity', 0.82)
+                .style('stroke-width', '1px')
+                .style('stroke', 'black')
+                .on('mouseover', (d,i,n) => {
+                    vis.tip.show(d);
+                    let highlightTip = $(".bubbleplot-tip");
+
+                    // Get screen coordinates of the corresponding plot bubble
+                    let bubbleY = n[i].getBoundingClientRect().y;
+
+                    // Get the height of the tooltip to offset
+                    let tooltipHeight = highlightTip[0].getBoundingClientRect().height;
+
+                    highlightTip
+                        .css("position", "fixed")
+                        .css("top", bubbleY - tooltipHeight);
+                })
+                .on('mouseout', vis.tip.hide),
+
+            update => update
+                .call(update => update
+                    .transition("move-bubbles")
+                    .duration(1000)
+                        .attr('cx', d => vis.x(100*d.majority_white_zipcode_pct))
+                        .attr('cy', d => vis.y(100*d[vis.yAccessor]))),
+
+            exit => exit.remove()
+        );
+
+    vis.plotLabels = vis.plotLabelContainer.selectAll("text")
+        .data(vis.chartData, d => d.fec_id)
+        .join(
+            enter => enter.append("text")
+                .attr('x', d => vis.x(100*d.majority_white_zipcode_pct))
+                .attr('y', d => vis.y(100*d[vis.yAccessor]) + vis.radius(d.donor_count) + 10)
+                .attr("text-anchor", "middle")
+                .style("font-size", "9px")
+                // .text(d => d.last_name),
+                .text(d => (d.donor_count > 150000 || d.last_name === "SPANBERGER") ? d.last_name : ""),
+
+            update => update
+                .call(update => update
+                    .transition("move-labels")
+                    .duration(1000)
+                        .attr('y', d => vis.y(100*d[vis.yAccessor]) + vis.radius(d.donor_count) + 10)),
+
+            exit => exit.remove()
+        )
+};
+
+
+BubblePlot.prototype.highlightParty = function(partyGroup) {
+    const vis = this;
+
+    vis.circles
+        .transition("bubble-party-highlight")
+        .duration(500)
+        .style('opacity', d => partyGroup.includes(d.party) ? 0.82 : 0.3);
+
+    vis.plotLabels
+        .transition("label-party-highlight")
+        .duration(500)
+        .style('opacity', d => partyGroup.includes(d.party) ? 1.0 : 0.3);
+
+};
+
+BubblePlot.prototype.highlightCandidates = function(candidateGroup) {
+    const vis = this;
+
+    vis.circles
+        .transition("bubble-candidate-highlight")
+        .duration(500)
+        .style('opacity', d => candidateGroup.includes(d.last_name) ? 0.82 : 0.3);
+
+    vis.plotLabels
+        .transition("label-candidate-highlight")
+        .duration(500)
+        .style('opacity', d => candidateGroup.includes(d.last_name) ? 1.0 : 0);
+
+};
+
+BubblePlot.prototype.resetHighlighting = function() {
+    const vis = this;
+
+    vis.circles
+        .transition("reset-highlighting")
+        .duration(500)
+        .style('opacity', 0.82);
+
+    vis.plotLabels
+        .transition("reset-highlighting")
+        .duration(500)
+        .style('opacity', 1.0)
 
 };
