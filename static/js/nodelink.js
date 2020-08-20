@@ -202,7 +202,7 @@ NodeLink.prototype.wrangleData = function() {
     // console.log("Filtered Directional Links", performance.now() - vis.start);
 
     // Determine node layout (using multiple rings, if necessary)
-    const linkDistance = 550;
+    const linkDistance = 600;
 
     vis.getCircleCoordinates(linkDistance);
 
@@ -354,15 +354,15 @@ NodeLink.prototype.updateVis = function() {
             .classed('noselect', true)
             .style("text-anchor","middle")
             .style("opacity", 0)
-            .style("font-size", "11px")
+            .style("font-size", "12px")
             .attr("startOffset", d => {
                 let offset = d.direction === "outbound" ? 62 : 50;
                 offset = (d.nodeAngle > 90 || d.nodeAngle < -90) ? (100 - offset) : offset;
                 return `${offset}%`;
             })
             .style("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
-            .text((d) => {
-                return `${candidateIdNames[d.source]} donors to ${candidateIdNames[d.target]}: ${d3.format(".1f")(d.pct_val)}%`
+            .html((d) => {
+                return `${d3.format(".1f")(d.pct_val)}% of ${candidateIdNames[d.source]} donors also donated to ${candidateIdNames[d.target]}`
             });
 
     // console.log("Appended Link Text 2", performance.now() - vis.start);
@@ -512,33 +512,6 @@ function linkArc(d, orientationMode) {
         A${r},${r} 0 0,${clockwise} ${targetX},${targetY}
         `;
 }
-
-drag = simulation => {
-    function dragstarted(d) {
-        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-        d.fx = d.x;
-        d.fy = d.y;
-    }
-    function dragged(d) {
-        // Conditional added to pin feature candidate to the center
-        if (d.id !== featuredCandidateId) {
-            d.fx = d3.event.x;
-            d.fy = d3.event.y;
-        }
-    }
-    function dragended(d) {
-        if (!d3.event.active) simulation.alphaTarget(0);
-        // if (d.id !== featuredCandidateId) {
-        d.fx = null;
-        d.fy = null;
-        // }
-    }
-
-    return d3.drag()
-        .on("start", dragstarted)
-        .on("drag", dragged)
-        .on("end", dragended);
-};
 
 
 NodeLink.prototype.getCircleCoordinates = function(linkDistance) {

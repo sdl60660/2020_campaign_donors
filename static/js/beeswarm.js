@@ -43,7 +43,6 @@ BeeSwarm.prototype.initVis = function() {
             {'NAME': 'Self-Contributions',
              'contributionCounts': summarizeContributionCounts(stateSummaryCounts['self_contribution'])}};
 
-    vis.initStateTooltip();
 
     vis.usMap = vis.svg.append("g")
         // .attr("y", vis.height / 3)
@@ -56,6 +55,7 @@ BeeSwarm.prototype.initVis = function() {
                 .projection(vis.projection)
             )
             .style("stroke", "black")
+            .attr("opacity", 0)
             .on("mouseover", (d,i,n) => {
                 vis.tip.show(d, n[i]);
 
@@ -71,7 +71,7 @@ BeeSwarm.prototype.initVis = function() {
                     .css("position", "fixed")
                     .css("top", stateY - tooltipHeight);
             })
-            .on("mouseout", vis.tip.hide);
+            .on("mouseout", d => vis.tip.hide());
 
     vis.stateCenters = {};
     stateMap.features.forEach(d => {
@@ -84,10 +84,6 @@ BeeSwarm.prototype.initVis = function() {
     vis.stateCenters['self_contribution'] = [0.9*vis.width, 0.45*vis.height];
     // Offset California by a little to avoid some of the Nevada overlap
     vis.stateCenters['CA'][0] -= 20;
-
-    vis.beeRadius = d3.scaleLinear()
-        .domain([0, 1000000])
-        .range([0, 3]);
 
     vis.includedBlocks = beeswarmMoneyBlocks.filter(d => d.state in vis.stateCenters);
 
@@ -102,7 +98,6 @@ BeeSwarm.prototype.initVis = function() {
         .attr("cx", d => vis.stateCenters[d.state][0])
         .attr("cy", d => vis.stateCenters[d.state][1])
         .attr("r", 2.5)
-        // .attr("r", d => vis.beeRadius(d.total_receipts))
         // .style("stroke", "black")
         // .style("stroke-width", 0.5)
         .attr("fill", d => partyColor(d.party))
@@ -122,6 +117,9 @@ BeeSwarm.prototype.initVis = function() {
                 featureData = stateMap.features.find(x => x.properties.SHORT_NAME === d.state);
                 matchingState = vis.svg.select(`#state-${d.state}`).node();
             }
+
+            console.log(matchingState);
+
             vis.tip.show(featureData, matchingState);
 
             let highlightTip = $(".beeswarm-state-tip");
@@ -136,14 +134,10 @@ BeeSwarm.prototype.initVis = function() {
                 .css("position", "fixed")
                 .css("top", stateY - tooltipHeight);
         })
-        .on("mouseout", vis.tip.hide);
+        .on("mouseout", d => vis.tip.hide());
 
     vis.tick = () => {
         tickCount += 1;
-
-        // for (let i = 0; i < 2; i++) {
-        //     vis.simulation.tick();
-        //   }
 
         vis.simulation.tick();
 
@@ -175,6 +169,7 @@ BeeSwarm.prototype.initVis = function() {
             .on('tick', vis.tick)
             .stop();
 
+    vis.showMap();
     vis.sortByGeo();
 };
 
@@ -190,13 +185,30 @@ BeeSwarm.prototype.sortByGeo = function() {
         .attr("cx", d => d.map_x)
         .attr("cy", d => d.map_y);
 
+
+    const fixedTooltipCall = (d,i,n) => {
+        vis.tip.show(d, n[i]);
+
+        let highlightTip = $(".beeswarm-state-tip");
+
+        // Get screen coordinates of the corresponding plot bubble
+        let stateY = n[i].getBoundingClientRect().y;
+
+        // Get the height of the tooltip to offset
+        let tooltipHeight = highlightTip[0].getBoundingClientRect().height;
+
+        highlightTip
+            .css("position", "fixed")
+            .css("top", stateY - tooltipHeight);
+    };
+
     vis.uncategorizedHoverCircle = vis.svg.append("circle")
         .datum(vis.uncategorizedMapData)
         .attr("cx", 0.9*vis.width)
         .attr("cy", 0.73*vis.height)
         .attr("r", 120)
         .style("opacity", 0)
-        .on("mouseover", vis.tip.show);
+        .on("mouseover", (d,i,n) => fixedTooltipCall(d,i,n));
 
     vis.selfFundedHoverCircle = vis.svg.append("circle")
         .datum(vis.selfFundingMapData)
@@ -204,7 +216,7 @@ BeeSwarm.prototype.sortByGeo = function() {
         .attr("cy", 0.45*vis.height)
         .attr("r", 120)
         .style("opacity", 0)
-        .on("mouseover", vis.tip.show);
+        .on("mouseover", (d,i,n) => fixedTooltipCall(d,i,n));
 };
 
 
@@ -248,6 +260,7 @@ BeeSwarm.prototype.sortByParty = function() {
         .attr("cy", d => d.party_y);
 
 };
+
 
 BeeSwarm.prototype.sortByOfficeType = function() {
     const vis = this;
@@ -461,6 +474,7 @@ BeeSwarm.prototype.separateSelfContributions = function() {
         // .attr("opacity", d => d.contribution_source === "self_contributions" ? 1.0 : 0.5)
 };
 
+
 BeeSwarm.prototype.separateTransfersOther = function() {
     const vis = this;
 
@@ -623,6 +637,8 @@ BeeSwarm.prototype.removeLabels = function(labelClass) {
 BeeSwarm.prototype.hideMap = function() {
     const vis = this;
 
+    vis.removeLabels(".map-label");
+
     vis.usMap
         .transition()
         .duration(1000)
@@ -634,6 +650,23 @@ BeeSwarm.prototype.hideMap = function() {
 
 BeeSwarm.prototype.showMap = function() {
     const vis = this;
+
+
+    vis.svg.append("text")
+        .attr("class", "map-label")
+        .attr("x", 0.9*vis.width)
+        .attr("y", 0.35*vis.height)
+        .style("font-size", "14px")
+        .style("text-anchor", "middle")
+        .text("Self-Contributions");
+
+    vis.svg.append("text")
+        .attr("class", "map-label")
+        .attr("x", 0.9*vis.width)
+        .attr("y", 0.65*vis.height)
+        .style("font-size", "14px")
+        .style("text-anchor", "middle")
+        .text("Donor Unknown");
 
     vis.usMap
         .transition()

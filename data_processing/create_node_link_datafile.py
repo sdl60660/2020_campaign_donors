@@ -52,7 +52,7 @@ for candidate in candidate_set:
 
 
 # Create id to candidate name dictionary to use on front-end and avoid having to pass names through on each link
-candidate_ids = {x['id']: x['display_name'] for x in nodes}
+candidate_ids = {x['id']: x['last_name'] for x in nodes}
 
 # Create an empty list to store link values
 links = []
