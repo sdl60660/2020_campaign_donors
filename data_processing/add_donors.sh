@@ -1,6 +1,7 @@
 cd scripts
 
 python process_candidate_files.py 					# creates csv file from bulk candidate and candidate meta files
+python export_candidates_table.py 					# refreshes candidates table export, which is used in other scripts (~1 second)
 python process_fec_contributions.py 				# creates structured csv file from bulk contributions .txt download from FEC site (~10 minutes)
 python process_act_blue_data.py						# creates consolidated doc from individual state files (~20 minutes)
 python combine_canididate_act_blue_filings.py		# combines act_blue donor/contribution data with candidate filings (~15 minutes)

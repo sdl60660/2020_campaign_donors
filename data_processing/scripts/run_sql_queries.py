@@ -4,11 +4,6 @@ import os
 
 import requests
 
-def is_num(x):
-	try:
-		return int(x)
-	except ValueError:
-		return False
 
 with psycopg2.connect(host="localhost", database="candidate_fundraising", port="5433", user="samlearner", password="postgres") as conn:
 	with conn.cursor() as cur:

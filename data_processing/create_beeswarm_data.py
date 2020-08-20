@@ -98,6 +98,38 @@ def add_missing_money_to_state_mappings(state_mappings_df, meta_data_totals):
 
     return state_mappings_df, grouped_totals
 
+def create_output_meta_file(big_money_totals, meta_data_totals, grouped_totals):
+    big_money_totals['large_individual_donors'] = big_money_totals['total_donated']
+    join_df = big_money_totals[['fec_id', 'large_individual_donors']]
+
+    meta_data_totals = meta_data_totals.join(join_df.set_index('fec_id'), on='fec_id', lsuffix='', rsuffix='_repeat')
+
+    meta_data_totals['large_individual_donors'] = meta_data_totals['large_individual_donors'] - meta_data_totals[
+        'contributions_from_candidate']
+
+    meta_data_totals['large_individual_donors'][meta_data_totals['large_individual_donors'] < 0] = 0
+    # meta_data_totals['small_individual_donors'] = meta_data_totals[''] - meta_data_totals['large_individual_donors']
+    meta_data_totals['small_individual_donors'] = ''
+    meta_data_totals['total_self_contributions'] = ''
+    meta_data_totals['other_contribution_sources'] = ''
+
+    for i, candidate in meta_data_totals.iterrows():
+        self_contributions = candidate['contributions_from_candidate']
+
+        fec_id = candidate['fec_id']
+        if fec_id in grouped_totals.index:
+            calculated_receipts = (grouped_totals.loc[fec_id][0] - self_contributions)
+        else:
+            calculated_receipts = 0
+        total_individual_contributions = max(candidate['total_individual_contributions'], calculated_receipts)
+
+        meta_data_totals.at[i, 'small_individual_donors'] = total_individual_contributions - candidate[
+            'large_individual_donors']
+        meta_data_totals.at[i, 'total_self_contributions'] = candidate['contributions_from_candidate'] + candidate['loans_from_candidate']
+        meta_data_totals.at[i, 'other_contribution_sources'] = max(0, (candidate['total_receipts'] - total_individual_contributions - candidate['contributions_from_candidate'] - candidate['loans_from_candidate'] - candidate['transfers_from_committees']))
+
+    return meta_data_totals
+
 
 def clean_and_summarize_state_mappings(state_mappings_df):
     total_summary_counts = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))
@@ -329,7 +361,7 @@ def reassign_self_contributions(meta_data_totals, chart_blocks, total_summary_co
 
 def main():
 
-    # ==== Load data files =====
+    # ==== Load data files ===== #
 
     # Candidate totals by state
     state_mappings_df = pd.read_csv('db_outputs/candidate_states.csv')
@@ -339,6 +371,10 @@ def main():
 
     # Meta data on candidate funding sources from FEC (filtered to only include those running in 2020)
     meta_data_totals = pd.read_csv('processed_data/all_candidates.csv')
+
+    # Filter out 2022/2024 senate campaigns included in this FEC cycle
+    state_mappings_df = state_mappings_df.loc[state_mappings_df['year'] == 2020]
+    big_money_totals = big_money_totals.loc[big_money_totals['year'] == 2020]
     meta_data_totals = meta_data_totals.loc[meta_data_totals['year'] == 2020]
 
 
@@ -348,8 +384,13 @@ def main():
     state_mappings_df, grouped_totals = add_missing_money_to_state_mappings(state_mappings_df, meta_data_totals)
 
 
+    # Add other meta counts to meta data file to be used by visualization for totals
+    output_meta_data = create_output_meta_file(big_money_totals, meta_data_totals, grouped_totals)
+
+
     # Remove unnecessary columns from state_mappings dataframe and return totals to be used for "remainder" blocks later
     state_mappings_df, total_summary_counts = clean_and_summarize_state_mappings(state_mappings_df)
+
 
     # Create blocks by party/state, without assigning specific candidates/office types for now
     # This "double mapping", where we only assign a party/state for now and then assign blocks to candidates,
@@ -383,6 +424,7 @@ def main():
     # Assign candidates to available blocks corresponding with their party (but not necessarily corresponding with their state fundraising totals)
     chart_blocks = assign_candidates_to_chart_blocks(chart_blocks, large_candidate_totals, small_candidate_totals)
 
+
     # Categorize contribution source type
     chart_blocks = categorize_contribution_sources(big_money_totals, meta_data_totals, chart_blocks, grouped_totals)
 
@@ -406,5 +448,6 @@ def main():
     with open('../static/data/state_summary_counts.json', 'w') as f:
         json.dump(total_summary_counts, f)
 
+    output_meta_data.to_csv('../static/data/candidates_meta.csv')
 
 main()

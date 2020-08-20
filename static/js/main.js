@@ -377,7 +377,7 @@ function setActivateFunctions() {
         beeSwarm.separateIndividualDonationTypes();
     };
     activateFunctions[7] = () => {
-        beeSwarm.sortByCandidates();
+        console.log("7");
     };
 
 
