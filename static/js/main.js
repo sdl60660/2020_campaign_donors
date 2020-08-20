@@ -35,7 +35,7 @@ let candidateMeta = null;
 let donorDemographics = null;
 let candidateIdNames = null;
 
-let overlapThreshold = 5;
+let overlapThreshold = 7;
 let featuredCandidateId = "H8NY15148";
 
 const partyColor = d3.scaleOrdinal()
