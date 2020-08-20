@@ -275,7 +275,7 @@ BeeSwarm.prototype.sortByOfficeType = function() {
     vis.partyLabels
         .transition()
         .duration(1000)
-        .attr("y", 15);
+        .attr("y", 17);
 
     vis.officeTypeLabels = vis.svg.selectAll(".office-type-text")
         .data(['President', 'Senate', 'House'])
@@ -376,7 +376,7 @@ BeeSwarm.prototype.sortByCandidates = function() {
 
     // Remaining Candidates Label
     vis.remainingCandidateLabel = vis.svg.append("text")
-        .attr("class", ".candidate-label-text")
+        .attr("class", "candidate-label-text")
         .attr("x", 0.9*vis.width)
         .attr("y", vis.officeTypeCoordinates("president")[1] - 100)
         .style("font-size", "12px")
