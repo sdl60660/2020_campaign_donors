@@ -103,8 +103,8 @@ BeeSwarm.prototype.initVis = function() {
         .attr("cy", d => vis.stateCenters[d.state][1])
         .attr("r", 2.5)
         // .attr("r", d => vis.beeRadius(d.total_receipts))
-        .style("stroke", "black")
-        .style("stroke-width", 0.5)
+        // .style("stroke", "black")
+        // .style("stroke-width", 0.5)
         .attr("fill", d => partyColor(d.party))
         .on("mouseover", d => {
             let featureData;
