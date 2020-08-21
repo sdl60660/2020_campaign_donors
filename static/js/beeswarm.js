@@ -137,6 +137,10 @@ BeeSwarm.prototype.initVis = function() {
         })
         .on("mouseout", d => vis.tip.hide());
 
+    vis.superPacBlockGroup = vis.svg.append("g")
+        .attr("id", "superpac-nodes")
+        .selectAll("circle");
+
     vis.tick = () => {
         tickCount += 1;
 
@@ -238,7 +242,7 @@ BeeSwarm.prototype.resetHighlighting = function() {
 
     vis.beeswarm
         .transition("reset-highlighting")
-        .duration(500)
+        // .duration(500)
         .attr('opacity', 1.0);
 
 };
@@ -280,6 +284,7 @@ BeeSwarm.prototype.sortByParty = function() {
         .transition()
         .duration(vis.beeswarmTransitionTime)
         // .ease(d3.easeSin)
+        .attr("opacity", 1.0)
         .attr("cx", d => d.party_x)
         .attr("cy", d => d.party_y);
 
@@ -299,7 +304,7 @@ BeeSwarm.prototype.sortByOfficeType = function() {
     vis.partyLabels
         .transition()
         .duration(1000)
-        .attr("y", 18);
+        .attr("y", 19);
 
     vis.officeTypeLabels = vis.svg.selectAll(".office-type-text")
         .data(['President', 'Senate', 'House'])
@@ -307,6 +312,7 @@ BeeSwarm.prototype.sortByOfficeType = function() {
         .attr("class", "office-type-text")
         .attr("x", vis.width / 9)
         .attr("y", d => vis.officeTypeCoordinates(d.toLowerCase())[1])
+        .attr("opacity", 1.0)
         .style("font-size", "24px")
         .style("text-anchor", "middle")
         .text(d => d)
@@ -315,6 +321,7 @@ BeeSwarm.prototype.sortByOfficeType = function() {
         .transition()
         .duration(vis.beeswarmTransitionTime)
         // .ease(d3.easeSin)
+        .attr("opacity", 1.0)
         .attr("cx", d => d.office_x)
         .attr("cy", d => d.office_y);
 
@@ -393,6 +400,7 @@ BeeSwarm.prototype.sortByCandidates = function() {
         })
         .attr("y", d => (d.race_type) === "president" ? vis.officeTypeCoordinates(d.race_type)[1] - 100 :
             vis.officeTypeCoordinates(d.race_type)[1] - 50)
+        .attr("opacity", 1.0)
         .style("font-size", () => phoneBrowsing === true ? "18px" : "13px")
         .style("text-anchor", "middle")
         // .text(d => `${d.first_name} ${d.last_name} (${d.full_candidate_district})`);
@@ -412,6 +420,7 @@ BeeSwarm.prototype.sortByCandidates = function() {
         .transition()
         .duration(vis.beeswarmTransitionTime)
         // .ease(d3.easeSin)
+        .attr("opacity", 1.0)
         .attr("cx", d => d.candidate_x)
         .attr("cy", d => d.candidate_y);
 
@@ -493,6 +502,7 @@ BeeSwarm.prototype.separateSelfContributions = function() {
     vis.beeswarm
         .transition()
         .duration(vis.beeswarmTransitionTime)
+        .attr("opacity", 1.0)
         .attr("cx", d => d.selfDonation_x)
         .attr("cy", d => d.selfDonation_y)
         // .attr("opacity", d => d.contribution_source === "self_contributions" ? 1.0 : 0.5)
@@ -565,6 +575,7 @@ BeeSwarm.prototype.separateTransfersOther = function() {
     vis.beeswarm
         .transition()
         .duration(vis.beeswarmTransitionTime)
+        .attr("opacity", 1.0)
         .attr("cx", d => d.transfers_x)
         .attr("cy", d => d.transfers_y)
         // .attr("opacity", d => (d.contribution_source === "transfers" || d.contribution_source === "other") ? 1.0 : 0.5)
@@ -646,7 +657,20 @@ BeeSwarm.prototype.separateIndividualDonationTypes = function() {
         .duration(vis.beeswarmTransitionTime)
         .attr("cx", d => d.individualDonation_x)
         .attr("cy", d => d.individualDonation_y)
+        .attr("opacity", 1.0)
+        .attr("r", 2.5);
         // .attr("opacity", d => (d.contribution_source === "small_donor_contributions" || d.contribution_source === "large_donor_contributions") ? 1.0 : 0.5)
+
+
+    vis.officeTypeLabels
+        .transition()
+        .duration(300)
+        .attr("opacity", 1.0);
+
+    vis.candidateLabels
+        .transition()
+        .duration(300)
+        .attr("opacity", 1.0);
 
 };
 
@@ -654,9 +678,83 @@ BeeSwarm.prototype.separateIndividualDonationTypes = function() {
 BeeSwarm.prototype.hideCongressionalMoney = function() {
     const vis = this;
 
+    vis.beeswarm
+        .transition()
+        .duration(800)
+            .attr("opacity", 1.0)
+            .attr("cx", d => {
+                if (d.race_type === "president") {
+                    return d.individualDonation_x;
+                }
+                else if (d.race_type === "senate") {
+                    return vis.senateXScale(d.fec_id)*vis.width;
+                }
+                else {
+                    return vis.houseXScale(d.fec_id)*vis.width;
+                }
+            })
+            .attr("cy", d => d.race_type === "president" ? d.individualDonation_y : vis.officeTypeCoordinates(d.race_type)[1])
+        .transition()
+        .duration(50)
+            .attr("r", d => d.race_type === "president" ? 2.5 : 0);
+
+
+    vis.officeTypeLabels
+        .transition()
+        .duration(300)
+        .attr("opacity", d => d === "President" ? 1.0 : 0.0);
+
+    vis.candidateLabels
+        .transition()
+        .duration(300)
+        .attr("opacity", d => (vis.presidentXScale(d.fec_id) !== 0.9 || d === "ALL OTHER CANDIDATES") ? 1.0 : 0.0);
 
 
 };
+
+
+BeeSwarm.prototype.addSuperPACMoney = function () {
+    const vis = this;
+
+
+    vis.superPacBlocks = vis.superPacBlockGroup
+        .data(superPACblocks, d => d)
+        .join("circle")
+        .attr("class", "pac-node")
+        .attr("cx", d => vis.partyCoordinates(d.party)[0])
+        .attr("cy", d => vis.height*.67)
+        .attr("r", 0)
+        .attr("opacity", 1.0)
+        .attr("fill", d => partyColor(d.party))
+        .transition()
+            .delay(800)
+                .attr("r", 2.5)
+                .attr("cx", d => d.superPacEntrance_x)
+                .attr("cy", d => d.superPacEntrance_y);
+
+    vis.pacTick = () => {
+        tickCount += 1;
+
+        vis.pacSimulation.tick();
+
+		d3.selectAll('.pac-node')
+			.attr('cx', d => d.x)
+			.attr('cy', d => d.y)
+	};
+
+    vis.pacSimulation =
+        d3.forceSimulation(superPACblocks)
+            .force('x', d3.forceX( d => vis.partyCoordinates(d.party)[0]).strength(1.0))
+            .force('y', d3.forceY( d => vis.height*.67).strength(1.0))
+            .force('repel', d3.forceManyBody().strength(-20).distanceMax(4))
+            .force('collide', d3.forceCollide(2.5).strength(0.8).iterations(8))
+            // .alphaDecay(0.005)
+            .alpha(0.12)
+            .alphaDecay(0.004)
+            .on('tick', vis.pacTick)
+            .stop();
+
+}
 
 
 BeeSwarm.prototype.removeLabels = function(labelClass) {

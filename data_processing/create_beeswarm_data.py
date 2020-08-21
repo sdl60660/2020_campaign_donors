@@ -369,7 +369,7 @@ def main():
     # Total large individual donor money by candidate (to differentiate between large/small indiv. donations)
     big_money_totals = pd.read_csv('db_outputs/total_big_money_by_candidate_by_fec_id.csv')
 
-    # Meta data on candidate funding sources from FEC (filtered to only include those running in 2020)
+    # Meta data on candidate funding sources from FEC
     meta_data_totals = pd.read_csv('processed_data/all_candidates.csv')
 
     # Filter out 2022/2024 senate campaigns included in this FEC cycle

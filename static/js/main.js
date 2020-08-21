@@ -34,6 +34,7 @@ let stateSummaryCounts = null;
 let candidateMeta = null;
 let donorDemographics = null;
 let candidateIdNames = null;
+let superPACblocks = null;
 
 let overlapThreshold = 7;
 let featuredCandidateId = "H8NY15148";
@@ -387,25 +388,44 @@ function setActivateFunctions() {
     };
     activateFunctions[8] = () => {
         beeSwarm.separateIndividualDonationTypes();
+
+        if (scrollDirection === "up") {
+            beeSwarm.remainingCandidateLabel.text("ALL OTHER CANDIDATES");
+
+            beeSwarm.superPacBlocks
+                .transition()
+                .duration(600)
+                .attr("cx", d => vis.partyCoordinates(d.party)[0])
+                .attr("cy", d => vis.height*.67)
+                .attr("r", 0)
+        }
     };
     activateFunctions[9] = () => {
-        // Intro tile for bubbleplot
+        if (scrollDirection === "down") {
+            beeSwarm.remainingCandidateLabel.text("OTHER PRES. CANDIDATES");
+
+            beeSwarm.hideCongressionalMoney();
+            beeSwarm.addSuperPACMoney();
+        }
     };
     activateFunctions[10] = () => {
-        bubblePlot.resetHighlighting();
+        // Intro tile for bubbleplot
     };
     activateFunctions[11] = () => {
-        bubblePlot.highlightParty(['REP']);
+        bubblePlot.resetHighlighting();
     };
     activateFunctions[12] = () => {
-        bubblePlot.highlightParty(['DEM', 'DFL']);
+        bubblePlot.highlightParty(['REP']);
     };
     activateFunctions[13] = () => {
+        bubblePlot.highlightParty(['DEM', 'DFL']);
+    };
+    activateFunctions[14] = () => {
         bubblePlot.highlightCandidates(['SANDERS', 'KLOBUCHAR', 'SPANBERGER']);
         bubblePlot.yVariable = 'income';
         bubblePlot.wrangleData();
     };
-    activateFunctions[14] = () => {
+    activateFunctions[15] = () => {
         bubblePlot.resetHighlighting();
         bubblePlot.yVariable = 'education';
         bubblePlot.wrangleData();
@@ -423,12 +443,12 @@ function setTileWrapperHeights() {
 
     // Sunburst annotations run from the second annotation div (first visible) to the ninth (top of ten)
     // There's a little extra finagling at the end to get the margin between the two viz wrappers correct
-    const beeswarmWrapperHeight = scrollerDivObjects[10].getBoundingClientRect().bottom - scrollerDivObjects[1].getBoundingClientRect().top;
+    const beeswarmWrapperHeight = scrollerDivObjects[11].getBoundingClientRect().bottom - scrollerDivObjects[1].getBoundingClientRect().top;
     $("#beeswarm-wrapper")
         .css("height", beeswarmWrapperHeight);
 
 
-    const bubblePlotWrapperHeight = scrollerDivObjects[17].getBoundingClientRect().bottom - scrollerDivObjects[11].getBoundingClientRect().top;
+    const bubblePlotWrapperHeight = scrollerDivObjects[18].getBoundingClientRect().bottom - scrollerDivObjects[12].getBoundingClientRect().top;
     $("#bubbleplot-wrapper")
         .css("height", bubblePlotWrapperHeight);
 
@@ -450,7 +470,8 @@ function main() {
         d3.json("static/data/state_summary_counts.json"),
         d3.csv("static/data/candidates_meta.csv"),
         d3.csv("static/data/donor_demographics.csv"),
-        d3.json("static/data/candidate_id_name_lookup.json")
+        d3.json("static/data/candidate_id_name_lookup.json"),
+        d3.json("static/data/super_pac_money_blocks.json")
     ];
 
     // Initialize both main viz tiles to faded
@@ -480,6 +501,7 @@ function main() {
             .forEach(d => d.total_receipts = +d.total_receipts);
         donorDemographics = allData[6];
         candidateIdNames = allData[7];
+        superPACblocks = allData[8];
 
         $(".loadring-container")
             .hide();
