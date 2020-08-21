@@ -31,7 +31,7 @@ NodeLink.prototype.initVis = function() {
         .html(function(d) {
             let outputString = '<div>';
             outputString += `<div style="text-align: center;"><span><strong>${d.display_name}</strong></span></div><br>`;
-            outputString += `<span>Total Donors:</span> <span style="float: right;">${d3.format(",")(d.total_donors)}</span><br>`;
+            outputString += `<span>Known Donors:</span> <span style="float: right;">${d3.format(",")(d.total_donors)}</span><br>`;
 
             const correspondingLink = vis.selectedOverlapLinks.find((x) => vis.direction === "outbound" ?
                 x.target === d.id :
@@ -415,7 +415,7 @@ NodeLink.prototype.updateVis = function() {
             enter => enter.append("circle")
                 .attr("class", "candidate-node")
                 .attr("fill", (d) => partyColor(d.party))
-                .attr("fill-opacity", 0.2)
+                .attr("fill-opacity", 0.15)
                 .style("z-index", 10)
                 .on("mouseover", (d) => {
                     vis.tip.show(d);

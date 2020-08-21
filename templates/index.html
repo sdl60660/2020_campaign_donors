@@ -62,7 +62,27 @@
         </section>
         <div class="mobile-spacer"></div>
         <section class="step">
-            <div class="body"></div>
+            <div class="body">
+                <p>We can split the money by party and see that much more money has gone to Democrats than Republicans.</p>
+            </div>
+        </section>
+        <div class="mobile-spacer"></div>
+        <section class="step">
+            <div class="body">
+                <p>But by if we divide by office type, it becomes clear that that gap is mostly due to the presidential race,
+                    where Democratic donors contributed significant sums of money to over two dozen campaigns.</p>
+            </div>
+        </section>
+        <div class="mobile-spacer"></div>
+        <section class="step">
+            <div class="body">
+                <p>Here, we can see the top fundraisers across office type. Note that the totals for all remaining candidates
+                have been moved to the right side.</p>
+                <br>
+                <p>One thing that becomes clear is the size of presidential fundraising operations relative to even the most
+                prolific congressional fundraisers. Another is the sheer magnitude of (primarily self-funded) Bloomberg
+                    and Steyer campaigns.</p>
+            </div>
         </section>
         <div class="mobile-spacer"></div>
         <section class="step">
@@ -106,12 +126,10 @@
         </section>
         <div class="mobile-spacer"></div>
         <section class="step phantom">
-            <div class="title"></div>
             <div class="body"></div>
         </section>
         <div class="mobile-spacer"></div>
         <section class="step phantom">
-            <div class="title"></div>
             <div class="body"></div>
         </section>
 
@@ -164,7 +182,7 @@
     </div>
 
     <!-- Third Wrapper/Tile -->
-    <div class="tile-wrapper" id="nodelink-wrapper" style="margin-top: 20vh">
+    <div class="tile-wrapper" id="nodelink-wrapper" style="margin-top: 20vh; margin-bottom: 20vh;">
     <div class="container" id="nodelink-intro" style="text-align: center; margin: auto;">
         <div class="col-md-1"></div>
         <div class="col-md-10" style="text-align: left">
@@ -189,7 +207,7 @@
         <div class="col-md-1"></div>
     </div>
 
-     <div class="spacer"></div>
+    <div class="spacer"></div>
 
     <div class="container viz-tile" id="nodelink-tile">
         <div class="row">
@@ -201,11 +219,11 @@
             <div class="col-md-4" id="slider-div">
                 <span style="margin-bottom: 5px;">Min. Donor Overlap:</span>
                 <div class="range-value" id="min-overlap-slider-label"></div>
-                <input type="range" id="min-overlap-threshold" name="volume" min="1" max="40" step="1" value="7">
+                <input type="range" id="min-overlap-threshold" name="overlap" min="3" max="40" step="1" value="7">
             </div>
             <div class="col-md-2"></div>
         </div>
-        <div class="row">
+        <div class="row" style="margin-top: 8vh">
             <div class="col-md-1"></div>
             <div class="col-md-10 viz-area">
                 <div class="row" id="nodelink-area"></div>
@@ -232,7 +250,7 @@
             <div class="col-md-10">
                 <hr>
                 <br>
-                <p>Visualization by Sam Learner | <a href="mailto:learnersd@gmail.com"><img class="icon-img" src="/static/images/email.svg"></a> | <a href="https://twitter.com/sam_learner"><img class="icon-img" src="/static/images/twitter.svg"></a> | <a href="https://github.com/sdl60660"><img class="icon-img" src="/static/images/github.png"></a></p>
+                <p>Visualization by <a href="http://www.samlearner.com/">Sam Learner</a> | <a href="mailto:learnersd@gmail.com"><img class="icon-img" src="/static/images/email.svg"></a> | <a href="https://twitter.com/sam_learner"><img class="icon-img" src="/static/images/twitter.svg"></a> | <a href="https://github.com/sdl60660"><img class="icon-img" src="/static/images/github.png"></a></p>
                 <!-- Github repo link <p>Code and data for this project lives <a href="">here</a>.</p> -->
                 
                 <p><strong>Further Reading</strong></p>
@@ -244,7 +262,17 @@
                 <br>
                 <p><strong>Notes</strong></p>
                 <p>
-
+                    Contribution data runs through 6/30/2020. Unique donors are determined using a combination of first name,
+                    last name and zipcode. This creates the possibility of both false positives (two Jane Smiths in the
+                    same zipcode) and false negatives (Jonathan Smith sometimes donates as Jon Smith, or Jon Smith moves
+                    homes during the election cycle). Others who have worked with donor data sometimes require a matching
+                    employer name as well. This creates a very small chance of a false positive (it's very unlikely that
+                    there are two Jane Smiths living in the same zipcode with the same employer), but creates many more false
+                    negatives (Jon Smith might change jobs mid-election cycle or he might mark his employer as "Smith High School"
+                    on one donation and "Smith H.S." on another). On balance, when looking at donor overlap, I decided that
+                    requiring a matching employer was too stringent of a requirement and would lead to missing too many
+                    donor overlaps. As it is, the analysis very likely underrepresents the amount of overlap due to false negatives,
+                    but it misses them uniformly, across candidates.
                 </p>
                 <br>
                 <p><strong>Sources</strong></p>

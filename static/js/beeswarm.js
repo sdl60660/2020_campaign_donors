@@ -98,6 +98,7 @@ BeeSwarm.prototype.initVis = function() {
         .attr("cx", d => vis.stateCenters[d.state][0])
         .attr("cy", d => vis.stateCenters[d.state][1])
         .attr("r", 2.5)
+        .attr("opacity", 1.0)
         // .style("stroke", "black")
         // .style("stroke-width", 0.5)
         .attr("fill", d => partyColor(d.party))
@@ -220,6 +221,29 @@ BeeSwarm.prototype.sortByGeo = function() {
 };
 
 
+
+BeeSwarm.prototype.highlightUncategorized = function() {
+    const vis = this;
+
+    vis.beeswarm
+        .transition("highlight-uncategorized")
+        .duration(500)
+        .attr('opacity', d => (d.state === 'uncategorized' || d.state === 'self_contribution') ? 1.0 : 0.3);
+
+};
+
+
+BeeSwarm.prototype.resetHighlighting = function() {
+    const vis = this;
+
+    vis.beeswarm
+        .transition("reset-highlighting")
+        .duration(500)
+        .attr('opacity', 1.0);
+
+};
+
+
 BeeSwarm.prototype.sortByParty = function() {
     const vis = this;
 
@@ -248,7 +272,7 @@ BeeSwarm.prototype.sortByParty = function() {
         .attr("class", "party-label-text")
         .attr("x", d => vis.partyCoordinates(d)[0])
         .attr("y", vis.height / 3)
-        .style("font-size", "20px")
+        .style("font-size", "24px")
         .style("text-anchor", "middle")
         .text(d => d);
 
@@ -275,7 +299,7 @@ BeeSwarm.prototype.sortByOfficeType = function() {
     vis.partyLabels
         .transition()
         .duration(1000)
-        .attr("y", 17);
+        .attr("y", 18);
 
     vis.officeTypeLabels = vis.svg.selectAll(".office-type-text")
         .data(['President', 'Senate', 'House'])
@@ -283,7 +307,7 @@ BeeSwarm.prototype.sortByOfficeType = function() {
         .attr("class", "office-type-text")
         .attr("x", vis.width / 9)
         .attr("y", d => vis.officeTypeCoordinates(d.toLowerCase())[1])
-        .style("font-size", "20px")
+        .style("font-size", "24px")
         .style("text-anchor", "middle")
         .text(d => d)
 
@@ -369,17 +393,17 @@ BeeSwarm.prototype.sortByCandidates = function() {
         })
         .attr("y", d => (d.race_type) === "president" ? vis.officeTypeCoordinates(d.race_type)[1] - 100 :
             vis.officeTypeCoordinates(d.race_type)[1] - 50)
-        .style("font-size", "12px")
+        .style("font-size", () => phoneBrowsing === true ? "18px" : "13px")
         .style("text-anchor", "middle")
         // .text(d => `${d.first_name} ${d.last_name} (${d.full_candidate_district})`);
-        .text(d => `${d.first_name} ${d.last_name}`);
+        .text(d => (phoneBrowsing === true) ? `${d.last_name}` : `${d.first_name} ${d.last_name}`);
 
     // Remaining Candidates Label
     vis.remainingCandidateLabel = vis.svg.append("text")
         .attr("class", "candidate-label-text")
         .attr("x", 0.9*vis.width)
         .attr("y", vis.officeTypeCoordinates("president")[1] - 100)
-        .style("font-size", "12px")
+        .style("font-size", () => phoneBrowsing === true ? "18px" : "13px")
         .style("text-anchor", "middle")
         .text("ALL OTHER CANDIDATES");
 
@@ -627,6 +651,14 @@ BeeSwarm.prototype.separateIndividualDonationTypes = function() {
 };
 
 
+BeeSwarm.prototype.hideCongressionalMoney = function() {
+    const vis = this;
+
+
+
+};
+
+
 BeeSwarm.prototype.removeLabels = function(labelClass) {
     const vis = this;
 
@@ -648,6 +680,7 @@ BeeSwarm.prototype.hideMap = function() {
 
 };
 
+
 BeeSwarm.prototype.showMap = function() {
     const vis = this;
 
@@ -666,7 +699,7 @@ BeeSwarm.prototype.showMap = function() {
         .attr("y", 0.65*vis.height)
         .style("font-size", "14px")
         .style("text-anchor", "middle")
-        .text("Donor Unknown");
+        .text("Donor Unknown/Transfer");
 
     vis.usMap
         .transition()

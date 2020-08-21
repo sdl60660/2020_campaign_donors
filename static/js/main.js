@@ -338,6 +338,16 @@ function setActivateFunctions() {
 
     // Intro tile functions
     activateFunctions[0] = () => {
+
+    };
+    activateFunctions[1] = () => {
+        if (scrollDirection === "up") {
+            beeSwarm.resetHighlighting();
+        }
+
+    };
+    // Beeswarm tile functions
+    activateFunctions[2] = () => {
         if (scrollDirection === "up") {
 
             beeSwarm.removeLabels(".party-label-text");
@@ -345,10 +355,12 @@ function setActivateFunctions() {
             beeSwarm.showMap();
 
         }
-    };
 
-    // Beeswarm tile functions
-    activateFunctions[1] = () => {
+        beeSwarm.highlightUncategorized();
+    };
+    activateFunctions[3] = () => {
+        beeSwarm.resetHighlighting();
+
         beeSwarm.hideMap();
         beeSwarm.sortByParty();
 
@@ -356,44 +368,44 @@ function setActivateFunctions() {
             beeSwarm.removeLabels(".office-type-text");
         }
     };
-    activateFunctions[2] = () => {
+    activateFunctions[4] = () => {
         beeSwarm.sortByOfficeType();
 
         if (scrollDirection === "up") {
             beeSwarm.removeLabels(".candidate-label-text");
         }
     };
-    activateFunctions[3] = () => {
+    activateFunctions[5] = () => {
         beeSwarm.sortByCandidates();
     };
 
-    activateFunctions[4] = () => {
+    activateFunctions[6] = () => {
         beeSwarm.separateSelfContributions();
     };
-    activateFunctions[5] = () => {
+    activateFunctions[7] = () => {
         beeSwarm.separateTransfersOther();
     };
-    activateFunctions[6] = () => {
+    activateFunctions[8] = () => {
         beeSwarm.separateIndividualDonationTypes();
     };
-    activateFunctions[7] = () => {
+    activateFunctions[9] = () => {
         // Intro tile for bubbleplot
     };
-    activateFunctions[8] = () => {
+    activateFunctions[10] = () => {
         bubblePlot.resetHighlighting();
     };
-    activateFunctions[9] = () => {
+    activateFunctions[11] = () => {
         bubblePlot.highlightParty(['REP']);
     };
-    activateFunctions[10] = () => {
+    activateFunctions[12] = () => {
         bubblePlot.highlightParty(['DEM', 'DFL']);
     };
-    activateFunctions[11] = () => {
+    activateFunctions[13] = () => {
         bubblePlot.highlightCandidates(['SANDERS', 'KLOBUCHAR', 'SPANBERGER']);
         bubblePlot.yVariable = 'income';
         bubblePlot.wrangleData();
     };
-    activateFunctions[12] = () => {
+    activateFunctions[14] = () => {
         bubblePlot.resetHighlighting();
         bubblePlot.yVariable = 'education';
         bubblePlot.wrangleData();
@@ -411,12 +423,12 @@ function setTileWrapperHeights() {
 
     // Sunburst annotations run from the second annotation div (first visible) to the ninth (top of ten)
     // There's a little extra finagling at the end to get the margin between the two viz wrappers correct
-    const beeswarmWrapperHeight = scrollerDivObjects[8].getBoundingClientRect().bottom - scrollerDivObjects[1].getBoundingClientRect().top;
+    const beeswarmWrapperHeight = scrollerDivObjects[10].getBoundingClientRect().bottom - scrollerDivObjects[1].getBoundingClientRect().top;
     $("#beeswarm-wrapper")
         .css("height", beeswarmWrapperHeight);
 
 
-    const bubblePlotWrapperHeight = scrollerDivObjects[15].getBoundingClientRect().bottom - scrollerDivObjects[9].getBoundingClientRect().top;
+    const bubblePlotWrapperHeight = scrollerDivObjects[17].getBoundingClientRect().bottom - scrollerDivObjects[11].getBoundingClientRect().top;
     $("#bubbleplot-wrapper")
         .css("height", bubblePlotWrapperHeight);
 
