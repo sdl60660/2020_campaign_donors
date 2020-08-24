@@ -414,13 +414,14 @@ BeeSwarm.prototype.sortByCandidates = function() {
                 return vis.houseXScale(d.fec_id)*vis.width;
             }
         })
-        .attr("y", d => (d.race_type) === "president" ? vis.officeTypeCoordinates(d.race_type)[1] - 100 :
-            vis.officeTypeCoordinates(d.race_type)[1] - 50)
+        .attr("y", d => (d.race_type) === "president" ? vis.officeTypeCoordinates(d.race_type)[1] - 115 :
+            vis.officeTypeCoordinates(d.race_type)[1] - 67)
         .attr("opacity", 1.0)
-        .style("font-size", () => phoneBrowsing === true ? "18px" : "13px")
+        .style("font-size", () => phoneBrowsing === true ? "18px" : "15px")
         .style("text-anchor", "middle")
-        // .text(d => `${d.first_name} ${d.last_name} (${d.full_candidate_district})`);
-        .text(d => (phoneBrowsing === true) ? `${d.last_name}` : `${d.first_name} ${d.last_name}`);
+        .attr("dy", "1.15em")
+        .text(d => (phoneBrowsing === true) ? `${d.last_name}` : `${d.first_name} ${d.last_name}`)
+        .call(wrap, vis.width/10 - 5);
 
     // Remaining Candidates Label
     vis.remainingCandidateLabel = vis.svg.append("text")
@@ -479,32 +480,33 @@ BeeSwarm.prototype.separateSelfContributions = function() {
 
     vis.selfContributionLabel = vis.svg.append("text")
         .attr("class", "contribution-type-label")
-        .attr("x", vis.width*0.94)
+        .attr("x", vis.width*0.945)
         .attr("y", vis.officeTypeCoordinates("president")[1] + selfContributionOffset)
-        .style("font-size", "10px")
+        .style("font-size", "12px")
         .style("text-anchor", "start")
         .text("Self-Contributions");
 
     vis.allOtherContributionLabel = vis.svg.append("text")
         .attr("class", "contribution-type-label")
-        .attr("x", vis.width*0.94)
+        .attr("x", vis.width*0.945)
         .attr("y", vis.officeTypeCoordinates("president")[1] + allOthersOffset)
-        .style("font-size", "10px")
+        .style("font-size", "12px")
         .style("text-anchor", "start")
         .text("All Other Sources");
 
     vis.individualContributionLabel = vis.svg.append("text")
         .attr("class", "contribution-type-label")
-        .attr("x", vis.width*0.94)
-        .style("font-size", "10px")
+        .attr("x", vis.width*0.945)
+        .style("font-size", "12px")
         .style("text-anchor", "start")
+        .attr("dy", "1.15em")
         .text("");
 
     vis.largeContributionLabel = vis.svg.append("text")
         .attr("class", "contribution-type-label")
         .attr("x", 0.9*vis.width + -30)
         .attr("y", vis.officeTypeCoordinates("president")[1] - 75)
-        .style("font-size", "10px")
+        .style("font-size", "12px")
         .style("text-anchor", "middle")
         .text("");
 
@@ -512,16 +514,16 @@ BeeSwarm.prototype.separateSelfContributions = function() {
         .attr("class", "contribution-type-label")
         .attr("x", 0.9*vis.width + 30)
         .attr("y", vis.officeTypeCoordinates("president")[1] - 75)
-        .style("font-size", "10px")
+        .style("font-size", "12px")
         .style("text-anchor", "middle")
         .text("");
 
 
     vis.superPACContributionLabel = vis.svg.append("text")
         .attr("class", "contribution-type-label")
-        .attr("x", vis.width*0.94)
+        .attr("x", vis.width*0.945)
         .attr("y", vis.officeTypeCoordinates("president")[1] + 195)
-        .style("font-size", "10px")
+        .style("font-size", "12px")
         .style("text-anchor", "start")
         .text("");
 
@@ -594,8 +596,9 @@ BeeSwarm.prototype.separateTransfersOther = function() {
         .text("Transfers");
 
     vis.individualContributionLabel
-        .attr("y", vis.officeTypeCoordinates("president")[1] - 40)
-        .text("Individual Contributions");
+        .attr("y", vis.officeTypeCoordinates("president")[1] - 55)
+        .text("Individual Contributions")
+        .call(wrap, vis.width*0.07);
 
     vis.largeContributionLabel
         .text("");
@@ -746,7 +749,6 @@ BeeSwarm.prototype.hideCongressionalMoney = function() {
         .transition()
         .duration(300)
         .attr("opacity", d => (vis.presidentXScale(d.fec_id) !== 0.9 || d === "ALL OTHER CANDIDATES") ? 1.0 : 0.0);
-
 };
 
 
