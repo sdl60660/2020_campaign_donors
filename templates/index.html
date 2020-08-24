@@ -6,22 +6,22 @@
 
     <!-- Primary Meta Tags -->
     <title>2020 Primary Contributions</title>
-    <meta name="title" content="">
+    <meta name="title" content="Where the Money Came From in the 2020 Primary">
     <meta name="description" content="">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="">
-    <meta property="og:title" content="">
+    <meta property="og:title" content="Where the Money Came From in the 2020 Primary">
     <meta property="og:description" content="">
-    <meta property="og:image" content="">
+    <meta property="og:image" content="static/images/display_image.png">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="">
-    <meta property="twitter:title" content="">
+    <meta property="twitter:title" content="Where the Money Came From in the 2020 Primary">
     <meta property="twitter:description" content="">
-    <meta property="twitter:image" content="">
+    <meta property="twitter:image" content="static/images/display_image.png">
 
     <link rel="icon" href='/static/images/favicon.png'>
 
@@ -49,11 +49,11 @@
     <!-- Annotations -->
     <div id="sections">
         <div class="mobile-spacer"  id="first-spacer"></div>
-        <section class="step phantom">
-            <div class="body" style="height: 350px;"></div>
+        <section class="step phantom"  id="first-annotation">
+            <div class="body"></div>
         </section>
         <div class="mobile-spacer"></div>
-        <section class="step" id="first-annotation">
+        <section class="step">
             <div class="body">
                 <p>
                     This map plots all money received by 2020 campaign committees based on the home state of the donor.
@@ -68,7 +68,7 @@
 
 
                 <div style="text-align: center; margin:auto;">
-                    <svg width="130">
+                    <svg width="130" height="50">
                         <circle r="4" cx="10" cy="10" fill="gray"></circle>
                         <text x="19" y="14"> = $1,000,000</text>
                     </svg>
@@ -138,21 +138,53 @@
         <section class="step">
             <div class="body">
                 <p>
-                    Finally, individual contributions can be split between large-dollar ($200 or more) donors on the left
-                    and small-dollar (less than $200) donors on the right.
+                    Individual contributions can then be split between large-dollar donors ($200 or more) on the left
+                    and small-dollar donors (less than $200) on the right.
                 </p>
                 <br>
                 <p>
-                    Note, for example, that small-dollar donors make
-                    up nearly 80% of Congresswoman Alexandria Ocasio-Cortez's campaign fundraising, while making up just a
-                    tiny fraction of the fundraising for Tom Steyer's presidential campaign (despite him successfully meeting
-                    the 130,000 donor requirement for the Democratic debates).
+                    Note, for example, that small-dollar donors make up nearly 80% of Rep. Ocasio-Cortez's
+                    campaign fundraising, while making up just a small fraction of the fundraising for Tom Steyer's
+                    presidential campaign (despite him successfully meeting the 130,000 donor requirement for the
+                    Democratic debates).
                 </p>
             </div>
         </section>
         <div class="mobile-spacer"></div>
         <section class="step">
-            <div class="body"></div>
+            <div class="body">
+                <p>
+                    Finally, we can introduce money going to Super PACs/Carey Committees. These committees do not have
+                    formal ties to any parties or campaigns, but many of them frequently spend on behalf of candidates
+                    and can often be broadly categorized as liberal (blue) or conservative (red). They can accept unlimited
+                    contributions from individuals, while individual contributions to a campaign's primary committee cannot
+                    exceed $2,800.
+                </p>
+                <br>
+                <p>
+                    In total, these committees have raised about $1.2 billion in the 2020 cycle, a very large sum of money,
+                    but just 12% of the nearly $10 billion raised by campaigns (and notably just a few million more than
+                    Bloomberg's contributions to his own campaign).
+                </p>
+            </div>
+        </section>
+        <div class="mobile-spacer"></div>
+        <section class="step">
+            <div class="body">
+                <p>
+                    While Super PAC money isn't formally tied to campaigns, there are several PACs which act solely in support
+                    of a individual candidates (with varying levels of coordination). We can map this money to the major
+                    presidential candidates above to get a clearer picture of where all of their financial support comes from,
+                    direct or indirect.
+                <p>
+                <br>
+                <p>
+                    Despite large sums of money going to presidential candidates, the vast majority
+                    of Super PAC money is not affiliated with individual candidates, but rather in broad support of congressional
+                    majorities or liberal/conservative causes. The two largest Super PACS support Democratic and Republican
+                    senate majorities, respectively.
+                </p>
+            </div>
         </section>
         <div class="mobile-spacer"></div>
         <section class="step phantom">
@@ -162,7 +194,7 @@
         <section class="step">
             <div class="body">
                 <p>
-                    We can learn a lot about the donors powering campaigns with just their zipcodes.
+                    We can learn a lot about the donors supporting campaigns using demographic data from their zipcodes.
                 </p>
                 <br>
                 <p>
@@ -353,7 +385,10 @@
                 <br>
                 <p><strong>Notes</strong></p>
                 <p>
-                    Contribution data runs through 6/30/2020. Unique donors are determined using a combination of first name,
+                    Contribution data runs through 6/30/2020.
+                <p>
+                <p>
+                    Unique donors are determined using a combination of first name,
                     last name and zipcode. This creates the possibility of both false positives (two Jane Smiths in the
                     same zipcode) and false negatives (Jonathan Smith sometimes donates as Jon Smith, or Jon Smith moves
                     homes during the election cycle). Others who have worked with donor data sometimes require a matching
@@ -364,6 +399,16 @@
                     requiring a matching employer was too stringent of a requirement and would lead to missing too many
                     donor overlaps. As it is, the analysis very likely underrepresents the amount of overlap due to false negatives,
                     but it misses them uniformly, across candidates.
+                <p>
+                <p>
+                    Presidential campaigns with $500,000+ in Super PAC money that is represented, but not labeled, include
+                    Amy Klobuchar, Jay Inslee, Kamala Harris, Corey Booker, Andrew Yang, and John Hickenlooper.
+                </p>
+                <p>
+                    The support of the Vote Nurses Values PAC, the Super PAC affiliated with the country's largest nurses
+                    union, for the Sanders campaign is <a href="https://www.nytimes.com/2019/11/12/us/politics/bernie-sanders-nurses-endorsement.html">
+                    somewhat controversial</a>.
+                </a>
                 </p>
                 <br>
                 <p><strong>Sources</strong></p>
@@ -388,6 +433,7 @@
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
     <script src="/static/js/fstdropdown.min.js"></script>
     <script src="static/js/albers-usa-pr.js"></script>
+    <!--<script src="static/js/d3plus.full.min.js"></script>-->
 
     <!-- Custom JS -->
     <script src="/static/js/utils.js"></script>

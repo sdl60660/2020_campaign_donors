@@ -35,7 +35,7 @@ strong {
 
 #intro-wrapper {
     min-height: 100vh;
-    z-index: 100;
+    z-index: 70;
 }
 
 .viz-tile {
@@ -365,6 +365,7 @@ table td {
 	position: absolute;
 	bottom: 8%;
 	left: 50%;
+    z-index: 80;
 
     /*transform: translate(-50%, 0%);*/
 

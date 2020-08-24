@@ -137,19 +137,6 @@ BeeSwarm.prototype.initVis = function() {
         })
         .on("mouseout", d => vis.tip.hide());
 
-    vis.superPacBlocks = vis.svg.append("g")
-        .attr("id", "superpac-nodes")
-        .selectAll("circle");
-
-    vis.tick = () => {
-        tickCount += 1;
-
-        vis.simulation.tick();
-
-		d3.selectAll('.bee-node')
-			.attr('cx', d => d.x)
-			.attr('cy', d => d.y)
-	};
 
     vis.partyCoordinates = d3.scaleOrdinal()
         .domain(['DEM', 'DFL', 'REP'])
@@ -160,6 +147,31 @@ BeeSwarm.prototype.initVis = function() {
         .domain(['president', 'senate', 'house'])
         .range([[vis.width/3, 0.15*vis.height], [vis.width/3, 0.4*vis.height], [vis.width/3, 0.65*vis.height]])
         .unknown([vis.width/3, 0.8*vis.height]);
+
+
+    vis.superPacBlocks = vis.svg.append("g")
+        .attr("id", "superpac-nodes")
+        .selectAll("circle");
+
+    vis.pacBlocks = vis.superPacBlocks
+        .data(superPACblocks, d => d)
+        .join("circle")
+        .attr("class", "pac-node")
+        .attr("cx", d => vis.partyCoordinates(d.party)[0])
+        .attr("cy", d => vis.height*.67)
+        .attr("r", 0)
+        .attr("opacity", 1.0)
+        .attr("fill", d => partyColor(d.party));
+
+    vis.tick = () => {
+        tickCount += 1;
+
+        vis.simulation.tick();
+
+		d3.selectAll('.bee-node')
+			.attr('cx', d => d.x)
+			.attr('cy', d => d.y)
+	};
 
 
     vis.simulation =
@@ -311,6 +323,7 @@ BeeSwarm.prototype.sortByOfficeType = function() {
     vis.officeTypeLabels = vis.svg.selectAll(".office-type-text")
         .data(['President', 'Senate', 'House'])
         .join("text")
+        .attr("id", d => `${d}-office-label`)
         .attr("class", "office-type-text")
         .attr("x", vis.width / 9)
         .attr("y", d => vis.officeTypeCoordinates(d.toLowerCase())[1])
@@ -504,6 +517,15 @@ BeeSwarm.prototype.separateSelfContributions = function() {
         .text("");
 
 
+    vis.superPACContributionLabel = vis.svg.append("text")
+        .attr("class", "contribution-type-label")
+        .attr("x", vis.width*0.94)
+        .attr("y", vis.officeTypeCoordinates("president")[1] + 195)
+        .style("font-size", "10px")
+        .style("text-anchor", "start")
+        .text("");
+
+
     vis.beeswarm
         .transition()
         .duration(vis.beeswarmTransitionTime)
@@ -683,6 +705,11 @@ BeeSwarm.prototype.separateIndividualDonationTypes = function() {
         .duration(300)
         .attr("opacity", 1.0);
 
+    vis.svg.select('#President-office-label')
+        .text('President');
+
+    vis.removeLabels('.super-pac-label');
+
 };
 
 
@@ -720,30 +747,19 @@ BeeSwarm.prototype.hideCongressionalMoney = function() {
         .duration(300)
         .attr("opacity", d => (vis.presidentXScale(d.fec_id) !== 0.9 || d === "ALL OTHER CANDIDATES") ? 1.0 : 0.0);
 
-
 };
 
 
 BeeSwarm.prototype.addSuperPACMoney = function () {
     const vis = this;
 
-
-    vis.pacBlocks = vis.superPacBlocks
-        .data(superPACblocks, d => d)
-        .join("circle")
-        .attr("class", "pac-node")
-        .attr("cx", d => vis.partyCoordinates(d.party)[0])
-        .attr("cy", d => vis.height*.67)
-        .attr("r", 0)
-        .attr("opacity", 1.0)
-        .attr("fill", d => partyColor(d.party))
-
     vis.pacBlocks
         .transition()
-            .delay(800)
-                .attr("r", 2.5)
-                .attr("cx", d => d.superPacEntrance_x)
-                .attr("cy", d => d.superPacEntrance_y);
+        .delay(800)
+        .duration(vis.beeswarmTransitionTime)
+            .attr("r", 2.5)
+            .attr("cx", d => d.superPacEntrance_x)
+            .attr("cy", d => d.superPacEntrance_y);
 
     vis.pacTick = () => {
         tickCount += 1;
@@ -767,6 +783,28 @@ BeeSwarm.prototype.addSuperPACMoney = function () {
             .on('tick', vis.pacTick)
             .stop();
 
+
+    vis.superPACLabel = vis.svg.selectAll('.super-pac-label')
+        .data(['Super PACs/ Carey Committees'])
+        .join('text')
+        .attr('class', 'super-pac-label')
+        .attr('y', vis.height*0.65)
+        .attr('x', 0.1*vis.width)
+        .attr("dy", "1.1em")
+        .style('text-anchor', 'middle')
+        .style('font-size', "24px")
+        .text(d => d)
+        .call(wrap, 240);
+
+
+    vis.svg.select('#President-office-label')
+        .text('Presidential Campaigns')
+        .attr("dy", "1.1em")
+        .call(wrap, 230);
+
+    vis.superPACContributionLabel
+        .text("");
+
 };
 
 
@@ -774,32 +812,41 @@ BeeSwarm.prototype.allocateSuperPacMoney = function() {
     const vis = this;
 
 
-    vis.pacSimulation =
-        d3.forceSimulation(superPACblocks)
-            .force('x', d3.forceX( d => {
-                if (d.race_type === 'president') {
-                    return vis.width*vis.presidentXScale(d.fec_id);
-                }
-                else {
-                    return vis.partyCoordinates(d.party)[0];
-                }
-            }).strength(1.0))
-            .force('y', d3.forceY( d => {
-                if (d.race_type === 'president') {
-                    return vis.officeTypeCoordinates('president')[1] + 220;
-                }
-                else {
-                    return vis.height*.67;
-                }
-            }).strength(1.0))
-            // .force('repel', d3.forceManyBody().strength(-20).distanceMax(4))
-            .force('collide', d3.forceCollide(2.5).strength(0.8).iterations(3))
-            // .alphaDecay(0.005)
-            .alpha(0.12)
-            .alphaDecay(0.004)
-            .on('tick', vis.pacTick)
-            .restart();
-            // .stop();
+    vis.pacSimulation
+        .force('x', d3.forceX( d => {
+            if (d.race_type === 'president') {
+                return vis.width*vis.presidentXScale(d.fec_id);
+            }
+            else {
+                return vis.partyCoordinates(d.party)[0];
+            }
+        }).strength(1.0))
+        .force('y', d3.forceY( d => {
+            if (d.race_type === 'president') {
+                return vis.officeTypeCoordinates('president')[1] + 195;
+            }
+            else {
+                return vis.height*.67;
+            }
+        }).strength(1.0))
+        // .force('repel', d3.forceManyBody().strength(-20).distanceMax(4))
+        .force('collide', d3.forceCollide(2.5).strength(0.8).iterations(3))
+        // .alphaDecay(0.005)
+        .alpha(0.12)
+        .alphaDecay(0.004)
+        .on('tick', vis.pacTick)
+        // .stop();
+        // .restart();
+
+    vis.superPACContributionLabel
+        .text("Super PACs");
+
+    vis.pacBlocks
+        .transition()
+        .duration(vis.beeswarmTransitionTime)
+            .attr("r", 2.5)
+            .attr("cx", d => d.superPacAllocation_x)
+            .attr("cy", d => d.superPacAllocation_y);
 };
 
 

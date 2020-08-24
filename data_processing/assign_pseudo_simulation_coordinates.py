@@ -18,12 +18,12 @@ for coordinate_file in ['map_coordinate_data.json', 'party_coordinate_data.json'
 		for i, block in enumerate(beeswarm_money_blocks):
 			for coordinate_set in coordinates:
 				if block['block_id'] == coordinate_set['block_id']:
-					block['{}_x'.format(view_name)] = coordinate_set['x']
-					block['{}_y'.format(view_name)] = coordinate_set['y']
+					block['{}_x'.format(view_name)] = round(float(coordinate_set['x']), 2)
+					block['{}_y'.format(view_name)] = round(float(coordinate_set['y']), 2)
 
 					beeswarm_money_blocks[i] = block
 
-for coordinate_file in ['superPacEntrance_coordinate_data.json']:
+for coordinate_file in ['superPacEntrance_coordinate_data.json', 'superPacAllocation_coordinate_data.json']:
 	with open('simulation_coordinates/{}'.format(coordinate_file), 'r') as f:
 		coordinates = json.load(f)
 
@@ -33,8 +33,8 @@ for coordinate_file in ['superPacEntrance_coordinate_data.json']:
 		for i, block in enumerate(super_pac_blocks):
 			for coordinate_set in coordinates:
 				if block['block_id'] == coordinate_set['block_id']:
-					block['{}_x'.format(view_name)] = coordinate_set['x']
-					block['{}_y'.format(view_name)] = coordinate_set['y']
+					block['{}_x'.format(view_name)] = round(float(coordinate_set['x']), 2)
+					block['{}_y'.format(view_name)] = round(float(coordinate_set['y']), 2)
 
 					super_pac_blocks[i] = block
 

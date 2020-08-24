@@ -96,7 +96,7 @@ function preprocessDataset(dataset) {
 function setScrollArrow() {
     $(".downArrow").on("click", function() {
         // If mobile, arrow will be with them the whole time
-        if (phoneBrowsing === true) {
+        // if (phoneBrowsing === true) {
 
             // // If first scroll from intro block
             // if ($(window).scrollTop() < window.innerHeight) {
@@ -115,12 +115,12 @@ function setScrollArrow() {
             // }
 
             // scrollSpeed = 'fast';
-        }
+        // }
 
         // If on Desktop, arrow stays at the top and only needs this one trigger
-        else {
-            // $('html, body').animate({scrollTop: $('#first-annotation').offset().top - 100 }, 'slow');
-        }
+        // else {
+            $('html, body').animate({scrollTop: $('#first-annotation').offset().top + 50}, 'slow');
+        // }
     });
 
     // If on mobile, the down arrow is fixed at the bottom of the screen and can be used to move from section to section the whole time
@@ -406,29 +406,32 @@ function setActivateFunctions() {
     activateFunctions[9] = () => {
         if (scrollDirection === "down") {
             beeSwarm.remainingCandidateLabel.text("OTHER PRES. CANDIDATES");
-
             beeSwarm.hideCongressionalMoney();
-            beeSwarm.addSuperPACMoney();
         }
+
+        beeSwarm.addSuperPACMoney();
     };
     activateFunctions[10] = () => {
-        // Intro tile for bubbleplot
+        beeSwarm.allocateSuperPacMoney();
     };
     activateFunctions[11] = () => {
-        bubblePlot.resetHighlighting();
+        // Intro tile for bubbleplot
     };
     activateFunctions[12] = () => {
-        bubblePlot.highlightParty(['REP']);
+        bubblePlot.resetHighlighting();
     };
     activateFunctions[13] = () => {
-        bubblePlot.highlightParty(['DEM', 'DFL']);
+        bubblePlot.highlightParty(['REP']);
     };
     activateFunctions[14] = () => {
+        bubblePlot.highlightParty(['DEM', 'DFL']);
+    };
+    activateFunctions[15] = () => {
         bubblePlot.highlightCandidates(['SANDERS', 'KLOBUCHAR', 'SLOTKIN']);
         bubblePlot.yVariable = 'education';
         bubblePlot.wrangleData();
     };
-    activateFunctions[15] = () => {
+    activateFunctions[16] = () => {
         bubblePlot.resetHighlighting();
         bubblePlot.yVariable = 'income';
         bubblePlot.wrangleData();
@@ -446,12 +449,12 @@ function setTileWrapperHeights() {
 
     // Sunburst annotations run from the second annotation div (first visible) to the ninth (top of ten)
     // There's a little extra finagling at the end to get the margin between the two viz wrappers correct
-    const beeswarmWrapperHeight = scrollerDivObjects[11].getBoundingClientRect().bottom - scrollerDivObjects[1].getBoundingClientRect().top;
+    const beeswarmWrapperHeight = scrollerDivObjects[12].getBoundingClientRect().bottom - scrollerDivObjects[1].getBoundingClientRect().top;
     $("#beeswarm-wrapper")
         .css("height", beeswarmWrapperHeight);
 
 
-    const bubblePlotWrapperHeight = scrollerDivObjects[18].getBoundingClientRect().bottom - scrollerDivObjects[12].getBoundingClientRect().top;
+    const bubblePlotWrapperHeight = scrollerDivObjects[19].getBoundingClientRect().bottom - scrollerDivObjects[13].getBoundingClientRect().top;
     $("#bubbleplot-wrapper")
         .css("height", bubblePlotWrapperHeight);
 
@@ -485,7 +488,7 @@ function main() {
     //     .css("opacity", 0.2);
 
     determinePhoneBrowsing();
-    // setScrollArrow();
+    setScrollArrow();
     // setWindowFunctions();
     setScrollDispatcher();
     setActivateFunctions();
