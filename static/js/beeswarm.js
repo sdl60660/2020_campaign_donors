@@ -804,12 +804,14 @@ BeeSwarm.prototype.showMap = function() {
         .duration(1000)
         .attr("opacity", 1);
 
-    vis.initStateTooltip();
+    // vis.initStateTooltip();
 };
 
 
 BeeSwarm.prototype.initStateTooltip = function() {
     const vis = this;
+
+    d3.selectAll('.beeswarm-state-tip').remove();
 
     vis.tip = d3.tip()
         .attr("class", "d3-tip beeswarm-state-tip")

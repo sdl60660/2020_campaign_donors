@@ -345,6 +345,9 @@ function setActivateFunctions() {
         if (scrollDirection === "up") {
             beeSwarm.resetHighlighting();
         }
+        if (scrollDirection === "down") {
+            beeSwarm.initStateTooltip();
+        }
 
     };
     // Beeswarm tile functions
