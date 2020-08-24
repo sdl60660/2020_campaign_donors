@@ -525,10 +525,10 @@ function main() {
 
         // If user loads visualization in the middle of the page, run all activate functions that they should have passed
         // already to "catch them up"
-        // const startingOffset = window.pageYOffset;
-        // if (startingOffset > 5) {
-        //     catchupPagePosition(startingOffset)
-        // }
+        const startingOffset = window.pageYOffset;
+        if (startingOffset > 5) {
+            catchupPagePosition(startingOffset);
+        }
     });
 }
 
