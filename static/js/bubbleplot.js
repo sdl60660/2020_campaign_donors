@@ -9,7 +9,7 @@ BubblePlot = function(_parentElement) {
 BubblePlot.prototype.initVis = function() {
     const vis = this;
 
-    vis.margin = {top: 50, right: 0, bottom: 60, left: 60};
+    vis.margin = {top: 50, right: 10, bottom: 60, left: 60};
 
     // Set height/width of viewBox
     vis.width = 900 - vis.margin.left - vis.margin.right;
@@ -86,10 +86,10 @@ BubblePlot.prototype.initVis = function() {
             let tiptext = '<div style="text-align:center">';
             tiptext += `<span><strong>${d.candidate_name} (${d.district_name})</strong></span><br><br>`;
 
-            tiptext += '<span style="float:left">Donors From Zipcodes That Are...</span><br><br>'
-            tiptext += `<span style="float:left">Majority-White:</span><span style="float:right; margin-left: 3px;">${d3.format(".1%")(d.majority_white_zipcode_pct)}</span><br>`;
-            tiptext += `<span style="float:left">High-Income (Top 25%):</span><span style="float:right; margin-left: 3px;">${d3.format(".1%")(d.high_income_zipcode_pct)}</span><br>`;
-            tiptext += `<span style="float:left">High Bachelors Attainment (Top 25%):</span><span style="float:right; margin-left: 3px;">${d3.format(".1%")(d.high_bachelors_zipcode_pct)}</span><br>`;
+            tiptext += '<span style="float:left">Donors From Zipcodes That Are...</span><br><br>';
+            tiptext += `<span style="float:left">Majority-White:</span><span style="float:right; padding-left: 3px;">${d3.format(".1%")(d.majority_white_zipcode_pct)}</span><br>`;
+            tiptext += `<span style="float:left">High-Income (Top 25%):</span><span style="float:right; padding-left: 3px;">${d3.format(".1%")(d.high_income_zipcode_pct)}</span><br>`;
+            tiptext += `<span style="float:left">High Bachelors Attainment (Top 25%):</span><span style="float:right; padding-left: 3px;">${d3.format(".1%")(d.high_bachelors_zipcode_pct)}</span><br>`;
 
             tiptext += '</div>';
 
@@ -97,7 +97,7 @@ BubblePlot.prototype.initVis = function() {
         });
     vis.svg.call(vis.tip);
 
-    vis.yVariable = 'income';
+    vis.yVariable = 'education';
 
 
     vis.wrangleData();
@@ -128,7 +128,7 @@ BubblePlot.prototype.wrangleData = function() {
 
     vis.chartData = donorDemographics.slice();
     vis.chartData = vis.chartData
-        .filter(d => +d.donor_count > 12000)
+        .filter(d => +d.donor_count > 15000)
         .sort((a,b) => b.donor_count - a.donor_count );
 
     vis.radius
@@ -190,7 +190,7 @@ BubblePlot.prototype.updateVis = function() {
                 .attr("text-anchor", "middle")
                 .style("font-size", "9px")
                 // .text(d => d.last_name),
-                .text(d => (d.donor_count > 150000 || d.last_name === "SPANBERGER") ? d.last_name : ""),
+                .text(d => (d.donor_count > 150000 || d.last_name === "SLOTKIN") ? d.last_name : ""),
 
             update => update
                 .call(update => update

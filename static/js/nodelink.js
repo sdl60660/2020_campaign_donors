@@ -133,6 +133,8 @@ NodeLink.prototype.initVis = function() {
     //     .attr("class", "nodelink-labels")
     //     .selectAll("text");
 
+    vis.direction = "outbound";
+
 
     vis.wrangleData();
 };
@@ -146,7 +148,7 @@ NodeLink.prototype.wrangleData = function() {
     // vis.centerNodeId = overlapNodes[Math.round(getRandomArbitrary(0, 100))].id;
     // vis.numOuterNodes = 15;
 
-    vis.direction = "outbound";
+    // vis.direction = "outbound";
     if (vis.direction === "outbound") {
         vis.selectedOverlapLinks = overlapLinks
             .filter((d) =>
@@ -415,7 +417,7 @@ NodeLink.prototype.updateVis = function() {
             enter => enter.append("circle")
                 .attr("class", "candidate-node")
                 .attr("fill", (d) => partyColor(d.party))
-                .attr("fill-opacity", 0.15)
+                .attr("fill-opacity", 0.05)
                 .style("z-index", 10)
                 .on("mouseover", (d) => {
                     vis.tip.show(d);
@@ -457,7 +459,7 @@ NodeLink.prototype.updateVis = function() {
                 .attr("cy", vis.height/2)
                 .attr("x", vis.width/2)
                 .attr("y", vis.height/2)
-                .style("stroke-width", "2px")
+                .style("stroke-width", 4)
                 .style("stroke", d => partyColor(d.party))
                 // .call(drag(vis.simulation))
                 .call(enter => enter.transition()

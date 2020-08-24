@@ -36,7 +36,7 @@ BeeSwarm.prototype.initVis = function() {
     });
 
     vis.uncategorizedMapData = {'properties':
-            {'NAME': 'Donor Info Unknown',
+            {'NAME': 'Donor Unknown/Transfer',
              'contributionCounts': summarizeContributionCounts(stateSummaryCounts['uncategorized'])}};
 
     vis.selfFundingMapData = {'properties':
@@ -137,7 +137,7 @@ BeeSwarm.prototype.initVis = function() {
         })
         .on("mouseout", d => vis.tip.hide());
 
-    vis.superPacBlockGroup = vis.svg.append("g")
+    vis.superPacBlocks = vis.svg.append("g")
         .attr("id", "superpac-nodes")
         .selectAll("circle");
 
@@ -256,11 +256,11 @@ BeeSwarm.prototype.sortByParty = function() {
 
     vis.simulation
         // .alphaDecay(0.1)
-        .alpha(0.3)
-        .alphaDecay(0.021)
-        .force('x', d3.forceX( d => vis.partyCoordinates(d.party)[0]).strength(0.8))
-        .force('y', d3.forceY( d => vis.partyCoordinates(d.party)[1]).strength(0.8))
-        .force('collide', d3.forceCollide(2.5).strength(1.0).iterations(20))
+        .alpha(0.12)
+        .alphaDecay(0.004)
+        .force('x', d3.forceX( d => vis.partyCoordinates(d.party)[0]).strength(0.9))
+        .force('y', d3.forceY( d => vis.partyCoordinates(d.party)[1]).strength(0.9))
+        .force('collide', d3.forceCollide(2.5).strength(1.0).iterations(2))
         // .restart();
 
     // for (let i = 0; i < 250; i++) vis.simulation.tick();
@@ -286,7 +286,9 @@ BeeSwarm.prototype.sortByParty = function() {
         // .ease(d3.easeSin)
         .attr("opacity", 1.0)
         .attr("cx", d => d.party_x)
-        .attr("cy", d => d.party_y);
+        .attr("cy", d => d.party_y)
+        // .on('mouseover', null)
+        // .on('mouseout', null);
 
 };
 
@@ -295,10 +297,10 @@ BeeSwarm.prototype.sortByOfficeType = function() {
     const vis = this;
 
     vis.simulation
-        // .alphaDecay(0.1)
-        .alpha(0.3)
+        .alpha(0.13)
+        .alphaDecay(0.004)
         // .force('x', d3.forceX( d => vis.officeTypeCoordinates(d.office_type)[0]).strength(0.8))
-        .force('y', d3.forceY( d => vis.officeTypeCoordinates(d.race_type)[1]).strength(0.8))
+        .force('y', d3.forceY( d => vis.officeTypeCoordinates(d.race_type)[1]).strength(0.9))
         // .restart();
 
     vis.partyLabels
@@ -366,7 +368,8 @@ BeeSwarm.prototype.sortByCandidates = function() {
         .unknown(0.9);
 
     vis.simulation
-        .alpha(0.2)
+        .alpha(0.12)
+        .alphaDecay(0.004)
         // .force('force', d3.forceManyBody().strength(-2))
         .force('x', d3.forceX( d => {
             if (d.race_type === "president") {
@@ -379,7 +382,7 @@ BeeSwarm.prototype.sortByCandidates = function() {
                 return vis.houseXScale(d.fec_id)*vis.width;
             }
             // vis.officeTypeCoordinates(d.office_type)[0]
-        }).strength(0.8))
+        }).strength(0.9))
         // .restart();
 
     let allCandidateLabels = candidateGroups.flat();
@@ -442,7 +445,9 @@ BeeSwarm.prototype.separateSelfContributions = function() {
     const allOthersOffset = -15;
 
     vis.simulation
-        .alpha(0.2)
+        // .alpha(0.2)
+        .alpha(0.12)
+        .alphaDecay(0.004)
         .force('y', d3.forceY( d => {
             let yPosition = vis.officeTypeCoordinates(d.race_type)[1];
 
@@ -454,7 +459,7 @@ BeeSwarm.prototype.separateSelfContributions = function() {
             }
 
             return yPosition;
-        }).strength(0.8))
+        }).strength(0.9))
         // .restart();
 
     vis.removeLabels(".contribution-type-label");
@@ -513,13 +518,17 @@ BeeSwarm.prototype.separateTransfersOther = function() {
     const vis = this;
 
     vis.simulation
-        .stop()
-        .alpha(0.3)
+        // .stop()
+        .alpha(0.15)
+        .alphaDecay(0.004)
         .force('y', d3.forceY( d => {
             let yPosition = vis.officeTypeCoordinates(d.race_type)[1];
 
             if (d.contribution_source === "self_contributions") {
-                if (d.race_type === 'house') {
+                if (d.first_name === 'MICHAEL' && d.last_name === 'BLOOMBERG') {
+                    yPosition += 116;
+                }
+                else if (d.race_type === 'house') {
                     yPosition += 125;
                 }
                 else {
@@ -527,11 +536,11 @@ BeeSwarm.prototype.separateTransfersOther = function() {
                 }
             }
             else if (d.contribution_source === 'transfers' || d.contribution_source === 'other') {
-                if (d.first_name === 'MICHAEL' && d.last_name === 'BLOOMBERG')  {
-                    yPosition += 20
+                if ((d.first_name === 'MICHAEL' && d.last_name === 'BLOOMBERG') || d.last_name === 'STEYER')  {
+                    yPosition += 16
                 }
                 else if (d.race_type === 'president') {
-                    yPosition += 30;
+                    yPosition += 28;
                 }
                 else if (d.race_type === 'senate') {
                     yPosition += 55
@@ -559,7 +568,7 @@ BeeSwarm.prototype.separateTransfersOther = function() {
     vis.allOtherContributionLabel
         .transition()
         .duration(vis.beeswarmTransitionTime)
-        .attr("y", vis.officeTypeCoordinates("president")[1] + 30)
+        .attr("y", vis.officeTypeCoordinates("president")[1] + 28)
         .text("Transfers");
 
     vis.individualContributionLabel
@@ -586,7 +595,9 @@ BeeSwarm.prototype.separateIndividualDonationTypes = function() {
     const vis = this;
 
     vis.simulation
-        .alpha(0.3)
+        // .alpha(0.3)
+        .alpha(0.14)
+        .alphaDecay(0.004)
         // .force('force', d3.forceManyBody().strength(-2))
         .force('x', d3.forceX( d => {
             let xPosition = null;
@@ -604,7 +615,7 @@ BeeSwarm.prototype.separateIndividualDonationTypes = function() {
             if (d.contribution_source === "small_donor_contributions") {
                 if (xPosition / vis.width === 0.9) {
                     if (d.race_type === 'president') {
-                        xPosition += 30
+                        xPosition += 32
                     }
                     else if (d.race_type === 'senate') {
                         xPosition += 32
@@ -620,7 +631,7 @@ BeeSwarm.prototype.separateIndividualDonationTypes = function() {
             else if (d.contribution_source === "large_donor_contributions") {
                 if (xPosition / vis.width === 0.9) {
                     if (d.race_type === 'president') {
-                        xPosition -= 30
+                        xPosition -= 32
                     }
                     else if (d.race_type === 'senate') {
                         xPosition -= 32
@@ -653,7 +664,7 @@ BeeSwarm.prototype.separateIndividualDonationTypes = function() {
 
 
     vis.beeswarm
-        .transition()
+        .transition("re-entrance")
         .duration(vis.beeswarmTransitionTime)
         .attr("cx", d => d.individualDonation_x)
         .attr("cy", d => d.individualDonation_y)
@@ -717,7 +728,7 @@ BeeSwarm.prototype.addSuperPACMoney = function () {
     const vis = this;
 
 
-    vis.superPacBlocks = vis.superPacBlockGroup
+    vis.pacBlocks = vis.superPacBlocks
         .data(superPACblocks, d => d)
         .join("circle")
         .attr("class", "pac-node")
@@ -726,6 +737,8 @@ BeeSwarm.prototype.addSuperPACMoney = function () {
         .attr("r", 0)
         .attr("opacity", 1.0)
         .attr("fill", d => partyColor(d.party))
+
+    vis.pacBlocks
         .transition()
             .delay(800)
                 .attr("r", 2.5)
@@ -754,7 +767,40 @@ BeeSwarm.prototype.addSuperPACMoney = function () {
             .on('tick', vis.pacTick)
             .stop();
 
-}
+};
+
+
+BeeSwarm.prototype.allocateSuperPacMoney = function() {
+    const vis = this;
+
+
+    vis.pacSimulation =
+        d3.forceSimulation(superPACblocks)
+            .force('x', d3.forceX( d => {
+                if (d.race_type === 'president') {
+                    return vis.width*vis.presidentXScale(d.fec_id);
+                }
+                else {
+                    return vis.partyCoordinates(d.party)[0];
+                }
+            }).strength(1.0))
+            .force('y', d3.forceY( d => {
+                if (d.race_type === 'president') {
+                    return vis.officeTypeCoordinates('president')[1] + 220;
+                }
+                else {
+                    return vis.height*.67;
+                }
+            }).strength(1.0))
+            // .force('repel', d3.forceManyBody().strength(-20).distanceMax(4))
+            .force('collide', d3.forceCollide(2.5).strength(0.8).iterations(3))
+            // .alphaDecay(0.005)
+            .alpha(0.12)
+            .alphaDecay(0.004)
+            .on('tick', vis.pacTick)
+            .restart();
+            // .stop();
+};
 
 
 BeeSwarm.prototype.removeLabels = function(labelClass) {
@@ -773,6 +819,7 @@ BeeSwarm.prototype.hideMap = function() {
         .transition()
         .duration(1000)
         .attr("opacity", 0);
+        // .on('mouseover', null);
 
     d3.select(".beeswarm-state-tip").remove();
 
@@ -804,7 +851,7 @@ BeeSwarm.prototype.showMap = function() {
         .duration(1000)
         .attr("opacity", 1);
 
-    // vis.initStateTooltip();
+    vis.initStateTooltip();
 };
 
 

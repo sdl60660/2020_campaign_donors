@@ -395,11 +395,11 @@ function setActivateFunctions() {
         if (scrollDirection === "up") {
             beeSwarm.remainingCandidateLabel.text("ALL OTHER CANDIDATES");
 
-            beeSwarm.superPacBlocks
+            beeSwarm.pacBlocks
                 .transition()
                 .duration(600)
-                .attr("cx", d => vis.partyCoordinates(d.party)[0])
-                .attr("cy", d => vis.height*.67)
+                .attr("cx", d => beeSwarm.partyCoordinates(d.party)[0])
+                .attr("cy", d => beeSwarm.height*.67)
                 .attr("r", 0)
         }
     };
@@ -424,13 +424,13 @@ function setActivateFunctions() {
         bubblePlot.highlightParty(['DEM', 'DFL']);
     };
     activateFunctions[14] = () => {
-        bubblePlot.highlightCandidates(['SANDERS', 'KLOBUCHAR', 'SPANBERGER']);
-        bubblePlot.yVariable = 'income';
+        bubblePlot.highlightCandidates(['SANDERS', 'KLOBUCHAR', 'SLOTKIN']);
+        bubblePlot.yVariable = 'education';
         bubblePlot.wrangleData();
     };
     activateFunctions[15] = () => {
         bubblePlot.resetHighlighting();
-        bubblePlot.yVariable = 'education';
+        bubblePlot.yVariable = 'income';
         bubblePlot.wrangleData();
     };
 
