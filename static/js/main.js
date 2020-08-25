@@ -515,6 +515,9 @@ function main() {
         $("#intro-wrapper")
             .css("visibility", "visible");
 
+        $(".downArrow")
+            .css("visibility", "visible");
+
         initSlider();
         buildCandidateDropdowns();
 
