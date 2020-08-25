@@ -11,8 +11,8 @@ NodeLink.prototype.initVis = function() {
     const vis = this;
 
     // Set height/width of viewBox
-    vis.width = 1400;
-    vis.height = 1400;
+    vis.width = 1450;
+    vis.height = 1450;
 
     // Initialize SVG
     vis.svg = d3.select(vis.parentElement)
@@ -48,12 +48,12 @@ NodeLink.prototype.initVis = function() {
     vis.svg.call(vis.tip);
 
     vis.minCircleRadius = 15;
-    vis.centerNodeRadiusVal = 90;
+    vis.centerNodeRadiusVal = 85;
     // Scales for node radius and with of line depending on overlap percentage
     vis.circleRadius = d3.scalePow()
         // .domain(d3.extent(overlapLinks, (d) => d.pct_val))
         .domain([0, 45])
-        .range([vis.minCircleRadius, 70])
+        .range([vis.minCircleRadius, 65])
         .exponent(1.3);
 
     vis.lineWidth = d3.scalePow()
@@ -204,7 +204,7 @@ NodeLink.prototype.wrangleData = function() {
     // console.log("Filtered Directional Links", performance.now() - vis.start);
 
     // Determine node layout (using multiple rings, if necessary)
-    const linkDistance = 600;
+    const linkDistance = 620;
 
     vis.getCircleCoordinates(linkDistance);
 
@@ -354,18 +354,34 @@ NodeLink.prototype.updateVis = function() {
                     `textpath textpath-${d.source}`
             })
             .classed('noselect', true)
-            .style("text-anchor","middle")
+            .style("text-anchor","start")
             .style("opacity", 0)
-            .style("font-size", "12px")
+            .style("font-size", "16px")
+            .attr("dy", "1.1em")
+            .attr("direction", d => d.direction)
+            .attr("nodeAngle", d => d.nodeAngle)
+            // .attr("dy", d => (d.nodeAngle > 90 || d.nodeAngle < -90) ? "1.1em" : "-1.1em")
+            // .attr("startOffset", d => {
+            //     let offset = d.direction === "outbound" ? 62 : 50;
+            //     offset = (d.nodeAngle > 90 || d.nodeAngle < -90) ? (100 - offset) : offset;
+            //     return `${offset}%`;
+            // })
             .attr("startOffset", d => {
-                let offset = d.direction === "outbound" ? 62 : 50;
-                offset = (d.nodeAngle > 90 || d.nodeAngle < -90) ? (100 - offset) : offset;
-                return `${offset}%`;
+                if (d.direction === "outbound" && (d.nodeAngle <= 90 && d.nodeAngle >= -90)) {
+                    return "175px";
+                }
+                else if (d.direction === "inbound" && (d.nodeAngle > 90 || d.nodeAngle < -90)) {
+                    return "55px";
+                }
+                else {
+                    return "60px";
+                }
             })
             .style("stroke", (d) => d.direction === "outbound" ? "blue" : "green")
-            .html((d) => {
+            .text((d) => {
                 return `${d3.format(".1f")(d.pct_val)}% of ${candidateIdNames[d.source]} donors also donated to ${candidateIdNames[d.target]}`
-            });
+            })
+            .call(nodeLinkWrap, vis.circleRadius(vis.centerNodeRadiusVal));
 
     // console.log("Appended Link Text 2", performance.now() - vis.start);
 

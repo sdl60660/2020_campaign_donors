@@ -113,3 +113,63 @@ function wrap(text, width) {
     });
 };
 
+function nodeLinkWrap(text, innerCicleRadius) {
+
+    text.each(function() {
+
+        let text = d3.select(this),
+            correspondingLink = text.attr("xlink:href"),
+            startOffset = parseInt(text.attr("startOffset")),
+            direction = text.attr("direction"),
+            nodeAngle = text.attr("nodeAngle"),
+            words = text.text().split(/\s+/).reverse(),
+            word,
+            line = [],
+            lineNumber = 0,
+            lineHeight = 1.1, // ems
+            y = text.attr("y"),
+            x = text.attr("x"),
+            dy = parseFloat(text.attr("dy")),
+            tspan = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
+
+        let path = document.getElementById(correspondingLink.replace("#", ""));
+        let pathLength = path.getTotalLength();
+
+        let buffer = 15;
+        // let lineOffset = 0;
+        if (direction === "outbound" && (nodeAngle > 90 || nodeAngle < -90)) {
+            buffer += innerCicleRadius;
+        }
+        // else if (nodeAngle <= 90 && nodeAngle >= -90) {
+        //     lineOffset = 2;
+        // }
+        let maxLength = pathLength - buffer - startOffset;
+
+
+        let lastLength = -1;
+        let newLength = 0;
+
+        while (word = words.pop()) {
+            line.push(word);
+            tspan.text(line.join(" "));
+
+            lastLength = newLength;
+            newLength = tspan.node().getComputedTextLength();
+
+            if (newLength > maxLength || lastLength === newLength) {
+                line.pop();
+                tspan.text(line.join(" "));
+                line = [word];
+                tspan = text.append("tspan")
+                    .attr("x", 0)
+                    .attr("dy", lineNumber++ * lineHeight + dy + "em")
+                    .text(word);
+
+                lastLength = -1;
+                newLength = 0;
+            }
+
+        }
+    });
+};
+
