@@ -44,7 +44,7 @@ BubblePlot.prototype.initVis = function() {
 
     vis.yAxis = vis.g.append("g")
         // .attr("transform", "translate(" + vis.margin.left + ",0)")
-        .call(d3.axisLeft(vis.y));
+        .call(d3.axisLeft(vis.y).ticks(8));
 
 
     vis.xAxisLabel = vis.g.append("text")

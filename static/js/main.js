@@ -427,7 +427,7 @@ function setActivateFunctions() {
         bubblePlot.highlightParty(['DEM', 'DFL']);
     };
     activateFunctions[15] = () => {
-        bubblePlot.highlightCandidates(['SANDERS', 'KLOBUCHAR', 'SLOTKIN']);
+        bubblePlot.highlightCandidates(['SANDERS', 'KLOBUCHAR']);
         bubblePlot.yVariable = 'education';
         bubblePlot.wrangleData();
     };
