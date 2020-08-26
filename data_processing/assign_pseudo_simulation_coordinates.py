@@ -8,7 +8,10 @@ with open('../static/data/super_pac_money_blocks.json', 'r') as f:
 	super_pac_blocks = json.load(f)
 
 
-for coordinate_file in ['map_coordinate_data.json', 'party_coordinate_data.json', 'office_coordinate_data.json', 'candidate_coordinate_data.json', 'selfDonation_coordinate_data.json', 'transfers_coordinate_data.json', 'individualDonation_coordinate_data.json']:
+for coordinate_file in ['map_coordinate_data.json', 'party_coordinate_data.json', 'office_coordinate_data.json', 
+'candidate_coordinate_data.json', 'selfDonation_coordinate_data.json', 'selfDonationParty_coordinate_data.json', 
+'transfers_coordinate_data.json', 'transfersOnly_coordinate_data.json', 'individualDonationOnly_coordinate_data.json',
+ 'indivDonationSplit_coordinate_data.json', 'indivDonationSplitOnly_coordinate_data.json']:
 	with open('simulation_coordinates/{}'.format(coordinate_file), 'r') as f:
 		coordinates = json.load(f)
 

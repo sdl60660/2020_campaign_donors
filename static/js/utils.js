@@ -94,7 +94,7 @@ function wrap(text, width) {
             words = text.text().split(/\s+/).reverse(),
             word,
             line = [],
-            lineNumber = 0,
+            lineNumber = 1,
             lineHeight = 1.1, // ems
             y = text.attr("y"),
             x = text.attr("x"),
@@ -107,7 +107,7 @@ function wrap(text, width) {
                 line.pop();
                 tspan.text(line.join(" "));
                 line = [word];
-                tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", lineNumber++ * lineHeight + dy + "em").text(word);
             }
         }
     });

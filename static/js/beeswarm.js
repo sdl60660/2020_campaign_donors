@@ -396,6 +396,10 @@ BeeSwarm.prototype.sortByCandidates = function() {
             }
             // vis.officeTypeCoordinates(d.office_type)[0]
         }).strength(0.9))
+        .force('y', d3.forceY( d => (d.last_name==="BLOOMBERG" && d.first_name === "MICHAEL") ?
+            vis.officeTypeCoordinates(d.race_type)[1] + 15 :
+            vis.officeTypeCoordinates(d.race_type)[1]).strength(0.9))
+
         // .restart();
 
     let allCandidateLabels = candidateGroups.flat();
@@ -414,7 +418,7 @@ BeeSwarm.prototype.sortByCandidates = function() {
                 return vis.houseXScale(d.fec_id)*vis.width;
             }
         })
-        .attr("y", d => (d.race_type) === "president" ? vis.officeTypeCoordinates(d.race_type)[1] - 115 :
+        .attr("y", d => (d.race_type) === "president" ? vis.officeTypeCoordinates(d.race_type)[1] - 100 :
             vis.officeTypeCoordinates(d.race_type)[1] - 67)
         .attr("opacity", 1.0)
         .style("font-size", () => phoneBrowsing === true ? "18px" : "15px")
@@ -428,7 +432,8 @@ BeeSwarm.prototype.sortByCandidates = function() {
         .attr("class", "candidate-label-text")
         .attr("x", 0.9*vis.width)
         .attr("y", vis.officeTypeCoordinates("president")[1] - 100)
-        .style("font-size", () => phoneBrowsing === true ? "18px" : "13px")
+        .attr("dy", "1.15em")
+        .style("font-size", () => phoneBrowsing === true ? "18px" : "15px")
         .style("text-anchor", "middle")
         .text("ALL OTHER CANDIDATES");
 
@@ -455,8 +460,8 @@ BeeSwarm.prototype.sortByCandidates = function() {
 BeeSwarm.prototype.separateSelfContributions = function() {
     const vis = this;
 
-    const selfContributionOffset = 100;
-    const allOthersOffset = -15;
+    vis.featuredContributionOffset = 100;
+    vis.allOthersOffset = -15;
 
     vis.simulation
         // .alpha(0.2)
@@ -466,10 +471,10 @@ BeeSwarm.prototype.separateSelfContributions = function() {
             let yPosition = vis.officeTypeCoordinates(d.race_type)[1];
 
             if (d.contribution_source === "self_contributions") {
-                yPosition += selfContributionOffset;
+                yPosition += vis.featuredContributionOffset;
             }
             else {
-                yPosition += allOthersOffset;
+                yPosition += vis.allOthersOffset;
             }
 
             return yPosition;
@@ -481,7 +486,7 @@ BeeSwarm.prototype.separateSelfContributions = function() {
     vis.selfContributionLabel = vis.svg.append("text")
         .attr("class", "contribution-type-label")
         .attr("x", vis.width*0.945)
-        .attr("y", vis.officeTypeCoordinates("president")[1] + selfContributionOffset)
+        .attr("y", vis.officeTypeCoordinates("president")[1] + vis.featuredContributionOffset)
         .style("font-size", "12px")
         .style("text-anchor", "start")
         .text("Self-Contributions");
@@ -489,7 +494,7 @@ BeeSwarm.prototype.separateSelfContributions = function() {
     vis.allOtherContributionLabel = vis.svg.append("text")
         .attr("class", "contribution-type-label")
         .attr("x", vis.width*0.945)
-        .attr("y", vis.officeTypeCoordinates("president")[1] + allOthersOffset)
+        .attr("y", vis.officeTypeCoordinates("president")[1] + vis.allOthersOffset)
         .style("font-size", "12px")
         .style("text-anchor", "start")
         .text("All Other Sources");
@@ -499,13 +504,14 @@ BeeSwarm.prototype.separateSelfContributions = function() {
         .attr("x", vis.width*0.945)
         .style("font-size", "12px")
         .style("text-anchor", "start")
-        .attr("dy", "1.15em")
+        .attr("dy", "0.5em")
+        .attr("opacity", 0.0)
         .text("");
 
     vis.largeContributionLabel = vis.svg.append("text")
         .attr("class", "contribution-type-label")
         .attr("x", 0.9*vis.width + -30)
-        .attr("y", vis.officeTypeCoordinates("president")[1] - 75)
+        .attr("y", vis.officeTypeCoordinates("president")[1] - 45)
         .style("font-size", "12px")
         .style("text-anchor", "middle")
         .text("");
@@ -513,7 +519,7 @@ BeeSwarm.prototype.separateSelfContributions = function() {
     vis.smallContributionLabel = vis.svg.append("text")
         .attr("class", "contribution-type-label")
         .attr("x", 0.9*vis.width + 30)
-        .attr("y", vis.officeTypeCoordinates("president")[1] - 75)
+        .attr("y", vis.officeTypeCoordinates("president")[1] - 45)
         .style("font-size", "12px")
         .style("text-anchor", "middle")
         .text("");
@@ -528,13 +534,82 @@ BeeSwarm.prototype.separateSelfContributions = function() {
         .text("");
 
 
+    if (scrollDirection === "up") {
+        vis.beeswarm
+            .transition()
+            .duration(0.6 * vis.beeswarmTransitionTime)
+                .attr("opacity", 1.0)
+                .attr("cx", d => d.candidate_x)
+                .attr("cy", d => d.candidate_y)
+            .transition()
+            .duration(0.6 *vis.beeswarmTransitionTime)
+            .attr("opacity", 1.0)
+                .attr("cx", d => d.selfDonation_x)
+                .attr("cy", d => d.selfDonation_y)
+    }
+    else {
+        vis.beeswarm
+            .transition()
+            .duration(vis.beeswarmTransitionTime)
+            .attr("opacity", 1.0)
+            .attr("cx", d => d.selfDonation_x)
+            .attr("cy", d => d.selfDonation_y)
+        // .attr("opacity", d => d.contribution_source === "self_contributions" ? 1.0 : 0.5)
+    }
+};
+
+
+BeeSwarm.prototype.separateSelfContributionParty = function() {
+    const vis = this;
+
+    // vis.simulation
+    //     .stop()
+    //     .alpha(0.15)
+    //     .alphaDecay(0.004)
+    //     .force('x', d3.forceX( d => {
+    //         if (d.race_type === "president") {
+    //             return vis.presidentXScale(d.fec_id)*vis.width;
+    //         }
+    //         else if (d.race_type === "senate") {
+    //             let xPos = vis.senateXScale(d.fec_id)*vis.width;
+    //             if (vis.senateXScale(d.fec_id) === 0.9 && d.contribution_source === "self_contributions") {
+    //                 if (d.party === "REP") {
+    //                     xPos += 35
+    //                    }
+    //                 else {
+    //                     xPos -= 35;
+    //                 }
+    //             }
+    //             return xPos;
+    //         }
+    //         else {
+    //             let xPos = vis.houseXScale(d.fec_id)*vis.width;
+    //             if (vis.senateXScale(d.fec_id) === 0.9  && d.contribution_source === "self_contributions") {
+    //                 if (d.party === "REP") {
+    //                     xPos += 35;
+    //                    }
+    //                 else {
+    //                     xPos -= 35;
+    //                 }
+    //             }
+    //             return xPos;
+    //         }
+    //         }).strength(0.9))
+    //     .restart();
     vis.beeswarm
         .transition()
         .duration(vis.beeswarmTransitionTime)
-        .attr("opacity", 1.0)
-        .attr("cx", d => d.selfDonation_x)
-        .attr("cy", d => d.selfDonation_y)
-        // .attr("opacity", d => d.contribution_source === "self_contributions" ? 1.0 : 0.5)
+            .attr("opacity", 1.0)
+            .attr("cx", d => (d.race_type !== "president"
+                && vis.senateXScale(d.fec_id) === 0.9
+                && vis.houseXScale(d.fec_id) === 0.9
+                && d.contribution_source === "self_contributions") ?
+                d.selfDonationParty_x : d.selfDonation_x)
+            .attr("cy", d => (d.race_type !== "president"
+                && vis.senateXScale(d.fec_id) === 0.9
+                && vis.houseXScale(d.fec_id) === 0.9
+                && d.contribution_source === "self_contributions") ?
+                d.selfDonationParty_y : d.selfDonation_y)
 };
 
 
@@ -548,57 +623,72 @@ BeeSwarm.prototype.separateTransfersOther = function() {
         .force('y', d3.forceY( d => {
             let yPosition = vis.officeTypeCoordinates(d.race_type)[1];
 
-            if (d.contribution_source === "self_contributions") {
-                if (d.first_name === 'MICHAEL' && d.last_name === 'BLOOMBERG') {
-                    yPosition += 116;
-                }
-                else if (d.race_type === 'house') {
-                    yPosition += 125;
-                }
-                else {
-                    yPosition += 110;
-                }
-            }
-            else if (d.contribution_source === 'transfers' || d.contribution_source === 'other') {
-                if ((d.first_name === 'MICHAEL' && d.last_name === 'BLOOMBERG') || d.last_name === 'STEYER')  {
-                    yPosition += 16
-                }
-                else if (d.race_type === 'president') {
-                    yPosition += 28;
-                }
-                else if (d.race_type === 'senate') {
-                    yPosition += 55
-                }
-                else {
-                    yPosition += 65
-                }
-            }
-            else if(d.race_type === 'president') {
-                yPosition -= 40;
+            if (d.contribution_source === "transfers") {
+                yPosition += vis.featuredContributionOffset;
             }
             else {
-                yPosition -= 20;
+                yPosition -= 5;
+            }
+
+            if (d.first_name === "MICHAEL" && d.last_name === "BLOOMBERG") {
+                yPosition += 15;
             }
 
             return yPosition;
+            // let yPosition = vis.officeTypeCoordinates(d.race_type)[1];
+            //
+            // if (d.contribution_source === "self_contributions") {
+            //     if (d.first_name === 'MICHAEL' && d.last_name === 'BLOOMBERG') {
+            //         yPosition += 116;
+            //     }
+            //     else if (d.race_type === 'house') {
+            //         yPosition += 125;
+            //     }
+            //     else {
+            //         yPosition += 110;
+            //     }
+            // }
+            // else if (d.contribution_source === 'transfers' || d.contribution_source === 'other') {
+            //     if ((d.first_name === 'MICHAEL' && d.last_name === 'BLOOMBERG') || d.last_name === 'STEYER')  {
+            //         yPosition += 16
+            //     }
+            //     else if (d.race_type === 'president') {
+            //         yPosition += 28;
+            //     }
+            //     else if (d.race_type === 'senate') {
+            //         yPosition += 55
+            //     }
+            //     else {
+            //         yPosition += 65
+            //     }
+            // }
+            // else if(d.race_type === 'president') {
+            //     yPosition -= 40;
+            // }
+            // else {
+            //     yPosition -= 20;
+            // }
+            //
+            // return yPosition;
         }).strength(0.9))
         // .restart();
 
     vis.selfContributionLabel
         .transition()
         .duration(vis.beeswarmTransitionTime)
-        .attr("y", vis.officeTypeCoordinates("president")[1] + 110);
+        .attr("y", vis.officeTypeCoordinates("president")[1] + 110)
+        .text("Transfers");
 
     vis.allOtherContributionLabel
         .transition()
         .duration(vis.beeswarmTransitionTime)
-        .attr("y", vis.officeTypeCoordinates("president")[1] + 28)
-        .text("Transfers");
+        .attr("y", vis.officeTypeCoordinates("president")[1] - 5)
+        .text("All Other Sources");
 
     vis.individualContributionLabel
-        .attr("y", vis.officeTypeCoordinates("president")[1] - 55)
-        .text("Individual Contributions")
-        .call(wrap, vis.width*0.07);
+        // .attr("y", vis.officeTypeCoordinates("president")[1] - 55)
+        .text("");
+        // .call(wrap, vis.width*0.07);
 
     vis.largeContributionLabel
         .text("");
@@ -608,11 +698,85 @@ BeeSwarm.prototype.separateTransfersOther = function() {
 
     vis.beeswarm
         .transition()
-        .duration(vis.beeswarmTransitionTime)
+        .duration(0.6*vis.beeswarmTransitionTime)
         .attr("opacity", 1.0)
-        .attr("cx", d => d.transfers_x)
-        .attr("cy", d => d.transfers_y)
+            .attr("cx", d => d.candidate_x)
+            .attr("cy", d => d.candidate_y)
+        .transition()
+        .delay(300)
+        .duration(0.6*vis.beeswarmTransitionTime)
+            .attr("cx", d => d.transfersOnly_x)
+            .attr("cy", d => d.transfersOnly_y)
         // .attr("opacity", d => (d.contribution_source === "transfers" || d.contribution_source === "other") ? 1.0 : 0.5)
+};
+
+
+BeeSwarm.prototype.separateIndividualDonations = function() {
+    const vis = this;
+
+    // vis.simulation
+    //     // .stop()
+    //     .alpha(0.15)
+    //     .alphaDecay(0.004)
+    //     .force('y', d3.forceY( d => {
+    //         let yPosition = vis.officeTypeCoordinates(d.race_type)[1];
+    //
+    //         if (d.contribution_source === "large_donor_contributions" ||
+    //             d.contribution_source === "small_donor_contributions") {
+    //             yPosition += -5;
+    //         }
+    //         else {
+    //             yPosition += vis.featuredContributionOffset;
+    //         }
+    //
+    //         return yPosition;
+    //     }).strength(0.9))
+    //     .restart();
+
+    vis.selfContributionLabel
+        .transition()
+        .duration(vis.beeswarmTransitionTime)
+        .text("");
+        // .attr("y", vis.officeTypeCoordinates("president")[1] + 110);
+
+    vis.allOtherContributionLabel
+        .transition()
+        .duration(vis.beeswarmTransitionTime)
+        .attr("y", vis.officeTypeCoordinates("president")[1] + 110);
+        // .text("Transfers");
+
+    vis.individualContributionLabel
+        .text("Individual Contributions")
+        .call(wrap, vis.width*0.07);
+
+    vis.individualContributionLabel
+        .attr("y", vis.officeTypeCoordinates("president")[1] - 18)
+        .transition()
+        .duration(vis.beeswarmTransitionTime)
+        // .text("Individual Contributions")
+        .attr("opacity", 1.0)
+        // .on("end", wrap);
+
+    vis.largeContributionLabel
+        .text("");
+
+    vis.smallContributionLabel
+        .text("");
+
+    vis.beeswarm
+        .transition()
+        .duration(0.6*vis.beeswarmTransitionTime)
+        .attr("opacity", 1.0)
+            .attr("cx", d => d.candidate_x)
+            .attr("cy", d => d.candidate_y)
+        .transition()
+        .delay(300)
+        .duration(0.6*vis.beeswarmTransitionTime)
+        .attr("opacity", 1.0)
+            .attr("cx", d => d.individualDonationOnly_x)
+            .attr("cy", d => d.individualDonationOnly_y)
+        // .attr("opacity", d => (d.contribution_source === "transfers" || d.contribution_source === "other") ? 1.0 : 0.5)
+
 };
 
 
@@ -624,6 +788,19 @@ BeeSwarm.prototype.separateIndividualDonationTypes = function() {
         .alpha(0.14)
         .alphaDecay(0.004)
         // .force('force', d3.forceManyBody().strength(-2))
+                .force('y', d3.forceY( d => {
+            let yPosition = vis.officeTypeCoordinates(d.race_type)[1];
+
+            if (d.contribution_source === "large_donor_contributions" ||
+                d.contribution_source === "small_donor_contributions") {
+                yPosition += -5;
+            }
+            else {
+                yPosition += vis.featuredContributionOffset;
+            }
+
+            return yPosition;
+        }).strength(0.9))
         .force('x', d3.forceX( d => {
             let xPosition = null;
 
@@ -650,7 +827,12 @@ BeeSwarm.prototype.separateIndividualDonationTypes = function() {
                     }
                 }
                 else {
-                    xPosition += 25
+                    if (d.race_type === "president") {
+                        xPosition += 32
+                    }
+                    else {
+                        xPosition += 25
+                    }
                 }
             }
             else if (d.contribution_source === "large_donor_contributions") {
@@ -666,7 +848,12 @@ BeeSwarm.prototype.separateIndividualDonationTypes = function() {
                     }
                 }
                 else {
-                    xPosition -= 25
+                    if (d.race_type === "president") {
+                        xPosition -= 32
+                    }
+                    else {
+                        xPosition -= 25
+                    }
                 }
             }
 
@@ -691,10 +878,10 @@ BeeSwarm.prototype.separateIndividualDonationTypes = function() {
     vis.beeswarm
         .transition("re-entrance")
         .duration(vis.beeswarmTransitionTime)
-        .attr("cx", d => d.individualDonation_x)
-        .attr("cy", d => d.individualDonation_y)
-        .attr("opacity", 1.0)
-        .attr("r", 2.5);
+            .attr("cx", d => d.indivDonationSplitOnly_x)
+            .attr("cy", d => d.indivDonationSplitOnly_y)
+            .attr("opacity", 1.0)
+            .attr("r", 2.5);
         // .attr("opacity", d => (d.contribution_source === "small_donor_contributions" || d.contribution_source === "large_donor_contributions") ? 1.0 : 0.5)
 
 
@@ -725,7 +912,7 @@ BeeSwarm.prototype.hideCongressionalMoney = function() {
             .attr("opacity", 1.0)
             .attr("cx", d => {
                 if (d.race_type === "president") {
-                    return d.individualDonation_x;
+                    return d.indivDonationSplitOnly_x;
                 }
                 else if (d.race_type === "senate") {
                     return vis.senateXScale(d.fec_id)*vis.width;
@@ -734,7 +921,7 @@ BeeSwarm.prototype.hideCongressionalMoney = function() {
                     return vis.houseXScale(d.fec_id)*vis.width;
                 }
             })
-            .attr("cy", d => d.race_type === "president" ? d.individualDonation_y : vis.officeTypeCoordinates(d.race_type)[1])
+            .attr("cy", d => d.race_type === "president" ? d.indivDonationSplitOnly_y : vis.officeTypeCoordinates(d.race_type)[1])
         .transition()
         .duration(50)
             .attr("r", d => d.race_type === "president" ? 2.5 : 0);

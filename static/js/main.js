@@ -390,6 +390,9 @@ function setActivateFunctions() {
         beeSwarm.separateTransfersOther();
     };
     activateFunctions[8] = () => {
+        beeSwarm.separateIndividualDonations();
+    };
+    activateFunctions[9] = () => {
         beeSwarm.separateIndividualDonationTypes();
 
         if (scrollDirection === "up") {
@@ -403,7 +406,7 @@ function setActivateFunctions() {
                 .attr("r", 0)
         }
     };
-    activateFunctions[9] = () => {
+    activateFunctions[10] = () => {
         if (scrollDirection === "down") {
             beeSwarm.remainingCandidateLabel.text("OTHER PRES. CANDIDATES");
             beeSwarm.hideCongressionalMoney();
@@ -411,27 +414,27 @@ function setActivateFunctions() {
 
         beeSwarm.addSuperPACMoney();
     };
-    activateFunctions[10] = () => {
+    activateFunctions[11] = () => {
         beeSwarm.allocateSuperPacMoney();
     };
-    activateFunctions[11] = () => {
+    activateFunctions[12] = () => {
         // Intro tile for bubbleplot
     };
-    activateFunctions[12] = () => {
+    activateFunctions[13] = () => {
         bubblePlot.resetHighlighting();
     };
-    activateFunctions[13] = () => {
+    activateFunctions[14] = () => {
         bubblePlot.highlightParty(['REP']);
     };
-    activateFunctions[14] = () => {
+    activateFunctions[15] = () => {
         bubblePlot.highlightParty(['DEM', 'DFL']);
     };
-    activateFunctions[15] = () => {
+    activateFunctions[16] = () => {
         bubblePlot.highlightCandidates(['SANDERS', 'KLOBUCHAR']);
         bubblePlot.yVariable = 'education';
         bubblePlot.wrangleData();
     };
-    activateFunctions[16] = () => {
+    activateFunctions[17] = () => {
         bubblePlot.resetHighlighting();
         bubblePlot.yVariable = 'income';
         bubblePlot.wrangleData();
@@ -449,12 +452,12 @@ function setTileWrapperHeights() {
 
     // Sunburst annotations run from the second annotation div (first visible) to the ninth (top of ten)
     // There's a little extra finagling at the end to get the margin between the two viz wrappers correct
-    const beeswarmWrapperHeight = scrollerDivObjects[12].getBoundingClientRect().bottom - scrollerDivObjects[1].getBoundingClientRect().top;
+    const beeswarmWrapperHeight = scrollerDivObjects[13].getBoundingClientRect().bottom - scrollerDivObjects[1].getBoundingClientRect().top - 200;
     $("#beeswarm-wrapper")
         .css("height", beeswarmWrapperHeight);
 
 
-    const bubblePlotWrapperHeight = scrollerDivObjects[19].getBoundingClientRect().bottom - scrollerDivObjects[13].getBoundingClientRect().top;
+    const bubblePlotWrapperHeight = scrollerDivObjects[20].getBoundingClientRect().bottom - scrollerDivObjects[14].getBoundingClientRect().top;
     $("#bubbleplot-wrapper")
         .css("height", bubblePlotWrapperHeight);
 
