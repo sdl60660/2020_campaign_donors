@@ -17,7 +17,7 @@ BeeSwarm.prototype.initVis = function() {
     // Initialize SVG
     vis.svg = d3.select(vis.parentElement)
         .append("svg")
-        .attr("viewBox", [0, 0, vis.width*1.03, vis.height]);
+        .attr("viewBox", [0, 0, vis.width*1.04, vis.height]);
 
     vis.projection = geoAlbersUsaPr()
         .scale(vis.width)
@@ -460,7 +460,7 @@ BeeSwarm.prototype.sortByCandidates = function() {
 BeeSwarm.prototype.separateSelfContributions = function() {
     const vis = this;
 
-    vis.featuredContributionOffset = 100;
+    vis.featuredContributionOffset = 105;
     vis.allOthersOffset = -15;
 
     vis.simulation
@@ -483,51 +483,70 @@ BeeSwarm.prototype.separateSelfContributions = function() {
 
     vis.removeLabels(".contribution-type-label");
 
-    vis.selfContributionLabel = vis.svg.append("text")
+    vis.selfContributionLabel = vis.svg.selectAll("#self-contribution-label")
+        .data([{'offset': 0}, {'offset': 0.25*vis.height}, {'offset': 0.5*vis.height}])
+        .join("text")
+        .attr("id", "self-contribution-label")
         .attr("class", "contribution-type-label")
-        .attr("x", vis.width*0.945)
-        .attr("y", vis.officeTypeCoordinates("president")[1] + vis.featuredContributionOffset)
+        .attr("x", vis.width*0.957)
+        .attr("y", d => d.offset + vis.officeTypeCoordinates("president")[1] + vis.featuredContributionOffset)
         .style("font-size", "12px")
         .style("text-anchor", "start")
         .text("Self-Contributions");
 
-    vis.allOtherContributionLabel = vis.svg.append("text")
+    vis.allOtherContributionLabel = vis.svg.selectAll("#other-contribution-label")
+        .data([{'offset': 0}, {'offset': 0.25*vis.height}, {'offset': 0.5*vis.height}])
+        .join("text")
+        .attr("id", "other-contribution-label")
         .attr("class", "contribution-type-label")
-        .attr("x", vis.width*0.945)
-        .attr("y", vis.officeTypeCoordinates("president")[1] + vis.allOthersOffset)
+        .attr("x", vis.width*0.957)
+        .attr("y", d => d.offset + vis.officeTypeCoordinates("president")[1] + vis.allOthersOffset)
         .style("font-size", "12px")
         .style("text-anchor", "start")
         .text("All Other Sources");
 
-    vis.individualContributionLabel = vis.svg.append("text")
+    vis.individualContributionLabel = vis.svg.selectAll("#individual-contribution-label")
+        .data([{'offset': 0}, {'offset': 0.25*vis.height}, {'offset': 0.5*vis.height}])
+        .join("text")
+        .attr("id", "individual-contribution-label")
         .attr("class", "contribution-type-label")
-        .attr("x", vis.width*0.945)
+        .attr("x", vis.width*0.957)
+        .attr("y", d => d.offset + vis.officeTypeCoordinates("president")[1] - 18)
         .style("font-size", "12px")
         .style("text-anchor", "start")
-        .attr("dy", "0.5em")
+        .attr("dy", "1.25em")
         .attr("opacity", 0.0)
         .text("");
 
-    vis.largeContributionLabel = vis.svg.append("text")
+    vis.largeContributionLabel = vis.svg.selectAll("#large-contribution-label")
+        .data([{'offset': 0}, {'offset': 0.24*vis.height}, {'offset': 0.47*vis.height}])
+        .join("text")
+        .attr("id", "large-contribution-label")
         .attr("class", "contribution-type-label")
-        .attr("x", 0.9*vis.width + -30)
-        .attr("y", vis.officeTypeCoordinates("president")[1] - 45)
+        .attr("x", (d,i) => i === 2 ? 0.9*vis.width + -40 : 0.9*vis.width + -30)
+        .attr("y", d => d.offset + vis.officeTypeCoordinates("president")[1] - 45)
         .style("font-size", "12px")
         .style("text-anchor", "middle")
         .text("");
 
-    vis.smallContributionLabel = vis.svg.append("text")
+    vis.smallContributionLabel = vis.svg.selectAll("#small-contribution-label")
+        .data([{'offset': 0}, {'offset': 0.24*vis.height}, {'offset': 0.47*vis.height}])
+        .join("text")
+        .attr("id", "small-contribution-label")
         .attr("class", "contribution-type-label")
-        .attr("x", 0.9*vis.width + 30)
-        .attr("y", vis.officeTypeCoordinates("president")[1] - 45)
+        .attr("x", (d,i) => i === 2 ? 0.9*vis.width + 40 : 0.9*vis.width + 30)
+        .attr("y", d => d.offset + vis.officeTypeCoordinates("president")[1] - 45)
         .style("font-size", "12px")
         .style("text-anchor", "middle")
         .text("");
 
 
-    vis.superPACContributionLabel = vis.svg.append("text")
+    vis.superPACContributionLabel = vis.svg.selectAll("#super-pac-contribution-label")
+        .data([{'offset': 0}])
+        .join("text")
+        .attr("id", "super-pac-contribution-label")
         .attr("class", "contribution-type-label")
-        .attr("x", vis.width*0.945)
+        .attr("x", vis.width*0.957)
         .attr("y", vis.officeTypeCoordinates("president")[1] + 195)
         .style("font-size", "12px")
         .style("text-anchor", "start")
@@ -676,13 +695,13 @@ BeeSwarm.prototype.separateTransfersOther = function() {
     vis.selfContributionLabel
         .transition()
         .duration(vis.beeswarmTransitionTime)
-        .attr("y", vis.officeTypeCoordinates("president")[1] + 110)
+        .attr("y", d => d.offset + vis.officeTypeCoordinates("president")[1] + 105)
         .text("Transfers");
 
     vis.allOtherContributionLabel
         .transition()
         .duration(vis.beeswarmTransitionTime)
-        .attr("y", vis.officeTypeCoordinates("president")[1] - 5)
+        .attr("y", d => d.offset + vis.officeTypeCoordinates("president")[1])
         .text("All Other Sources");
 
     vis.individualContributionLabel
@@ -742,7 +761,7 @@ BeeSwarm.prototype.separateIndividualDonations = function() {
     vis.allOtherContributionLabel
         .transition()
         .duration(vis.beeswarmTransitionTime)
-        .attr("y", vis.officeTypeCoordinates("president")[1] + 110);
+        .attr("y", d => d.offset + vis.officeTypeCoordinates("president")[1] + 105);
         // .text("Transfers");
 
     vis.individualContributionLabel
@@ -750,11 +769,11 @@ BeeSwarm.prototype.separateIndividualDonations = function() {
         .call(wrap, vis.width*0.07);
 
     vis.individualContributionLabel
-        .attr("y", vis.officeTypeCoordinates("president")[1] - 18)
+        .attr("y", d => d.offset + vis.officeTypeCoordinates("president")[1] - 18)
         .transition()
         .duration(vis.beeswarmTransitionTime)
         // .text("Individual Contributions")
-        .attr("opacity", 1.0)
+        .attr("opacity", 1.0);
         // .on("end", wrap);
 
     vis.largeContributionLabel
@@ -770,7 +789,7 @@ BeeSwarm.prototype.separateIndividualDonations = function() {
             .attr("cx", d => d.candidate_x)
             .attr("cy", d => d.candidate_y)
         .transition()
-        .delay(300)
+        .delay(250)
         .duration(0.6*vis.beeswarmTransitionTime)
         .attr("opacity", 1.0)
             .attr("cx", d => d.individualDonationOnly_x)
@@ -875,6 +894,14 @@ BeeSwarm.prototype.separateIndividualDonationTypes = function() {
         .text("<$200");
 
 
+    vis.individualContributionLabel
+        .text("Individual Contributions")
+        .call(wrap, vis.width*0.07);
+
+    vis.allOtherContributionLabel
+        .text("All Other Sources");
+
+
     vis.beeswarm
         .transition("re-entrance")
         .duration(vis.beeswarmTransitionTime)
@@ -936,6 +963,21 @@ BeeSwarm.prototype.hideCongressionalMoney = function() {
         .transition()
         .duration(300)
         .attr("opacity", d => (vis.presidentXScale(d.fec_id) !== 0.9 || d === "ALL OTHER CANDIDATES") ? 1.0 : 0.0);
+
+    vis.individualContributionLabel
+        .text(d => d.offset > 0 ? "" : "Individual Contributions")
+        .call(wrap, vis.width*0.07);
+
+    vis.allOtherContributionLabel
+        .text(d => d.offset > 0 ? "" : "All Other Sources");
+
+    vis.largeContributionLabel
+        .text((d,i) => i > 0 ? "" : "$200+");
+
+    vis.smallContributionLabel
+        .text((d,i) => i > 0 ? "" : "<$200");
+
+
 };
 
 
