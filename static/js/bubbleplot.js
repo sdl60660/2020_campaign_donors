@@ -79,6 +79,7 @@ BubblePlot.prototype.initVis = function() {
     // vis.circles = vis.g.selectAll('circle');
     vis.circleContainer = vis.g.append("g");
     vis.plotLabelContainer = vis.g.append("g");
+    vis.hoverCircleContainer = vis.g.append("g");
 
     vis.tip = d3.tip()
         .attr('class', 'd3-tip bubbleplot-tip')
@@ -154,7 +155,74 @@ BubblePlot.prototype.updateVis = function() {
                 .style('fill', d => partyColor(d.party))
                 .style('opacity', 0.82)
                 .style('stroke-width', '1px')
-                .style('stroke', 'black')
+                .style('stroke', 'black'),
+
+            update => update
+                .call(update => update
+                    .transition("move-bubbles")
+                    .duration(1000)
+                        .attr('cx', d => vis.x(100*d.majority_white_zipcode_pct))
+                        .attr('cy', d => vis.y(100*d[vis.yAccessor]))),
+
+            exit => exit.remove()
+        );
+
+
+    // vis.labelShadows = vis.plotLabelContainer.selectAll("text.shadow")
+    //     .data(vis.chartData, d => d.fec_id)
+    //     .join(
+    //         enter => enter.append("text")
+    //             .attr('x', d => vis.x(100*d.majority_white_zipcode_pct))
+    //             .attr('y', d => vis.y(100*d[vis.yAccessor]) + vis.radius(d.donor_count) + 10)
+    //             .attr("class", "shadow")
+    //             .attr("text-anchor", "middle")
+    //             .style("font-size", "10px")
+    //             .style("stroke", "white")
+    //             .style("stroke-width", "2.5px")
+    //             // .text(d => d.last_name),
+    //             .text(d => (d.donor_count > 150000 || d.last_name === "SLOTKIN") ? d.last_name : ""),
+    //
+    //         update => update
+    //             .call(update => update
+    //                 .transition("move-labels")
+    //                 .duration(1000)
+    //                     .attr('y', d => vis.y(100*d[vis.yAccessor]) + vis.radius(d.donor_count) + 10)),
+    //
+    //         exit => exit.remove()
+    //
+    //     )
+
+    vis.plotLabels = vis.plotLabelContainer.selectAll("text.label")
+        .data(vis.chartData, d => d.fec_id)
+        .join(
+            enter => enter.append("text")
+                .attr('x', d => vis.x(100*d.majority_white_zipcode_pct))
+                .attr('y', d => vis.y(100*d[vis.yAccessor]) + vis.radius(d.donor_count) + 10)
+                .attr("text-anchor", "middle")
+                .attr("class", "label")
+                .style("font-size", "10px")
+                .style("stroke-width", "2px")
+                // .text(d => d.last_name),
+                .text(d => (d.donor_count > 150000 || d.last_name === "SLOTKIN") ? d.last_name : ""),
+
+            update => update
+                .call(update => update
+                    .transition("move-labels")
+                    .duration(1000)
+                        .attr('y', d => vis.y(100*d[vis.yAccessor]) + vis.radius(d.donor_count) + 10)),
+
+            exit => exit.remove()
+        )
+
+
+    vis.hoverCircles = vis.hoverCircleContainer.selectAll("circle")
+        .data(vis.chartData, d => d.fec_id)
+        .join(
+            enter => enter.append("circle")
+                .attr('cx', d => vis.x(100*d.majority_white_zipcode_pct))
+                .attr('cy', d => vis.y(100*d[vis.yAccessor]))
+                .attr('r', d => vis.radius(d.donor_count))
+                .style('opacity', 0.0)
                 .on('mouseover', (d,i,n) => {
                     vis.tip.show(d);
                     let highlightTip = $(".bubbleplot-tip");
@@ -180,26 +248,6 @@ BubblePlot.prototype.updateVis = function() {
 
             exit => exit.remove()
         );
-
-    vis.plotLabels = vis.plotLabelContainer.selectAll("text")
-        .data(vis.chartData, d => d.fec_id)
-        .join(
-            enter => enter.append("text")
-                .attr('x', d => vis.x(100*d.majority_white_zipcode_pct))
-                .attr('y', d => vis.y(100*d[vis.yAccessor]) + vis.radius(d.donor_count) + 10)
-                .attr("text-anchor", "middle")
-                .style("font-size", "9px")
-                // .text(d => d.last_name),
-                .text(d => (d.donor_count > 150000 || d.last_name === "SLOTKIN") ? d.last_name : ""),
-
-            update => update
-                .call(update => update
-                    .transition("move-labels")
-                    .duration(1000)
-                        .attr('y', d => vis.y(100*d[vis.yAccessor]) + vis.radius(d.donor_count) + 10)),
-
-            exit => exit.remove()
-        )
 };
 
 
