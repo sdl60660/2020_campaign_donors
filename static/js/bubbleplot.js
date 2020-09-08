@@ -13,7 +13,9 @@ BubblePlot.prototype.initVis = function() {
 
     // Set height/width of viewBox
     vis.width = 900 - vis.margin.left - vis.margin.right;
-    vis.height = 800 - vis.margin.top - vis.margin.bottom;
+    vis.height = 900 - vis.margin.top - vis.margin.bottom;
+
+    vis.defaultBubbleOpacity = 0.72;
 
     // Initialize SVG
     vis.svg = d3.select(vis.parentElement)
@@ -29,12 +31,12 @@ BubblePlot.prototype.initVis = function() {
 
     vis.y = d3.scaleLinear()
         .domain([30, 100])
-        .range([vis.height, 0])
+        .range([vis.height, 0]);
         // .exponent(2);
 
     vis.radius = d3.scaleLinear()
         // .domain()
-        .range([5, 20]);
+        .range([5, 18]);
 
     // Use party color scale defined in main.js
 
@@ -115,6 +117,10 @@ BubblePlot.prototype.wrangleData = function() {
 
         vis.yAxisTip
             .text("More Donors From Zipcodes With High Bachelors Degree Attainment ⟶");
+
+        vis.y.domain([30, 100]);
+        vis.yAxis
+        .call(d3.axisLeft(vis.y).ticks(8));
     }
     else {
         // if equals 'income'
@@ -125,7 +131,12 @@ BubblePlot.prototype.wrangleData = function() {
 
         vis.yAxisTip
             .text("More Donors From High-Income Zipcodes ⟶");
+
+        vis.y.domain([30, 80]);
+        vis.yAxis
+        .call(d3.axisLeft(vis.y).ticks(6));
     }
+
 
     vis.chartData = donorDemographics.slice();
     vis.chartData = vis.chartData
@@ -135,15 +146,15 @@ BubblePlot.prototype.wrangleData = function() {
     vis.radius
         .domain(d3.extent(vis.chartData, d => +d.donor_count));
 
-    console.log(vis.chartData);
+    vis.simulation =
+        d3.forceSimulation(vis.chartData)
+            .stop();
 
     vis.updateVis();
 };
 
 BubblePlot.prototype.updateVis = function() {
     const vis = this;
-
-    console.log(vis.chartData);
 
     vis.circles = vis.circleContainer.selectAll("circle")
         .data(vis.chartData, d => d.fec_id)
@@ -154,7 +165,7 @@ BubblePlot.prototype.updateVis = function() {
                 .attr('cy', d => vis.y(100*d[vis.yAccessor]))
                 .attr('r', d => vis.radius(d.donor_count))
                 .style('fill', d => partyColor(d.party))
-                .style('opacity', 0.82)
+                .style('opacity', vis.defaultBubbleOpacity)
                 .style('stroke-width', '1px')
                 .style('stroke', 'black'),
 
@@ -203,17 +214,19 @@ BubblePlot.prototype.updateVis = function() {
                 .attr("class", "label")
                 .style("font-size", "10px")
                 .style("stroke-width", "2px")
+                .style("opacity", 1.0)
                 // .text(d => d.last_name),
                 .text(d => (d.donor_count > 150000 || d.last_name === "SLOTKIN") ? d.last_name : ""),
 
             update => update
+                .style("opacity", 1.0)
                 .call(update => update
                     .transition("move-labels")
                     .duration(1000)
                         .attr('y', d => vis.y(100*d[vis.yAccessor]) + vis.radius(d.donor_count) + 10)),
 
             exit => exit.remove()
-        )
+        );
 
 
     vis.hoverCircles = vis.hoverCircleContainer.selectAll("circle")
@@ -258,7 +271,7 @@ BubblePlot.prototype.highlightParty = function(partyGroup) {
     vis.circles
         .transition("bubble-party-highlight")
         .duration(500)
-        .style('opacity', d => partyGroup.includes(d.party) ? 0.82 : 0.3);
+        .style('opacity', d => partyGroup.includes(d.party) ? vis.defaultBubbleOpacity : 0.3);
 
     vis.plotLabels
         .transition("label-party-highlight")
@@ -273,7 +286,7 @@ BubblePlot.prototype.highlightCandidates = function(candidateGroup) {
     vis.circles
         .transition("bubble-candidate-highlight")
         .duration(500)
-        .style('opacity', d => candidateGroup.includes(d.last_name) ? 0.82 : 0.3);
+        .style('opacity', d => candidateGroup.includes(d.last_name) ? vis.defaultBubbleOpacity + 0.1 : 0.3);
 
     vis.plotLabels
         .transition("label-candidate-highlight")
@@ -288,7 +301,7 @@ BubblePlot.prototype.resetHighlighting = function() {
     vis.circles
         .transition("reset-highlighting")
         .duration(500)
-        .style('opacity', 0.82);
+        .style('opacity', vis.defaultBubbleOpacity);
 
     vis.plotLabels
         .transition("reset-highlighting")
@@ -300,6 +313,33 @@ BubblePlot.prototype.resetHighlighting = function() {
 
 BubblePlot.prototype.oneAxis = function(xVar, yVar) {
     const vis = this;
+
+
+    if (xVar === null) {
+        vis.xAxis.style('opacity', 0.0);
+        vis.xAxisLabel.style('opacity', 0.0);
+        vis.xAxisTip.style('opacity', 0.0);
+    }
+    else {
+        vis.xAxis.style('opacity', 1.0);
+        vis.xAxisLabel.style('opacity', 1.0);
+        vis.xAxisTip.style('opacity', 1.0);
+    }
+
+    if (yVar === null) {
+        vis.yAxis.style('opacity', 0.0);
+        vis.yAxisLabel.style('opacity', 0.0);
+        vis.yAxisTip.style('opacity', 0.0);
+    }
+    else {
+        vis.yAxis.style('opacity', 1.0);
+        vis.yAxisLabel.style('opacity', 1.0);
+        vis.yAxisTip.style('opacity', 1.0);
+    }
+
+    vis.plotLabels
+        .style('opacity', 0.0);
+
 
     vis.tick = () => {
         vis.simulation.tick();
@@ -314,27 +354,37 @@ BubblePlot.prototype.oneAxis = function(xVar, yVar) {
             .attr("cy", d => d.y);
 	};
 
+    vis.hoverCircleContainer.selectAll('circle')
+        .attr('x', d => d.cx)
+        .attr('y', d => d.cy);
 
-    vis.simulation =
-        d3.forceSimulation(vis.chartData)
-            .alpha(0.09)
-            .force('x', d3.forceX( d => {
-                if(xVar !== null) {
-                    return vis.x(100*d[xVar])
-                }
-                else {
-                    return vis.width / 2;
-                }
-            }).strength(0.8))
-            .force('y', d3.forceY( d => {
-                if (yVar !== null) {
-                    return vis.y(100*d[yVar]);
-                }
-                else {
-                    return vis.height/2;
-                }
-            }).strength(0.9))
-            .force('repel', d3.forceManyBody().strength(-20).distanceMax(3))
-            .force("charge", d3.forceCollide().radius(d => vis.radius(d.donor_count)).strength(0.9).iterations(5))
-            .on('tick', vis.tick);
+    vis.circleContainer.selectAll('.candidate-bubble')
+        .attr('x', d => d.cx)
+        .attr('y', d => d.cy);
+
+
+    vis.simulation
+        .stop()
+        .alpha(0.1)
+        .alphaDecay(0.019)
+        .force('x', d3.forceX( d => {
+            if(xVar !== null) {
+                return vis.x(100*d[xVar])
+            }
+            else {
+                return vis.width / 2;
+            }
+        }).strength(0.95))
+        .force('y', d3.forceY( d => {
+            if (yVar !== null) {
+                return vis.y(100*d[yVar]);
+            }
+            else {
+                return vis.height/2;
+            }
+        }).strength(0.95))
+        .force('repel', d3.forceManyBody().strength(-20).distanceMax(3))
+        .force("charge", d3.forceCollide().radius(d => vis.radius(d.donor_count)).strength(0.9).iterations(5))
+        .on('tick', vis.tick)
+        .restart();
 };

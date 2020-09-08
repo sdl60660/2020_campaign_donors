@@ -421,20 +421,45 @@ function setActivateFunctions() {
     //     // Intro tile for bubbleplot
     // };
     activateFunctions[1] = () => {
-        bubblePlot.resetHighlighting();
+        if (scrollDirection === "up") {
+            bubblePlot.oneAxis("majority_white_zipcode_pct", null);
+        }
     };
     activateFunctions[2] = () => {
-        bubblePlot.highlightParty(['REP']);
+        bubblePlot.oneAxis(null, "high_bachelors_zipcode_pct");
     };
     activateFunctions[3] = () => {
-        bubblePlot.highlightParty(['DEM', 'DFL']);
+        bubblePlot.simulation.stop();
+
+        bubblePlot.xAxis.style('opacity', 1.0);
+        bubblePlot.xAxisTip.style('opacity', 1.0);
+        bubblePlot.xAxisLabel.style('opacity', 1.0);
+
+        if (scrollDirection === "up") {
+            bubblePlot.resetHighlighting();
+        }
+        bubblePlot.wrangleData();
+
     };
     activateFunctions[4] = () => {
-        bubblePlot.highlightCandidates(['SANDERS', 'KLOBUCHAR']);
-        bubblePlot.yVariable = 'education';
-        bubblePlot.wrangleData();
+        bubblePlot.highlightParty(['REP']);
     };
     activateFunctions[5] = () => {
+        bubblePlot.highlightParty(['DEM', 'DFL']);
+    };
+    activateFunctions[6] = () => {
+        bubblePlot.highlightCandidates(['SANDERS', 'KLOBUCHAR']);
+        // bubblePlot.highlightCandidates(['OCASIO-CORTEZ', 'OMAR', 'PRESSLEY', 'TLAIB', 'BUSH', 'BOWMAN']);
+    };
+    activateFunctions[7] = () => {
+        // bubblePlot.highlightCandidates(['SANDERS', 'KLOBUCHAR']);
+        bubblePlot.yVariable = 'education';
+        bubblePlot.wrangleData();
+
+        bubblePlot.highlightCandidates(['OCASIO-CORTEZ', 'OMAR', 'PRESSLEY', 'TLAIB', 'BUSH', 'BOWMAN']);
+
+    };
+    activateFunctions[8] = () => {
         bubblePlot.resetHighlighting();
         bubblePlot.yVariable = 'income';
         bubblePlot.wrangleData();
@@ -457,7 +482,7 @@ function setTileWrapperHeights() {
     //     .css("height", beeswarmWrapperHeight);
 
 
-    const bubblePlotWrapperHeight = scrollerDivObjects[7].getBoundingClientRect().bottom - scrollerDivObjects[1].getBoundingClientRect().top;
+    const bubblePlotWrapperHeight = scrollerDivObjects[9].getBoundingClientRect().bottom - scrollerDivObjects[0].getBoundingClientRect().top;
     $("#bubbleplot-wrapper")
         .css("height", bubblePlotWrapperHeight);
 
@@ -479,7 +504,7 @@ function main() {
         // d3.json("static/data/state_summary_counts.json"),
         d3.csv("static/data/candidates_meta.csv"),
         d3.csv("static/data/donor_demographics.csv"),
-        d3.json("static/data/candidate_id_name_lookup.json"),
+        d3.json("static/data/candidate_id_name_lookup.json")
         // d3.json("static/data/super_pac_money_blocks.json")
     ];
 
@@ -526,6 +551,7 @@ function main() {
 
         // beeSwarm = new BeeSwarm("#beeswarm-area");
         bubblePlot = new BubblePlot("#bubbleplot-area");
+        bubblePlot.oneAxis("majority_white_zipcode_pct" , null);
         nodeLink = new NodeLink("#nodelink-area");
 
 

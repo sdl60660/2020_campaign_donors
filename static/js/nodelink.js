@@ -11,8 +11,8 @@ NodeLink.prototype.initVis = function() {
     const vis = this;
 
     // Set height/width of viewBox
-    vis.width = 1450;
-    vis.height = 1450;
+    vis.width = 1440;
+    vis.height = 1440;
 
     // Initialize SVG
     vis.svg = d3.select(vis.parentElement)

@@ -48,7 +48,16 @@ strong {
     /*left: 50%;*/
     /*transform: translate(-50%, -50%);*/
 	margin-top: 20px;
+    /*margin-bottom: 40px;*/
 	/*margin-right: 15px;*/
+}
+
+#nodelink-tile {
+    max-width: 98vh;
+}
+
+#bubbleplot-tile {
+    max-width: 100vh;
 }
 
 #intro-tile {
@@ -100,7 +109,7 @@ strong {
 .step.phantom {
     opacity: 0.0;
     z-index: -1;
-    width: 0;
+    width: 0px !important;
     margin-bottom: 100vh;
 }
 
@@ -171,6 +180,10 @@ strong {
         /*left: 50;*/
         /*z-index: 50;*/
     /*}*/
+
+    #nodelink-tile {
+        max-width: 98vw;
+    }
 
     .step {
         min-width: 50vw;
