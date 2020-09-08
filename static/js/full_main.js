@@ -28,13 +28,13 @@ const phoneBrowsingCutoff = 1100;
 // Datasets
 let overlapNodes = null;
 let overlapLinks = null;
-// let stateMap = null;
-// let beeswarmMoneyBlocks = null;
-// let stateSummaryCounts = null;
+let stateMap = null;
+let beeswarmMoneyBlocks = null;
+let stateSummaryCounts = null;
 let candidateMeta = null;
 let donorDemographics = null;
 let candidateIdNames = null;
-// let superPACblocks = null;
+let superPACblocks = null;
 
 let overlapThreshold = 7;
 let featuredCandidateId = "H8NY15148";
@@ -341,100 +341,100 @@ function setActivateFunctions() {
     activateFunctions[0] = () => {
 
     };
-    // activateFunctions[1] = () => {
-    //     if (scrollDirection === "up") {
-    //         beeSwarm.resetHighlighting();
-    //     }
-    //     if (scrollDirection === "down") {
-    //         beeSwarm.initStateTooltip();
-    //     }
-    //
-    // };
-    // // Beeswarm tile functions
-    // activateFunctions[2] = () => {
-    //     if (scrollDirection === "up") {
-    //
-    //         beeSwarm.removeLabels(".party-label-text");
-    //         beeSwarm.sortByGeo();
-    //         beeSwarm.showMap();
-    //
-    //     }
-    //
-    //     beeSwarm.highlightUncategorized();
-    // };
-    // activateFunctions[3] = () => {
-    //     beeSwarm.resetHighlighting();
-    //
-    //     beeSwarm.hideMap();
-    //     beeSwarm.sortByParty();
-    //
-    //     if (scrollDirection === "up") {
-    //         beeSwarm.removeLabels(".office-type-text");
-    //     }
-    // };
-    // activateFunctions[4] = () => {
-    //     beeSwarm.sortByOfficeType();
-    //
-    //     if (scrollDirection === "up") {
-    //         beeSwarm.removeLabels(".candidate-label-text");
-    //     }
-    // };
-    // activateFunctions[5] = () => {
-    //     beeSwarm.sortByCandidates();
-    // };
-    //
-    // activateFunctions[6] = () => {
-    //     beeSwarm.separateSelfContributions();
-    // };
-    // activateFunctions[7] = () => {
-    //     beeSwarm.separateTransfersOther();
-    // };
-    // activateFunctions[8] = () => {
-    //     beeSwarm.separateIndividualDonations();
-    // };
-    // activateFunctions[9] = () => {
-    //     beeSwarm.separateIndividualDonationTypes();
-    //
-    //     if (scrollDirection === "up") {
-    //         beeSwarm.remainingCandidateLabel.text("ALL OTHER CANDIDATES");
-    //
-    //         beeSwarm.pacBlocks
-    //             .transition()
-    //             .duration(600)
-    //             .attr("cx", d => beeSwarm.partyCoordinates(d.party)[0])
-    //             .attr("cy", d => beeSwarm.height*.67)
-    //             .attr("r", 0)
-    //     }
-    // };
-    // activateFunctions[10] = () => {
-    //     if (scrollDirection === "down") {
-    //         beeSwarm.remainingCandidateLabel.text("OTHER PRES. CANDIDATES");
-    //         beeSwarm.hideCongressionalMoney();
-    //     }
-    //
-    //     beeSwarm.addSuperPACMoney();
-    // };
-    // activateFunctions[11] = () => {
-    //     beeSwarm.allocateSuperPacMoney();
-    // };
-    // activateFunctions[1] = () => {
-    //     // Intro tile for bubbleplot
-    // };
     activateFunctions[1] = () => {
-        bubblePlot.resetHighlighting();
+        if (scrollDirection === "up") {
+            beeSwarm.resetHighlighting();
+        }
+        if (scrollDirection === "down") {
+            beeSwarm.initStateTooltip();
+        }
+
     };
+    // Beeswarm tile functions
     activateFunctions[2] = () => {
-        bubblePlot.highlightParty(['REP']);
+        if (scrollDirection === "up") {
+
+            beeSwarm.removeLabels(".party-label-text");
+            beeSwarm.sortByGeo();
+            beeSwarm.showMap();
+
+        }
+
+        beeSwarm.highlightUncategorized();
     };
     activateFunctions[3] = () => {
-        bubblePlot.highlightParty(['DEM', 'DFL']);
+        beeSwarm.resetHighlighting();
+
+        beeSwarm.hideMap();
+        beeSwarm.sortByParty();
+
+        if (scrollDirection === "up") {
+            beeSwarm.removeLabels(".office-type-text");
+        }
     };
     activateFunctions[4] = () => {
+        beeSwarm.sortByOfficeType();
+
+        if (scrollDirection === "up") {
+            beeSwarm.removeLabels(".candidate-label-text");
+        }
+    };
+    activateFunctions[5] = () => {
+        beeSwarm.sortByCandidates();
+    };
+
+    activateFunctions[6] = () => {
+        beeSwarm.separateSelfContributions();
+    };
+    activateFunctions[7] = () => {
+        beeSwarm.separateTransfersOther();
+    };
+    activateFunctions[8] = () => {
+        beeSwarm.separateIndividualDonations();
+    };
+    activateFunctions[9] = () => {
+        beeSwarm.separateIndividualDonationTypes();
+
+        if (scrollDirection === "up") {
+            beeSwarm.remainingCandidateLabel.text("ALL OTHER CANDIDATES");
+
+            beeSwarm.pacBlocks
+                .transition()
+                .duration(600)
+                .attr("cx", d => beeSwarm.partyCoordinates(d.party)[0])
+                .attr("cy", d => beeSwarm.height*.67)
+                .attr("r", 0)
+        }
+    };
+    activateFunctions[10] = () => {
+        if (scrollDirection === "down") {
+            beeSwarm.remainingCandidateLabel.text("OTHER PRES. CANDIDATES");
+            beeSwarm.hideCongressionalMoney();
+        }
+
+        beeSwarm.addSuperPACMoney();
+    };
+    activateFunctions[11] = () => {
+        beeSwarm.allocateSuperPacMoney();
+    };
+    activateFunctions[12] = () => {
+        // Intro tile for bubbleplot
+    };
+    activateFunctions[13] = () => {
+        bubblePlot.resetHighlighting();
+    };
+    activateFunctions[14] = () => {
+        bubblePlot.highlightParty(['REP']);
+    };
+    activateFunctions[15] = () => {
+        bubblePlot.highlightParty(['DEM', 'DFL']);
+    };
+    activateFunctions[16] = () => {
         bubblePlot.highlightCandidates(['SANDERS', 'KLOBUCHAR']);
         bubblePlot.yVariable = 'education';
         bubblePlot.wrangleData();
     };
-    activateFunctions[5] = () => {
+    activateFunctions[17] = () => {
         bubblePlot.resetHighlighting();
         bubblePlot.yVariable = 'income';
         bubblePlot.wrangleData();
@@ -452,12 +452,12 @@ function setTileWrapperHeights() {
 
     // Sunburst annotations run from the second annotation div (first visible) to the ninth (top of ten)
     // There's a little extra finagling at the end to get the margin between the two viz wrappers correct
-    // const beeswarmWrapperHeight = scrollerDivObjects[13].getBoundingClientRect().bottom - scrollerDivObjects[1].getBoundingClientRect().top - 200;
-    // $("#beeswarm-wrapper")
-    //     .css("height", beeswarmWrapperHeight);
+    const beeswarmWrapperHeight = scrollerDivObjects[13].getBoundingClientRect().bottom - scrollerDivObjects[1].getBoundingClientRect().top - 200;
+    $("#beeswarm-wrapper")
+        .css("height", beeswarmWrapperHeight);
 
 
-    const bubblePlotWrapperHeight = scrollerDivObjects[7].getBoundingClientRect().bottom - scrollerDivObjects[1].getBoundingClientRect().top;
+    const bubblePlotWrapperHeight = scrollerDivObjects[20].getBoundingClientRect().bottom - scrollerDivObjects[14].getBoundingClientRect().top;
     $("#bubbleplot-wrapper")
         .css("height", bubblePlotWrapperHeight);
 
@@ -474,13 +474,13 @@ function main() {
     const promises = [
         d3.json("static/data/candidate_overlap_links.json"),
         d3.json("static/data/candidate_overlap_nodes.json"),
-        // d3.json("static/data/states.geojson"),
-        // d3.json("static/data/beeswarm_money_blocks.json"),
-        // d3.json("static/data/state_summary_counts.json"),
+        d3.json("static/data/states.geojson"),
+        d3.json("static/data/beeswarm_money_blocks.json"),
+        d3.json("static/data/state_summary_counts.json"),
         d3.csv("static/data/candidates_meta.csv"),
         d3.csv("static/data/donor_demographics.csv"),
         d3.json("static/data/candidate_id_name_lookup.json"),
-        // d3.json("static/data/super_pac_money_blocks.json")
+        d3.json("static/data/super_pac_money_blocks.json")
     ];
 
     // Initialize both main viz tiles to faded
@@ -502,15 +502,15 @@ function main() {
         overlapLinks = allData[0];
         overlapNodes = allData[1];
 
-        // stateMap = allData[2];
-        // beeswarmMoneyBlocks = allData[3];
-        // stateSummaryCounts = allData[4];
-        candidateMeta = allData[2];
+        stateMap = allData[2];
+        beeswarmMoneyBlocks = allData[3];
+        stateSummaryCounts = allData[4];
+        candidateMeta = allData[5];
         candidateMeta
             .forEach(d => d.total_receipts = +d.total_receipts);
-        donorDemographics = allData[3];
-        candidateIdNames = allData[4];
-        // superPACblocks = allData[8];
+        donorDemographics = allData[6];
+        candidateIdNames = allData[7];
+        superPACblocks = allData[8];
 
         $(".loadring-container")
             .hide();
@@ -524,7 +524,7 @@ function main() {
         initSlider();
         buildCandidateDropdowns();
 
-        // beeSwarm = new BeeSwarm("#beeswarm-area");
+        beeSwarm = new BeeSwarm("#beeswarm-area");
         bubblePlot = new BubblePlot("#bubbleplot-area");
         nodeLink = new NodeLink("#nodelink-area");
 

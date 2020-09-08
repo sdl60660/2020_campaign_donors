@@ -149,6 +149,7 @@ BubblePlot.prototype.updateVis = function() {
         .data(vis.chartData, d => d.fec_id)
         .join(
             enter => enter.append("circle")
+                .attr('class', 'candidate-bubble')
                 .attr('cx', d => vis.x(100*d.majority_white_zipcode_pct))
                 .attr('cy', d => vis.y(100*d[vis.yAccessor]))
                 .attr('r', d => vis.radius(d.donor_count))
@@ -294,4 +295,46 @@ BubblePlot.prototype.resetHighlighting = function() {
         .duration(500)
         .style('opacity', 1.0)
 
+};
+
+
+BubblePlot.prototype.oneAxis = function(xVar, yVar) {
+    const vis = this;
+
+    vis.tick = () => {
+        vis.simulation.tick();
+
+		vis.circleContainer.selectAll('.candidate-bubble')
+			.attr('cx', d => d.x)
+            .attr("cy", d => d.y);
+
+
+        vis.hoverCircleContainer.selectAll('circle')
+            .attr('cx', d => d.x)
+            .attr("cy", d => d.y);
+	};
+
+
+    vis.simulation =
+        d3.forceSimulation(vis.chartData)
+            .alpha(0.09)
+            .force('x', d3.forceX( d => {
+                if(xVar !== null) {
+                    return vis.x(100*d[xVar])
+                }
+                else {
+                    return vis.width / 2;
+                }
+            }).strength(0.8))
+            .force('y', d3.forceY( d => {
+                if (yVar !== null) {
+                    return vis.y(100*d[yVar]);
+                }
+                else {
+                    return vis.height/2;
+                }
+            }).strength(0.9))
+            .force('repel', d3.forceManyBody().strength(-20).distanceMax(3))
+            .force("charge", d3.forceCollide().radius(d => vis.radius(d.donor_count)).strength(0.9).iterations(5))
+            .on('tick', vis.tick);
 };
