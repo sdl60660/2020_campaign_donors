@@ -102,6 +102,12 @@ BubblePlot.prototype.initVis = function() {
 
     vis.yVariable = 'education';
 
+    vis.includedCandidates = donorDemographics.slice()
+        .filter( d => +d.donor_count > 15000)
+        .map( d => d.fec_id);
+
+    console.log(vis.includedCandidates);
+
 
     vis.wrangleData();
 };
@@ -138,9 +144,9 @@ BubblePlot.prototype.wrangleData = function() {
     }
 
 
-    vis.chartData = donorDemographics.slice();
+    vis.chartData = bubblePlotDataset.slice();
     vis.chartData = vis.chartData
-        .filter(d => +d.donor_count > 15000)
+        .filter(d => vis.includedCandidates.includes(d.fec_id))
         .sort((a,b) => b.donor_count - a.donor_count );
 
     vis.radius
@@ -216,17 +222,21 @@ BubblePlot.prototype.updateVis = function() {
                 .style("stroke-width", "2px")
                 .style("opacity", 1.0)
                 // .text(d => d.last_name),
-                .text(d => (d.donor_count > 150000 || d.last_name === "SLOTKIN") ? d.last_name : ""),
+                .text(d => (d.donor_count > 150000 || d.last_name === "SLOTKIN" || d.last_name === "MERKLEY" ||
+                    d.last_name === "CORNYN" || d.last_name === "MARKEY") ? d.last_name : ""),
 
             update => update
-                .style("opacity", 1.0)
                 .call(update => update
                     .transition("move-labels")
                     .duration(1000)
+                        .attr('x', d => vis.x(100*d.majority_white_zipcode_pct))
                         .attr('y', d => vis.y(100*d[vis.yAccessor]) + vis.radius(d.donor_count) + 10)),
 
             exit => exit.remove()
         );
+
+    vis.plotLabels
+        .style("opacity", 1.0);
 
 
     vis.hoverCircles = vis.hoverCircleContainer.selectAll("circle")

@@ -21,7 +21,7 @@
     donors_grouped.candidate_name,
     count(donors_grouped.candidate_name) AS donor_count,
   
-  -- Education quartile counts    
+    -- Education quartile counts    
     sum(case when donors_grouped.bachelors_pct >= 0.3021 then 1 else 0 end) as "first_quartile_bachelors_pct",
     sum(case when donors_grouped.bachelors_pct >= 0.1912 and donors_grouped.bachelors_pct < 0.3021 then 1 else 0 end) as "second_quartile_bachelors_pct",
     sum(case when donors_grouped.bachelors_pct >= 0.1253 and donors_grouped.bachelors_pct < 0.1912 then 1 else 0 end) as "third_quartile_bachelors_pct",
@@ -39,7 +39,7 @@
     sum(case when donors_grouped.black_pct >= 0.5 then 1 else 0 end) as "majority_black_zipcode",
     sum(case when donors_grouped.asian_pct >= 0.5 then 1 else 0 end) as "majority_asian_zipcode",
     sum(case when donors_grouped.indigenous_native_pct >= 0.5 then 1 else 0 end) as "majority_indigenous_zipcode",
-  sum(case when donors_grouped.hawaiian_pacific_islander_pct >= 0.5 then 1 else 0 end) as "majority_hawaiian_pacific_islander_zipcode",
+    sum(case when donors_grouped.hawaiian_pacific_islander_pct >= 0.5 then 1 else 0 end) as "majority_hawaiian_pacific_islander_zipcode",
     sum(case when (donors_grouped.non_hispanic_white_pct < 0.5) and (donors_grouped.all_hispanic_pct < 0.5) and (donors_grouped.black_pct < 0.5) and (donors_grouped.asian_pct < 0.5) and (donors_grouped.indigenous_native_pct < 0.5) and (donors_grouped.hawaiian_pacific_islander_pct < 0.5) then 1 else 0 end) as "no_majority_ethnicity_zipcode",
   
     -- Averages using zipcode demos
@@ -54,8 +54,9 @@
     trunc(avg(donors_grouped.hawaiian_pacific_islander_pct), 4) AS hawaiian_pacific_islander_pct,
     trunc(avg(donors_grouped.other_race_pct), 4) AS other_race_pct,
     trunc(avg(donors_grouped.two_or_more_races_pct), 4) AS two_or_more_races_pct
-   FROM ( SELECT 
-      candidates.fec_id,
+   
+    FROM ( SELECT 
+            candidates.fec_id,
             concat(candidates.first_name, ' ', candidates.last_name) AS candidate_name,
             contributions.donor,
             avg(donors_with_expected_demographics.bachelors_pct) AS bachelors_pct,
@@ -80,4 +81,4 @@
  LEFT JOIN candidates ON candidates.fec_id = demo_data.fec_id
  LEFT JOIN members ON members.bioguide_id = candidates.member_id
  LEFT JOIN districts ON districts.id = candidates.district_id
-     ) TO '/users/samlearner/miscellaneous_programming/portfolio_projects/candidate_contributions/data_processing/db_outputs/candidate_demographics_including_indistrict.csv' DELIMITER ',' CSV HEADER;
+    ) TO '/users/samlearner/miscellaneous_programming/portfolio_projects/candidate_contributions/data_processing/db_outputs/candidate_demographics_including_indistrict.csv' DELIMITER ',' CSV HEADER;

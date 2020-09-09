@@ -33,8 +33,11 @@ let overlapLinks = null;
 // let stateSummaryCounts = null;
 let candidateMeta = null;
 let donorDemographics = null;
+let nonDistrictDonorDemographics = null;
 let candidateIdNames = null;
 // let superPACblocks = null;
+
+let bubblePlotDataset = null;
 
 let overlapThreshold = 7;
 let featuredCandidateId = "H8NY15148";
@@ -341,85 +344,6 @@ function setActivateFunctions() {
     activateFunctions[0] = () => {
 
     };
-    // activateFunctions[1] = () => {
-    //     if (scrollDirection === "up") {
-    //         beeSwarm.resetHighlighting();
-    //     }
-    //     if (scrollDirection === "down") {
-    //         beeSwarm.initStateTooltip();
-    //     }
-    //
-    // };
-    // // Beeswarm tile functions
-    // activateFunctions[2] = () => {
-    //     if (scrollDirection === "up") {
-    //
-    //         beeSwarm.removeLabels(".party-label-text");
-    //         beeSwarm.sortByGeo();
-    //         beeSwarm.showMap();
-    //
-    //     }
-    //
-    //     beeSwarm.highlightUncategorized();
-    // };
-    // activateFunctions[3] = () => {
-    //     beeSwarm.resetHighlighting();
-    //
-    //     beeSwarm.hideMap();
-    //     beeSwarm.sortByParty();
-    //
-    //     if (scrollDirection === "up") {
-    //         beeSwarm.removeLabels(".office-type-text");
-    //     }
-    // };
-    // activateFunctions[4] = () => {
-    //     beeSwarm.sortByOfficeType();
-    //
-    //     if (scrollDirection === "up") {
-    //         beeSwarm.removeLabels(".candidate-label-text");
-    //     }
-    // };
-    // activateFunctions[5] = () => {
-    //     beeSwarm.sortByCandidates();
-    // };
-    //
-    // activateFunctions[6] = () => {
-    //     beeSwarm.separateSelfContributions();
-    // };
-    // activateFunctions[7] = () => {
-    //     beeSwarm.separateTransfersOther();
-    // };
-    // activateFunctions[8] = () => {
-    //     beeSwarm.separateIndividualDonations();
-    // };
-    // activateFunctions[9] = () => {
-    //     beeSwarm.separateIndividualDonationTypes();
-    //
-    //     if (scrollDirection === "up") {
-    //         beeSwarm.remainingCandidateLabel.text("ALL OTHER CANDIDATES");
-    //
-    //         beeSwarm.pacBlocks
-    //             .transition()
-    //             .duration(600)
-    //             .attr("cx", d => beeSwarm.partyCoordinates(d.party)[0])
-    //             .attr("cy", d => beeSwarm.height*.67)
-    //             .attr("r", 0)
-    //     }
-    // };
-    // activateFunctions[10] = () => {
-    //     if (scrollDirection === "down") {
-    //         beeSwarm.remainingCandidateLabel.text("OTHER PRES. CANDIDATES");
-    //         beeSwarm.hideCongressionalMoney();
-    //     }
-    //
-    //     beeSwarm.addSuperPACMoney();
-    // };
-    // activateFunctions[11] = () => {
-    //     beeSwarm.allocateSuperPacMoney();
-    // };
-    // activateFunctions[1] = () => {
-    //     // Intro tile for bubbleplot
-    // };
     activateFunctions[1] = () => {
         if (scrollDirection === "up") {
             bubblePlot.oneAxis("majority_white_zipcode_pct", null);
@@ -453,13 +377,22 @@ function setActivateFunctions() {
     };
     activateFunctions[7] = () => {
         // bubblePlot.highlightCandidates(['SANDERS', 'KLOBUCHAR']);
-        bubblePlot.yVariable = 'education';
-        bubblePlot.wrangleData();
 
+        if (scrollDirection === "up") {
+            bubblePlotDataset = donorDemographics;
+            bubblePlot.wrangleData();
+        }
         bubblePlot.highlightCandidates(['OCASIO-CORTEZ', 'OMAR', 'PRESSLEY', 'TLAIB', 'BUSH', 'BOWMAN']);
-
     };
     activateFunctions[8] = () => {
+        // bubblePlot.highlightCandidates(['SANDERS', 'KLOBUCHAR']);
+        bubblePlot.resetHighlighting();
+        bubblePlotDataset = nonDistrictDonorDemographics;
+
+        bubblePlot.yVariable = 'education';
+        bubblePlot.wrangleData();
+    };
+    activateFunctions[9] = () => {
         bubblePlot.resetHighlighting();
         bubblePlot.yVariable = 'income';
         bubblePlot.wrangleData();
@@ -482,7 +415,7 @@ function setTileWrapperHeights() {
     //     .css("height", beeswarmWrapperHeight);
 
 
-    const bubblePlotWrapperHeight = scrollerDivObjects[9].getBoundingClientRect().bottom - scrollerDivObjects[0].getBoundingClientRect().top;
+    const bubblePlotWrapperHeight = scrollerDivObjects[10].getBoundingClientRect().bottom - scrollerDivObjects[0].getBoundingClientRect().top;
     $("#bubbleplot-wrapper")
         .css("height", bubblePlotWrapperHeight);
 
@@ -504,6 +437,7 @@ function main() {
         // d3.json("static/data/state_summary_counts.json"),
         d3.csv("static/data/candidates_meta.csv"),
         d3.csv("static/data/donor_demographics.csv"),
+        d3.csv("static/data/donor_demographics_excluding_district.csv"),
         d3.json("static/data/candidate_id_name_lookup.json")
         // d3.json("static/data/super_pac_money_blocks.json")
     ];
@@ -534,7 +468,8 @@ function main() {
         candidateMeta
             .forEach(d => d.total_receipts = +d.total_receipts);
         donorDemographics = allData[3];
-        candidateIdNames = allData[4];
+        nonDistrictDonorDemographics = allData[4];
+        candidateIdNames = allData[5];
         // superPACblocks = allData[8];
 
         $(".loadring-container")
@@ -550,6 +485,7 @@ function main() {
         buildCandidateDropdowns();
 
         // beeSwarm = new BeeSwarm("#beeswarm-area");
+        bubblePlotDataset = donorDemographics;
         bubblePlot = new BubblePlot("#bubbleplot-area");
         bubblePlot.oneAxis("majority_white_zipcode_pct" , null);
         nodeLink = new NodeLink("#nodelink-area");
