@@ -226,6 +226,7 @@ BubblePlot.prototype.updateVis = function() {
                     d.last_name === "CORNYN" || d.last_name === "MARKEY") ? d.last_name : ""),
 
             update => update
+                .style("opacity", 1.0)
                 .call(update => update
                     .transition("move-labels")
                     .duration(1000)
@@ -234,9 +235,6 @@ BubblePlot.prototype.updateVis = function() {
 
             exit => exit.remove()
         );
-
-    vis.plotLabels
-        .style("opacity", 1.0);
 
 
     vis.hoverCircles = vis.hoverCircleContainer.selectAll("circle")
@@ -348,6 +346,7 @@ BubblePlot.prototype.oneAxis = function(xVar, yVar) {
     }
 
     vis.plotLabels
+        .attr('opacity', 0.0)
         .style('opacity', 0.0);
 
 
