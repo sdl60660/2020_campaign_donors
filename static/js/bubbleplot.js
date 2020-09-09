@@ -126,7 +126,9 @@ BubblePlot.prototype.wrangleData = function() {
 
         vis.y.domain([30, 100]);
         vis.yAxis
-        .call(d3.axisLeft(vis.y).ticks(8));
+            .transition()
+            .duration(1000)
+            .call(d3.axisLeft(vis.y).ticks(8));
     }
     else {
         // if equals 'income'
@@ -140,7 +142,9 @@ BubblePlot.prototype.wrangleData = function() {
 
         vis.y.domain([30, 80]);
         vis.yAxis
-        .call(d3.axisLeft(vis.y).ticks(6));
+            .transition()
+            .duration(1000)
+            .call(d3.axisLeft(vis.y).ticks(6));
     }
 
 
@@ -279,12 +283,12 @@ BubblePlot.prototype.highlightParty = function(partyGroup) {
     vis.circles
         .transition("bubble-party-highlight")
         .duration(500)
-        .style('opacity', d => partyGroup.includes(d.party) ? vis.defaultBubbleOpacity : 0.3);
+        .style('opacity', d => partyGroup.includes(d.party) ? vis.defaultBubbleOpacity : 0.25);
 
     vis.plotLabels
         .transition("label-party-highlight")
         .duration(500)
-        .style('opacity', d => partyGroup.includes(d.party) ? 1.0 : 0.3);
+        .style('opacity', d => partyGroup.includes(d.party) ? 1.0 : 0.25);
 
 };
 
@@ -294,7 +298,7 @@ BubblePlot.prototype.highlightCandidates = function(candidateGroup) {
     vis.circles
         .transition("bubble-candidate-highlight")
         .duration(500)
-        .style('opacity', d => candidateGroup.includes(d.last_name) ? vis.defaultBubbleOpacity + 0.1 : 0.3);
+        .style('opacity', d => candidateGroup.includes(d.last_name) ? vis.defaultBubbleOpacity + 0.1 : 0.25);
 
     vis.plotLabels
         .transition("label-candidate-highlight")
