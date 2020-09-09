@@ -350,6 +350,10 @@ function setActivateFunctions() {
         }
     };
     activateFunctions[2] = () => {
+        if (scrollDirection === "up") {
+            bubblePlot.plotLabelContainer.selectAll('text.label').remove();
+        }
+
         bubblePlot.oneAxis(null, "high_bachelors_zipcode_pct");
     };
     activateFunctions[3] = () => {
