@@ -17,7 +17,7 @@ body {
 	background-color: #f9f9f9;
 }
 
-#intro-area > p, .step {
+#intro-area > p, .step, #nodelink-intro {
     font-family: 'Lora', 'Merriweather', 'Playfair Display', "Helvetica Neue";
 }
 
