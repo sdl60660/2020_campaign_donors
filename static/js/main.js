@@ -133,10 +133,10 @@ function setScrollArrow() {
             .attr("width", "70px")
             .attr("height", "70px");
 
-        $(".downArrow")
-            .css("text-align", "center")
-            .css("position", "fixed")
-            .css("left", `calc(50% - 35px)`);
+        // $(".downArrow")
+        //     .css("text-align", "center")
+        //     .css("position", "fixed")
+        //     .css("left", `calc(50% - 35px)`);
     }
 }
 
