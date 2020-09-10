@@ -264,6 +264,10 @@ strong {
      .spacer {
         height: 0px;
     }
+
+     #intro-area > p, #nodelink-intro {
+         font-size: 16px;
+     }
 }
 
 .container {
