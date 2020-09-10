@@ -359,9 +359,15 @@ function setActivateFunctions() {
     activateFunctions[3] = () => {
         bubblePlot.simulation.stop();
 
-        bubblePlot.xAxis.style('opacity', 1.0);
-        bubblePlot.xAxisTip.style('opacity', 1.0);
-        bubblePlot.xAxisLabel.style('opacity', 1.0);
+        bubblePlot.xAxis
+            .style('opacity', 1.0)
+            .attr("transform", "translate(0," + bubblePlot.height + ")");
+        bubblePlot.xAxisLabel
+            .style('opacity', 1.0)
+            .attr("transform", `translate(${bubblePlot.width / 2}, ${bubblePlot.height + 38})`);
+        bubblePlot.xAxisTip
+            .style('opacity', 1.0)
+            .attr("transform", `translate(${bubblePlot.width}, ${bubblePlot.height - 15})`);
 
         if (scrollDirection === "up") {
             bubblePlot.resetHighlighting();

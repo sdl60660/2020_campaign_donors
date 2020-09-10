@@ -112,6 +112,7 @@ BubblePlot.prototype.initVis = function() {
     vis.wrangleData();
 };
 
+
 BubblePlot.prototype.wrangleData = function() {
     const vis = this;
 
@@ -333,9 +334,15 @@ BubblePlot.prototype.oneAxis = function(xVar, yVar) {
         vis.xAxisTip.style('opacity', 0.0);
     }
     else {
-        vis.xAxis.style('opacity', 1.0);
-        vis.xAxisLabel.style('opacity', 1.0);
-        vis.xAxisTip.style('opacity', 1.0);
+        vis.xAxis
+            .style('opacity', 1.0)
+            .attr("transform", "translate(0," + 0.7*vis.height + ")");
+        vis.xAxisLabel
+            .style('opacity', 1.0)
+            .attr("transform", `translate(${vis.width / 2}, ${0.7*vis.height + 38})`);
+        vis.xAxisTip
+            .style('opacity', 1.0)
+            .attr("transform", `translate(${vis.width}, ${0.7*vis.height - 15})`);
     }
 
     if (yVar === null) {
@@ -344,7 +351,9 @@ BubblePlot.prototype.oneAxis = function(xVar, yVar) {
         vis.yAxisTip.style('opacity', 0.0);
     }
     else {
-        vis.yAxis.style('opacity', 1.0);
+        vis.yAxis
+            .style('opacity', 1.0);
+
         vis.yAxisLabel.style('opacity', 1.0);
         vis.yAxisTip.style('opacity', 1.0);
     }
