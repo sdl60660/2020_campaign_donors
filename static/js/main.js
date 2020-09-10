@@ -122,7 +122,7 @@ function setScrollArrow() {
 
         // If on Desktop, arrow stays at the top and only needs this one trigger
         // else {
-            $('html, body').animate({scrollTop: $('#first-annotation').offset().top + 50}, 'slow');
+            $('html, body').animate({scrollTop: $('#first-annotation').offset().top + 150}, 'slow');
         // }
     });
 
