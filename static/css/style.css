@@ -268,6 +268,14 @@ strong {
      #intro-area > p, #nodelink-intro {
          font-size: 18px;
      }
+
+     .axis-label {
+         font-size: 18px;
+     }
+
+     .axis-tip {
+         font-size: 14px;
+     }
 }
 
 .container {
