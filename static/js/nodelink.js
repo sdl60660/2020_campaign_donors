@@ -538,7 +538,7 @@ NodeLink.prototype.getCircleCoordinates = function(linkDistance) {
     const ringCircumference = linkDistance*2*Math.PI;
     const nodeSpace = ringCircumference / vis.numOuterNodes;
 
-    let nodePadding = 10;
+    let nodePadding = 15;
 
     if ( nodeSpace > 2*(vis.minCircleRadius + nodePadding) ) {
         vis.circumferenceCoordinateSet = circlePlotCoordinates(linkDistance, [vis.width / 2, vis.height / 2], vis.numOuterNodes);
