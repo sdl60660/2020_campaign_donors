@@ -191,7 +191,7 @@ function initSlider() {
         const range = document.getElementById('min-overlap-threshold');
 
         overlapThreshold = range.value;
-        nodeLink.wrangleData();
+        // nodeLink.wrangleData();
 
         updateSliderLabel();
     });
@@ -440,8 +440,8 @@ function main() {
 
     // Begin loading datafiles
     const promises = [
-        d3.json("static/data/candidate_overlap_links.json"),
-        d3.json("static/data/candidate_overlap_nodes.json"),
+        // d3.json("static/data/candidate_overlap_links.json"),
+        // d3.json("static/data/candidate_overlap_nodes.json"),
         // d3.json("static/data/states.geojson"),
         // d3.json("static/data/beeswarm_money_blocks.json"),
         // d3.json("static/data/state_summary_counts.json"),
@@ -468,18 +468,18 @@ function main() {
 
     Promise.all(promises).then(function(allData) {
 
-        overlapLinks = allData[0];
-        overlapNodes = allData[1];
+        // overlapLinks = allData[0];
+        // overlapNodes = allData[1];
 
         // stateMap = allData[2];
         // beeswarmMoneyBlocks = allData[3];
         // stateSummaryCounts = allData[4];
-        candidateMeta = allData[2];
+        candidateMeta = allData[0];
         candidateMeta
             .forEach(d => d.total_receipts = +d.total_receipts);
-        donorDemographics = allData[3];
-        nonDistrictDonorDemographics = allData[4];
-        candidateIdNames = allData[5];
+        donorDemographics = allData[1];
+        nonDistrictDonorDemographics = allData[2];
+        candidateIdNames = allData[3];
         // superPACblocks = allData[8];
 
         $(".loadring-container")
@@ -491,14 +491,14 @@ function main() {
         $(".downArrow")
             .css("visibility", "visible");
 
-        initSlider();
-        buildCandidateDropdowns();
+        // initSlider();
+        // buildCandidateDropdowns();
 
         // beeSwarm = new BeeSwarm("#beeswarm-area");
         bubblePlotDataset = donorDemographics;
         bubblePlot = new BubblePlot("#bubbleplot-area");
         bubblePlot.oneAxis("majority_white_zipcode_pct" , null);
-        nodeLink = new NodeLink("#nodelink-area");
+        // nodeLink = new NodeLink("#nodelink-area");
 
 
         // If user loads visualization in the middle of the page, run all activate functions that they should have passed
