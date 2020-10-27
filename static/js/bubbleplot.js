@@ -195,31 +195,7 @@ BubblePlot.prototype.updateVis = function() {
 
             exit => exit.remove()
         );
-
-
-    // vis.labelShadows = vis.plotLabelContainer.selectAll("text.shadow")
-    //     .data(vis.chartData, d => d.fec_id)
-    //     .join(
-    //         enter => enter.append("text")
-    //             .attr('x', d => vis.x(100*d.majority_white_zipcode_pct))
-    //             .attr('y', d => vis.y(100*d[vis.yAccessor]) + vis.radius(d.donor_count) + 10)
-    //             .attr("class", "shadow")
-    //             .attr("text-anchor", "middle")
-    //             .style("font-size", "10px")
-    //             .style("stroke", "white")
-    //             .style("stroke-width", "2.5px")
-    //             // .text(d => d.last_name),
-    //             .text(d => (d.donor_count > 150000 || d.last_name === "SLOTKIN") ? d.last_name : ""),
-    //
-    //         update => update
-    //             .call(update => update
-    //                 .transition("move-labels")
-    //                 .duration(1000)
-    //                     .attr('y', d => vis.y(100*d[vis.yAccessor]) + vis.radius(d.donor_count) + 10)),
-    //
-    //         exit => exit.remove()
-    //
-    //     )
+        
 
     vis.labelShadows = vis.plotLabelContainer.selectAll("text.shadow")
         .data(vis.chartData, d => d.fec_id)

@@ -158,7 +158,7 @@ strong {
     font-size: 10pt;
     padding-top: 40px;
     padding-bottom: 60px;
-    min-height: 100vh;
+    min-height: 60vh;
     font-family: "Helvetica Neue", helvetica, arial, sans-serif;
 }
 
@@ -194,7 +194,7 @@ strong {
     }
 
     .step {
-        min-width: 50vw;
+        min-width: 70vw;
         /*margin-top: 0px;*/
         /*margin-bottom: 0px;*/
         /*margin-left: 0px;*/
@@ -219,7 +219,7 @@ strong {
     }
 
     .step .body {
-        font-size: 16px;
+        font-size: 18px;
     }
 
     /*.step .title {*/
@@ -253,6 +253,14 @@ strong {
          font-size: 16pt;
      }
 
+     #intro-area h1 {
+        font-size: 55px;
+     }
+
+     #intro-area > p {
+        font-size: 24px;
+     }
+
      .footer {
          font-size: 16pt;
      }
@@ -265,7 +273,7 @@ strong {
         height: 0px;
     }
 
-     #intro-area > p, #nodelink-intro {
+     #nodelink-intro {
          font-size: 18px;
      }
 
