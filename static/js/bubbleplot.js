@@ -36,7 +36,7 @@ BubblePlot.prototype.initVis = function() {
 
     vis.radius = d3.scaleLinear()
         // .domain()
-        .range([5, 18]);
+        .range([5, 20]);
 
     // Use party color scale defined in main.js
 
@@ -112,6 +112,8 @@ BubblePlot.prototype.initVis = function() {
 
     console.log(vis.includedCandidates);
 
+    vis.labeledCandidates = ["BIDEN", "TRUMP", "SANDERS", "WARREN", "YANG", "OCASIO-CORTEZ", "OMAR", "KELLY", "MCCONNELL", "CORNYN", "MERKLEY", "MARKEY", "HARRISON", "GRAHAM", "MCGRATH", 
+    "BUTTIGIEG", "KLOBUCHAR", "OSSOFF", "STEYER", "HARRIS", "BOWMAN", "SLOTKIN", "CASTEN", "PELOSI", "COLLINS", "ERNST", "GABBARD", "CRENSHAW", "GIDEON"];
 
     vis.wrangleData();
 };
@@ -219,6 +221,34 @@ BubblePlot.prototype.updateVis = function() {
     //
     //     )
 
+    vis.labelShadows = vis.plotLabelContainer.selectAll("text.shadow")
+        .data(vis.chartData, d => d.fec_id)
+        .join(
+            enter => enter.append("text")
+                .attr('x', d => vis.x(100*d.majority_white_zipcode_pct))
+                .attr('y', d => vis.y(100*d[vis.yAccessor]) + vis.radius(d.donor_count) + 10)
+                .attr("text-anchor", "middle")
+                .attr("class", "shadow")
+                .style("font-size", "11px")
+                .style("stroke-width", "3px")
+                .style("stroke", "white")
+                .style("opacity", 1.0)
+                .text(d => vis.labeledCandidates.includes(d.last_name) ? d.last_name : ""),
+                // .text(d => d.last_name),
+                // .text(d => (d.donor_count > 500000 || d.last_name === "MERKLEY" ||
+                    // d.last_name === "CORNYN" || d.last_name === "MARKEY") ? d.last_name : ""),
+
+            update => update
+                .style("opacity", 1.0)
+                .call(update => update
+                    .transition("move-labels")
+                    .duration(1000)
+                        .attr('x', d => vis.x(100*d.majority_white_zipcode_pct))
+                        .attr('y', d => vis.y(100*d[vis.yAccessor]) + vis.radius(d.donor_count) + 10)),
+
+            exit => exit.remove()
+        );
+
     vis.plotLabels = vis.plotLabelContainer.selectAll("text.label")
         .data(vis.chartData, d => d.fec_id)
         .join(
@@ -227,12 +257,13 @@ BubblePlot.prototype.updateVis = function() {
                 .attr('y', d => vis.y(100*d[vis.yAccessor]) + vis.radius(d.donor_count) + 10)
                 .attr("text-anchor", "middle")
                 .attr("class", "label")
-                .style("font-size", "10px")
+                .style("font-size", "11px")
                 .style("stroke-width", "2px")
                 .style("opacity", 1.0)
+                .text(d => vis.labeledCandidates.includes(d.last_name) ? d.last_name : ""),
                 // .text(d => d.last_name),
-                .text(d => (d.donor_count > 150000 || d.last_name === "SLOTKIN" || d.last_name === "MERKLEY" ||
-                    d.last_name === "CORNYN" || d.last_name === "MARKEY") ? d.last_name : ""),
+                // .text(d => (d.donor_count > 500000 || d.last_name === "MERKLEY" ||
+                    // d.last_name === "CORNYN" || d.last_name === "MARKEY") ? d.last_name : ""),
 
             update => update
                 .style("opacity", 1.0)
@@ -295,6 +326,11 @@ BubblePlot.prototype.highlightParty = function(partyGroup) {
         .duration(500)
         .style('opacity', d => partyGroup.includes(d.party) ? 1.0 : 0.25);
 
+    vis.labelShadows
+        .transition("label-shadow-party-highlight")
+        .duration(500)
+        .style('opacity', d => partyGroup.includes(d.party) ? 1.0 : 0.25);
+
 };
 
 BubblePlot.prototype.highlightCandidates = function(candidateGroup) {
@@ -310,18 +346,28 @@ BubblePlot.prototype.highlightCandidates = function(candidateGroup) {
         .duration(500)
         .style('opacity', d => candidateGroup.includes(d.last_name) ? 1.0 : 0);
 
+    vis.labelShadows
+        .transition("label-shadow-candidate-highlight")
+        .duration(500)
+        .style('opacity', d => candidateGroup.includes(d.last_name) ? 1.0 : 0);
+
 };
 
 BubblePlot.prototype.resetHighlighting = function() {
     const vis = this;
 
     vis.circles
-        .transition("reset-highlighting")
+        .transition()
         .duration(500)
         .style('opacity', vis.defaultBubbleOpacity);
 
     vis.plotLabels
-        .transition("reset-highlighting")
+        .transition()
+        .duration(500)
+        .style('opacity', 1.0)
+
+    vis.labelShadows
+        .transition()
         .duration(500)
         .style('opacity', 1.0)
 
@@ -363,6 +409,10 @@ BubblePlot.prototype.oneAxis = function(xVar, yVar) {
     }
 
     vis.plotLabels
+        .attr('opacity', 0.0)
+        .style('opacity', 0.0);
+
+    vis.labelShadows
         .attr('opacity', 0.0)
         .style('opacity', 0.0);
 

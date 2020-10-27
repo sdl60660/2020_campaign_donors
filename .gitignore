@@ -12,6 +12,7 @@ data_processing/processed_data
 data_processing/candidate_data
 data_processing/table_exports
 data_processing/db_outputs
+data_processing/virtual_env
 data_processing/**/*.csv
 
 retired_code

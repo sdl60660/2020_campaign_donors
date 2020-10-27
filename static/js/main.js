@@ -345,18 +345,23 @@ function setActivateFunctions() {
 
     };
     activateFunctions[1] = () => {
+        // if (scrollDirection === "up") {
+        //     bubblePlot.oneAxis("majority_white_zipcode_pct", null);
+        // }
+    };
+    activateFunctions[2] = () => {
         if (scrollDirection === "up") {
             bubblePlot.oneAxis("majority_white_zipcode_pct", null);
         }
     };
-    activateFunctions[2] = () => {
+    activateFunctions[3] = () => {
         if (scrollDirection === "up") {
             bubblePlot.plotLabelContainer.selectAll('text.label').remove();
         }
 
         bubblePlot.oneAxis(null, "high_bachelors_zipcode_pct");
     };
-    activateFunctions[3] = () => {
+    activateFunctions[4] = () => {
         bubblePlot.simulation.stop();
 
         bubblePlot.xAxis
@@ -375,26 +380,26 @@ function setActivateFunctions() {
         bubblePlot.wrangleData();
 
     };
-    activateFunctions[4] = () => {
+    activateFunctions[5] = () => {
         bubblePlot.highlightParty(['REP']);
     };
-    activateFunctions[5] = () => {
+    activateFunctions[6] = () => {
         bubblePlot.highlightParty(['DEM', 'DFL']);
     };
-    activateFunctions[6] = () => {
+    activateFunctions[7] = () => {
         bubblePlot.highlightCandidates(['SANDERS', 'KLOBUCHAR']);
         // bubblePlot.highlightCandidates(['OCASIO-CORTEZ', 'OMAR', 'PRESSLEY', 'TLAIB', 'BUSH', 'BOWMAN']);
     };
-    activateFunctions[7] = () => {
+    activateFunctions[8] = () => {
         // bubblePlot.highlightCandidates(['SANDERS', 'KLOBUCHAR']);
 
         if (scrollDirection === "up") {
             bubblePlotDataset = donorDemographics;
             bubblePlot.wrangleData();
         }
-        bubblePlot.highlightCandidates(['OCASIO-CORTEZ', 'OMAR', 'PRESSLEY', 'TLAIB', 'BUSH', 'BOWMAN']);
+        bubblePlot.highlightCandidates(['OCASIO-CORTEZ', 'OMAR', 'PRESSLEY', 'TLAIB', 'BUSH', 'BOWMAN', 'KHANNA']);
     };
-    activateFunctions[8] = () => {
+    activateFunctions[9] = () => {
         // bubblePlot.highlightCandidates(['SANDERS', 'KLOBUCHAR']);
         bubblePlot.resetHighlighting();
         bubblePlotDataset = nonDistrictDonorDemographics;
@@ -402,7 +407,7 @@ function setActivateFunctions() {
         bubblePlot.yVariable = 'education';
         bubblePlot.wrangleData();
     };
-    activateFunctions[9] = () => {
+    activateFunctions[10] = () => {
         bubblePlot.resetHighlighting();
         bubblePlot.yVariable = 'income';
         bubblePlot.wrangleData();

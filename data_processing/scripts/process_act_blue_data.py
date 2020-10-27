@@ -66,14 +66,26 @@ def process_row(raw_row, ccl_dict):
 		donor_zip_extension = ''
 		print(raw_row['state'], raw_row['city'])
 
+
+	if 'employer' in raw_row.keys():
+		employer = raw_row['employer']
+	else:
+		employer = ''
+
+	if 'occupation' in raw_row.keys():
+		occupation = raw_row['occupation']
+	else:
+		occupation = ''
+
+
 	donor_data = {
 		'first_name': raw_row['first_name'],
 		'last_name': raw_row['last_name'], 
 		'zipcode': donor_zip,
 		'state': raw_row['state'],
 		'city': raw_row['city'],
-		'employer': raw_row['employer'],
-		'occupation': raw_row['occupation'],
+		'employer': employer,
+		'occupation': occupation,
 		'zip_extension': donor_zip_extension, 
 		'donor_key': '{}~{}~{}'.format(raw_row['first_name'], raw_row['last_name'], donor_zip)
 		}
