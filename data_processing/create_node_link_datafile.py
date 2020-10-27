@@ -1,4 +1,5 @@
 import json
+import csv
 import pandas as pd
 import math
 import os
@@ -80,11 +81,19 @@ for node in nodes:
             })
 
 
-with open('../static/data/candidate_overlap_nodes.json', 'w') as f:
-    json.dump(nodes, f)
+with open('../static/data/candidate_overlap_nodes.csv', 'w') as f:
+    out_csv = csv.DictWriter(f, fieldnames=list(nodes[0].keys()))
+    out_csv.writeheader()
+    for row in nodes:
+        out_csv.writerow(row)
+    # json.dump(nodes, f)
 
-with open('../static/data/candidate_overlap_links.json', 'w') as f:
-    json.dump(links, f)
+with open('../static/data/candidate_overlap_links.csv', 'w') as f:
+    out_csv = csv.DictWriter(f, fieldnames=list(links[0].keys()))
+    out_csv.writeheader()
+    for row in links:
+        out_csv.writerow(row)
+    # json.dump(links, f)
 
 with open('../static/data/candidate_id_name_lookup.json', 'w') as f:
     json.dump(candidate_ids, f)
