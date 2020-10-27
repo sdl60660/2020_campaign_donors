@@ -430,7 +430,7 @@ function setTileWrapperHeights() {
     //     .css("height", beeswarmWrapperHeight);
 
 
-    const bubblePlotWrapperHeight = scrollerDivObjects[10].getBoundingClientRect().bottom - scrollerDivObjects[0].getBoundingClientRect().top;
+    const bubblePlotWrapperHeight = scrollerDivObjects[11].getBoundingClientRect().bottom - scrollerDivObjects[0].getBoundingClientRect().top;
     $("#bubbleplot-wrapper")
         .css("height", bubblePlotWrapperHeight);
 
