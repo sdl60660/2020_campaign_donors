@@ -333,17 +333,17 @@ BubblePlot.prototype.resetHighlighting = function() {
     const vis = this;
 
     vis.circles
-        .transition()
+        .transition("reset-circles")
         .duration(500)
         .style('opacity', vis.defaultBubbleOpacity);
 
     vis.plotLabels
-        .transition()
+        .transition("reset-labels")
         .duration(500)
         .style('opacity', 1.0)
 
     vis.labelShadows
-        .transition()
+        .transition("reset-shadows")
         .duration(500)
         .style('opacity', 1.0)
 
@@ -385,10 +385,12 @@ BubblePlot.prototype.oneAxis = function(xVar, yVar) {
     }
 
     vis.plotLabels
+        .transition("fade-labels")
         .attr('opacity', 0.0)
         .style('opacity', 0.0);
 
     vis.labelShadows
+        .transition("fade-shadows")
         .attr('opacity', 0.0)
         .style('opacity', 0.0);
 
