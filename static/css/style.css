@@ -19,10 +19,12 @@ body {
 
 #intro-area > p, .step, #nodelink-intro {
     font-family: 'Lora', 'Merriweather', 'Playfair Display', "Helvetica Neue";
+    font-size: 16px;
 }
 
 h1 {
     font-family: 'Roboto';
+    font-size: 45px;
 }
 
 .spacer {
@@ -298,19 +300,19 @@ strong {
 .d3-tip {
     min-width: 220px;
     max-width: 480px;
-	background-color: white;
-	color: black;
-	border-radius: 5px;
-	border: 1px solid black;
-	z-index: 100;
+  	background-color: white;
+  	color: black;
+  	border-radius: 5px;
+  	border: 1px solid black;
+  	z-index: 100;
     padding: 12px;
     line-height: 1;
 }
 
 .icon-img {
-	height: 13px;
-	width: 13px;
-	margin-bottom: 2px;
+    height: 13px;
+    width: 13px;
+    margin-bottom: 2px;
 }
 
 .candidate-bubble-images {
