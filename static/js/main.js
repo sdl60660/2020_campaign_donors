@@ -369,10 +369,10 @@ function setActivateFunctions() {
             .attr("transform", "translate(0," + bubblePlot.height + ")");
         bubblePlot.xAxisLabel
             .style('opacity', 1.0)
-            .attr("transform", `translate(${bubblePlot.width / 2}, ${bubblePlot.height + 38})`);
+            .attr("transform", `translate(${bubblePlot.width / 2}, ${bubblePlot.height + 52})`);
         bubblePlot.xAxisTip
             .style('opacity', 1.0)
-            .attr("transform", `translate(${bubblePlot.width}, ${bubblePlot.height - 15})`);
+            .attr("transform", `translate(${bubblePlot.width}, ${bubblePlot.height - 18})`);
 
         if (scrollDirection === "up") {
             bubblePlot.resetHighlighting();

@@ -3,7 +3,7 @@
     /*--spacer-top: 330px;*/
     /*--spacer-bottom: 370px;*/
     --spacer-mobile: 100vh;
-    --annotation-width: 300px;
+    --annotation-width: 340px;
 }
 
 
@@ -17,7 +17,7 @@ body {
 	background-color: #f9f9f9;
 }
 
-#intro-area > p, .step, #nodelink-intro {
+#intro-tile > p, .step, #nodelink-intro {
     font-family: 'Lora', 'Merriweather', 'Playfair Display', "Helvetica Neue";
     font-size: 16px;
 }
@@ -25,6 +25,7 @@ body {
 h1 {
     font-family: 'Roboto';
     font-size: 45px;
+    text-align: center;
 }
 
 .spacer {
@@ -50,16 +51,16 @@ strong {
 
 .viz-tile {
 	position: sticky;
-    top: 40px;
-    right: 0;
-    left: 0;
-    margin-right: auto !important;
-    margin-left: auto !important;
-    /*left: 50%;*/
-    /*transform: translate(-50%, -50%);*/
-	margin-top: 20px;
-    /*margin-bottom: 40px;*/
-	/*margin-right: 15px;*/
+  top: 40px;
+  right: 0;
+  left: 0;
+  margin-right: auto !important;
+  margin-left: auto !important;
+  /*left: 50%;*/
+  /*transform: translate(-50%, -50%);*/
+   margin-top: 20px;
+  /*margin-bottom: 40px;*/
+  /*margin-right: 15px;*/
 }
 
 #nodelink-tile {
@@ -71,10 +72,7 @@ strong {
 }
 
 #intro-tile {
-    position: absolute;
-    left: 50%;
-    transform: translate(-50%, 0%);
-    margin: auto;
+    margin: 30px auto 0 auto;
 }
 
 #beeswarm-tile {
@@ -86,33 +84,45 @@ strong {
 #sections {
 	position: absolute;
 	display: inline-block;
-	width: var(--annotation-width);
-	top: 0px;
-    left: 50%;
-    text-align: center;
+	/*max-width: var(--annotation-width);
+  min-width: 150px;
+  width: 70%;
+	top: 0px;*/
+  /*left: 50%;*/
+
+  width: 100%;
+
+  text-align: center;
 }
+
+
 
 /*p {*/
     /*font-size: 16px;*/
 /*}*/
 
 .step {
-	margin-top: 100vh;
-	/*margin-bottom: var(--spacer-bottom);*/
-	/*margin-left: 10px;*/
-    transform: translateX(-50%);
+  /*margin-top: 100vh;*/
+  /*margin-bottom: var(--spacer-bottom);*/
+  /*margin-left: 10px;*/
+  /*transform: translateX(-50%);*/
 
-    position: relative;
+  margin: 100vh auto 0 auto;
 
-    min-width: 320px;
-	min-height: 150px;
-	border-radius: 15px;
-    opacity: 0.94;
+  position: relative;
 
-    z-index: 50;
+  min-width: 150px;
+  width: 80%;
+  max-width: var(--annotation-width);
 
-    background-color: white;
-    overflow: hidden;
+  min-height: 150px;
+  border-radius: 15px;
+  opacity: 0.94;
+
+  z-index: 50;
+
+  background-color: white;
+  overflow: hidden;
 }
 
 
@@ -157,14 +167,14 @@ strong {
 
 
 .footer {
-    font-size: 10pt;
+    font-size: 12px;
     padding-top: 40px;
     padding-bottom: 60px;
     min-height: 60vh;
     font-family: "Helvetica Neue", helvetica, arial, sans-serif;
 }
 
-#intro-area h2 {
+#intro-tile h2 {
     line-height: 1.25;
     font-size: 24pt;
 }
@@ -207,60 +217,35 @@ strong {
   text-decoration: none;
 }
 
-@media (max-width: 1100px) {
-    /*#sections {*/
-        /*width: 0px;*/
-        /*top: 0;*/
-        /*left: 50;*/
-        /*z-index: 50;*/
-    /*}*/
+ .axis-label {
+     font-size: 20px;
+ }
 
+ .axis-tip {
+     font-size: 16px;
+ }
+
+ .tick text {
+    font-size: 16px;
+ }
+
+@media (max-width: 1100px) {
     #nodelink-tile {
         max-width: 98vw;
     }
 
     .step {
         min-width: 70vw;
-        /*margin-top: 0px;*/
-        /*margin-bottom: 0px;*/
-        /*margin-left: 0px;*/
+    }
 
-        /*min-height: 150px;*/
-        /*padding-bottom: 10px;*/
-        /*border-radius: 15px;*/
-
-        /*width: 100%;*/
-
-        /*font-size: 15pt;*/
-
-        /*position: fixed;*/
-        /*left: 50;*/
-        /*top: 0;*/
-
-        /*opacity: 0.0;*/
-
-        /*z-index: 80;*/
-
-        /*overflow: hidden;*/
+    .downArrow {
+      display: none;
     }
 
     .step .body {
-        font-size: 18px;
+        font-size: 14px !important;
     }
 
-    /*.step .title {*/
-        /*text-align: center;*/
-        /*font-weight: bolder;*/
-        /*background-color: rgba(28, 148, 196, 0.25);*/
-        /*!*border-radius: 3px;*!*/
-
-        /*padding-top: 6px;*/
-        /*padding-bottom: 6px;*/
-    /*}*/
-
-    /*.mobile-spacer {*/
-        /*height: 100vh;*/
-    /*}*/
 
     .viz-tile {
         padding-top: 150px;
@@ -268,7 +253,6 @@ strong {
 
     .container {
         width: 95% !important;
-        padding-right: 25px !important;
     }
 
     h2 {
@@ -276,23 +260,23 @@ strong {
     }
 
      #intro-text-block, #end-text-block {
-         font-size: 16pt;
+         font-size: 16px;
      }
 
-     #intro-area h1 {
-        font-size: 55px;
+     #intro-tile h1 {
+        font-size: 32px;
      }
 
-     #intro-area > p {
-        font-size: 24px;
+     #intro-tile > p {
+        font-size: 16px;
      }
 
      .footer {
-         font-size: 16pt;
+         font-size: 12px;
      }
 
      .tip-text {
-         font-size: 12pt;
+         font-size: 14px;
      }
 
      .spacer {
@@ -304,11 +288,15 @@ strong {
      }
 
      .axis-label {
-         font-size: 18px;
+         font-size: 24px;
      }
 
      .axis-tip {
-         font-size: 14px;
+         font-size: 18px;
+     }
+
+     .tick text {
+        font-size: 18px;
      }
 }
 
@@ -439,11 +427,11 @@ table td {
 	position: absolute;
 	bottom: 8%;
 	left: 50%;
-    z-index: 80;
+  z-index: 80;
 
-    /*transform: translate(-50%, 0%);*/
+  /*transform: translate(-50%, 0%);*/
 
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .bounce {

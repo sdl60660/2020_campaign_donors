@@ -9,7 +9,7 @@ BubblePlot = function(_parentElement) {
 BubblePlot.prototype.initVis = function() {
     const vis = this;
 
-    vis.margin = {top: 50, right: 10, bottom: 60, left: 60};
+    vis.margin = {top: 50, right: 14, bottom: 60, left: 60};
 
     // Set height/width of viewBox
     vis.width = 900 - vis.margin.left - vis.margin.right;
@@ -50,26 +50,26 @@ BubblePlot.prototype.initVis = function() {
 
 
     vis.xAxisLabel = vis.g.append("text")
-        .attr("transform", `translate(${vis.width / 2}, ${vis.height + 38})`)
+        .attr("transform", `translate(${vis.width / 2}, ${(vis.height + 52)})`)
         .attr("text-anchor", "middle")
         .attr("class", "axis-label")
-        .style("font-size", "18px")
+        // .style("font-size", "18px")
         .text("Majority-White Zipcodes (%)");
 
     vis.xAxisTip = vis.g.append("text")
-        .attr("transform", `translate(${vis.width}, ${vis.height - 15})`)
+        .attr("transform", `translate(${vis.width}, ${vis.height - 18})`)
         .attr("text-anchor", "end")
         .attr("class", "axis-tip")
-        .style("font-size", "14px")
+        // .style("font-size", "14px")
         .text("More Donors From Majority-White Zipcodes ⟶");
 
     vis.yAxisLabel = vis.g.append("text")
         .attr("transform", `rotate(-90)`)
         .attr("text-anchor", "middle")
         .attr("class", "axis-label")
-        .style("font-size", "18px")
+        // .style("font-size", "18px")
         .attr("x", -vis.height / 2)
-        .attr("y", -35)
+        .attr("y", -42)
         .text("High-Income Zipcodes (%)");
 
     vis.yAxisTip = vis.g.append("text")
@@ -78,7 +78,7 @@ BubblePlot.prototype.initVis = function() {
         .attr('y', 30)
         .attr("text-anchor", "end")
         .attr("class", "axis-tip")
-        .style("font-size", "14px")
+        // .style("font-size", "14px")
         .text("More Donors From High-Income Zipcodes ⟶");
 
 
@@ -205,7 +205,7 @@ BubblePlot.prototype.updateVis = function() {
                 .attr('y', d => vis.y(100*d[vis.yAccessor]) + vis.radius(d.donor_count) + 10)
                 .attr("text-anchor", "middle")
                 .attr("class", "shadow")
-                .style("font-size", "11px")
+                .style("font-size", "12px")
                 .style("stroke-width", "3px")
                 .style("stroke", "white")
                 .style("opacity", 1.0)
@@ -233,7 +233,7 @@ BubblePlot.prototype.updateVis = function() {
                 .attr('y', d => vis.y(100*d[vis.yAccessor]) + vis.radius(d.donor_count) + 10)
                 .attr("text-anchor", "middle")
                 .attr("class", "label")
-                .style("font-size", "11px")
+                .style("font-size", "12px")
                 .style("stroke-width", "2px")
                 .style("opacity", 1.0)
                 .text(d => vis.labeledCandidates.includes(d.last_name) ? d.last_name : ""),
@@ -365,10 +365,10 @@ BubblePlot.prototype.oneAxis = function(xVar, yVar) {
             .attr("transform", "translate(0," + 0.7*vis.height + ")");
         vis.xAxisLabel
             .style('opacity', 1.0)
-            .attr("transform", `translate(${vis.width / 2}, ${0.7*vis.height + 38})`);
+            .attr("transform", `translate(${vis.width / 2}, ${(0.7*vis.height + 52)})`);
         vis.xAxisTip
             .style('opacity', 1.0)
-            .attr("transform", `translate(${vis.width}, ${0.7*vis.height - 15})`);
+            .attr("transform", `translate(${vis.width}, ${0.7*vis.height - 18})`);
     }
 
     if (yVar === null) {
