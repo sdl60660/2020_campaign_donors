@@ -95,8 +95,8 @@ BubblePlot.prototype.initVis = function() {
 
             tiptext += '<span style="float:left">Donors From Zipcodes That Are...</span><br><br>';
             tiptext += `<span style="float:left">Majority-White:</span><span style="float:right; padding-left: 3px;">${d3.format(".1%")(d.majority_white_zipcode_pct)}</span><br>`;
-            tiptext += `<span style="float:left">High-Income (Top 25%):</span><span style="float:right; padding-left: 3px;">${d3.format(".1%")(d.high_income_zipcode_pct)}</span><br>`;
-            tiptext += `<span style="float:left">High Bachelors Attainment (Top 25%):</span><span style="float:right; padding-left: 3px;">${d3.format(".1%")(d.high_bachelors_zipcode_pct)}</span><br>`;
+            tiptext += `<span style="float:left">High-Income:</span><span style="float:right; padding-left: 3px;">${d3.format(".1%")(d.high_income_zipcode_pct)}</span><br>`;
+            tiptext += `<span style="float:left">High Bachelors Attainment:</span><span style="float:right; padding-left: 3px;">${d3.format(".1%")(d.high_bachelors_zipcode_pct)}</span><br>`;
 
             tiptext += '</div>';
 

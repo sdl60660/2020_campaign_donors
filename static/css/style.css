@@ -52,17 +52,17 @@ strong {
 }
 
 .viz-tile {
-	position: sticky;
-  top: 40px;
-  right: 0;
-  left: 0;
-  margin-right: auto !important;
-  margin-left: auto !important;
-  /*left: 50%;*/
-  /*transform: translate(-50%, -50%);*/
-   margin-top: 20px;
-  /*margin-bottom: 40px;*/
-  /*margin-right: 15px;*/
+    position: sticky;
+    top: 40px;
+    right: 0;
+    left: 0;
+    margin-right: auto !important;
+    margin-left: auto !important;
+    /*left: 50%;*/
+    /*transform: translate(-50%, -50%);*/
+    margin-top: 20px;
+    /*margin-bottom: 40px;*/
+    /*margin-right: 15px;*/
 }
 
 #nodelink-tile {
@@ -84,17 +84,17 @@ strong {
 
 
 #sections {
-	position: absolute;
-	display: inline-block;
-	/*max-width: var(--annotation-width);
-  min-width: 150px;
-  width: 70%;
-	top: 0px;*/
-  /*left: 50%;*/
+    position: absolute;
+    display: inline-block;
+    /*max-width: var(--annotation-width);
+    min-width: 150px;
+    width: 70%;
+    top: 0px;*/
+    /*left: 50%;*/
 
-  width: 100%;
+    width: 100%;
 
-  text-align: center;
+    text-align: center;
 }
 
 
@@ -104,27 +104,27 @@ strong {
 /*}*/
 
 .step {
-  /*margin-top: 100vh;*/
-  /*margin-bottom: var(--spacer-bottom);*/
-  /*margin-left: 10px;*/
-  /*transform: translateX(-50%);*/
+    /*margin-top: 100vh;*/
+    /*margin-bottom: var(--spacer-bottom);*/
+    /*margin-left: 10px;*/
+    /*transform: translateX(-50%);*/
 
-  margin: 100vh auto 0 auto;
+    margin: 100vh auto 0 auto;
 
-  position: relative;
+    position: relative;
 
-  min-width: 150px;
-  width: 80%;
-  max-width: var(--annotation-width);
+    min-width: 150px;
+    width: 80%;
+    max-width: var(--annotation-width);
 
-  min-height: 150px;
-  border-radius: 15px;
-  opacity: 0.94;
+    min-height: 150px;
+    border-radius: 15px;
+    opacity: 0.94;
 
-  z-index: 50;
+    z-index: 50;
 
-  background-color: white;
-  overflow: hidden;
+    background-color: white;
+    overflow: hidden;
 }
 
 
@@ -149,17 +149,17 @@ strong {
 }
 
 .step .body {
-	margin-top: 10px;
-	font-size: 14px;
+    margin-top: 10px;
+    font-size: 14px;
 
-  padding-top: 10px;
+    padding-top: 10px;
 
-	padding-left: 15px;
-  padding-right: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
 
-  padding-bottom: 10px;
+    padding-bottom: 10px;
 
-  text-align: left;
+    text-align: left;
 }
 
 
@@ -195,43 +195,59 @@ strong {
 }
 
 .header {
-  background-color: #f1f1f1;
-  height: 10vh;
-  max-height: 70px;
-  min-height: 45px;
-  display: flex;
+    background-color: #f1f1f1;
+    height: 10vh;
+    max-height: 70px;
+    min-height: 45px;
+    display: flex;
 }
 
 .header .main-site-link {
-  align-self: center;
-  margin-right: 3vw;
-  position: absolute;
-  right: 0vw;
+    align-self: center;
+    margin-right: 3vw;
+    position: absolute;
+    right: 0vw;
 
 }
 
 .header .main-site-link button {
-  background-color: rgba(48, 112, 196, 0.8);
-  color: white;
-  padding: 0.6rem;
-  border-radius: 3px;
-  font-size: 1.5rem;
-  text-decoration: none;
+    background-color: rgba(48, 112, 196, 0.8);
+    color: white;
+    padding: 0.6rem;
+    border-radius: 3px;
+    font-size: 1.5rem;
+    text-decoration: none;
 }
 
- .axis-label {
-     font-size: 20px;
- }
+.axis-label {
+   font-size: 20px;
+}
 
- .axis-tip {
-     font-size: 16px;
- }
+.axis-tip {
+   font-size: 16px;
+}
 
- .tick text {
+.tick text {
     font-size: 16px;
- }
+}
+
+.d3-tip {
+    min-width: 220px;
+    max-width: 480px;
+    background-color: white;
+    color: black;
+    border-radius: 5px;
+    border: 1px solid black;
+    z-index: 100;
+    padding: 12px;
+    line-height: 1;
+}
 
 @media (max-width: 1100px) {
+    .d3-tip {
+        font-size: 11px;
+    }
+
     #nodelink-tile {
         max-width: 98vw;
     }
@@ -241,7 +257,7 @@ strong {
     }
 
     .downArrow {
-      display: none;
+        display: none;
     }
 
     .step .body {
@@ -288,15 +304,15 @@ strong {
     }
 
      #nodelink-intro {
-         font-size: 18px;
+        font-size: 18px;
      }
 
      .axis-label {
-         font-size: 24px;
+        font-size: 24px;
      }
 
      .axis-tip {
-         font-size: 18px;
+        font-size: 18px;
      }
 
      .tick text {
@@ -310,19 +326,6 @@ strong {
     margin: unset;
     /*margin: 0;*/
     /*width: 80%;*/
-}
-
-
-.d3-tip {
-    min-width: 220px;
-    max-width: 480px;
-  	background-color: white;
-  	color: black;
-  	border-radius: 5px;
-  	border: 1px solid black;
-  	z-index: 100;
-    padding: 12px;
-    line-height: 1;
 }
 
 .icon-img {
@@ -431,11 +434,11 @@ table td {
 	position: absolute;
 	bottom: 8%;
 	left: 50%;
-  z-index: 80;
+    z-index: 80;
 
-  /*transform: translate(-50%, 0%);*/
+    /*transform: translate(-50%, 0%);*/
 
-  cursor: pointer;
+    cursor: pointer;
 }
 
 .bounce {
@@ -496,31 +499,31 @@ table td {
 /*Load Spinner*/
 
 .lds-ring {
-  display: inline-block;
-  position: relative;
-  width: 120px;
-  height: 120px;
+    display: inline-block;
+    position: relative;
+    width: 120px;
+    height: 120px;
 }
 .lds-ring div {
-  box-sizing: border-box;
-  display: block;
-  position: absolute;
-  width: 120px;
-  height: 120px;
-  margin: 9px;
-  border: 9px solid #444;
-  border-radius: 50%;
-  animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-  border-color: #444 transparent transparent transparent;
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    margin: 9px;
+    border: 9px solid #444;
+    border-radius: 50%;
+    animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    border-color: #444 transparent transparent transparent;
 }
 .lds-ring div:nth-child(1) {
-  animation-delay: -0.45s;
+    animation-delay: -0.45s;
 }
 .lds-ring div:nth-child(2) {
-  animation-delay: -0.3s;
+    animation-delay: -0.3s;
 }
 .lds-ring div:nth-child(3) {
-  animation-delay: -0.15s;
+    animation-delay: -0.15s;
 }
 @keyframes lds-ring {
   0% {
