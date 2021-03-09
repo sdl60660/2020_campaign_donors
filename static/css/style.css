@@ -233,19 +233,27 @@ strong {
 
 .d3-tip {
     min-width: 220px;
-    max-width: 480px;
+    /*max-width: 480px;*/
     background-color: white;
     color: black;
     border-radius: 5px;
     border: 1px solid black;
     z-index: 100;
-    padding: 12px;
+    padding: 1.5rem 2.5rem;
     line-height: 1;
+}
+
+.hover-circle {
+    cursor: crosshair;
 }
 
 @media (max-width: 1100px) {
     .d3-tip {
-        font-size: 11px;
+        font-size: 14px;
+        border-radius: unset;
+        border: unset;
+        border-top: 1px solid gray;
+        max-width: unset;
     }
 
     #nodelink-tile {
@@ -317,6 +325,10 @@ strong {
 
      .tick text {
         font-size: 18px;
+     }
+
+     #bubbleplot-area {
+        padding: unset;
      }
 }
 

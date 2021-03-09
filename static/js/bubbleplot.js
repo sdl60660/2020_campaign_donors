@@ -9,7 +9,7 @@ BubblePlot = function(_parentElement) {
 BubblePlot.prototype.initVis = function() {
     const vis = this;
 
-    vis.margin = {top: 50, right: 14, bottom: 60, left: 60};
+    vis.margin = {top: 50, right: 18, bottom: 60, left: 65};
 
     // Set height/width of viewBox
     vis.width = 900 - vis.margin.left - vis.margin.right;
@@ -103,6 +103,8 @@ BubblePlot.prototype.initVis = function() {
            return tiptext;
         });
     vis.svg.call(vis.tip);
+
+    $(window).scroll(() => vis.tip.hide());
 
     vis.yVariable = 'education';
 
@@ -257,25 +259,53 @@ BubblePlot.prototype.updateVis = function() {
         .data(vis.chartData, d => d.fec_id)
         .join(
             enter => enter.append("circle")
+                .attr("class", "hover-circle")
                 .attr('cx', d => vis.x(100*d.majority_white_zipcode_pct))
                 .attr('cy', d => vis.y(100*d[vis.yAccessor]))
                 .attr('r', d => vis.radius(d.donor_count))
                 .style('opacity', 0.0)
-                .on('mouseover', (d,i,n) => {
+                .on('mouseenter', (d,i,n) => {
                     vis.tip.show(d);
-                    let highlightTip = $(".bubbleplot-tip");
-
-                    // Get screen coordinates of the corresponding plot bubble
-                    let bubbleY = n[i].getBoundingClientRect().y;
-
-                    // Get the height of the tooltip to offset
-                    let tooltipHeight = highlightTip[0].getBoundingClientRect().height;
+                    let highlightTip = d3.select(".bubbleplot-tip");
 
                     highlightTip
-                        .css("position", "fixed")
-                        .css("top", bubbleY - tooltipHeight);
+                        .style('position', 'fixed')
+
+                    if (phoneBrowsing) {
+                        highlightTip
+                            .style('width', '100vw')
+                            .style('left', 0)
+                            .style('top', 'unset')
+                            .style('bottom', 0)
+                    }
+                    else {
+                        // Get the dimensions of the tooltip to offset
+                        const tooltipDimensions = highlightTip.node().getBoundingClientRect();
+                        const tooltipHeight = tooltipDimensions.height;
+                        const tooltipWidth = tooltipDimensions.width;
+
+                        highlightTip
+                            .style("top", `${d3.event.clientY - tooltipHeight - 12}px`)
+                            .style("left", `${d3.event.clientX - (tooltipWidth / 2)}px`);
+                    }
+                    
                 })
-                .on('mouseout', vis.tip.hide),
+                .on('mousemove', function(d,i,n) {
+                    if (!phoneBrowsing) {
+                        let highlightTip = d3.select(".bubbleplot-tip");
+
+                        // Get the dimensions of the tooltip to offset
+                        const tooltipDimensions = highlightTip.node().getBoundingClientRect();
+                        const tooltipHeight = tooltipDimensions.height;
+                        const tooltipWidth = tooltipDimensions.width;
+
+                        highlightTip
+                            .style("top", `${d3.event.clientY - tooltipHeight - 12}px`)
+                            .style("left", `${d3.event.clientX - (tooltipWidth / 2)}px`);
+                    }
+
+                })
+                .on('mouseleave', vis.tip.hide),
 
             update => update
                 .call(update => update
